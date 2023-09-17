@@ -1,0 +1,9 @@
+test.*
+*.test
+*.exe
+*.zip
+*.tar.gz
+.vscode
+ignore.*
+*.ignore
+ignore
