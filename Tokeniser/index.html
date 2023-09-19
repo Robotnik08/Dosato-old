@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            font-family: monospace;
+            overflow-x: hidden;
+        }
+        /* Create a flex container to arrange elements horizontally */
+        .container {
+            display: flex;
+            align-items: center; /* Center vertically */
+            height: 80%;
+            width: 100%;
+            padding: 10px;
+        }
+
+        /* Style the elements */
+        h1 {
+            margin: 10px; /* Add some spacing between elements */
+        }
+
+        textarea {
+            flex-grow: 1; /* Allow the textarea to expand and fill available space */
+            resize: none; /* Prevent the textarea from being resized */
+            width: 100%;
+            height: 100%;
+        }
+
+        #outputDiv {
+            text-align: left;
+            border: 1px solid #ccc; /* Add a border to the output div */
+            background-color: #f0f0f0;
+            padding: 0 10px 0 10px; /* Add some padding to the output div */
+            width: 100%;
+            height: 100%;
+        }
+        .master {
+            background-color:lightgreen;
+        }
+        .string {
+            background-color:darkgoldenrod;
+        }
+        .separator {
+            background-color:lightblue;
+        }
+        .var_type {
+            background-color:red;
+        }
+        .general {
+            background-color: yellow;
+        }
+        .empty {
+            background-color:lightgray;
+        }
+    </style>
+    <title>Tokaniser</title>
+</head>
+<body>
+    <h1>Tokeniser</h1>
+    <div class="container">
+        <textarea id="inputText" placeholder="Enter text here..."></textarea>
+        <pre id="outputDiv"></pre>
+    </div>
+    
+    <script>
+        // JavaScript code to handle the interaction
+        const inputText = document.getElementById('inputText');
+        const outputDiv = document.getElementById('outputDiv');
+
+        let tokens = [];
+
+        // Add an event listener to update the output when text is entered
+        inputText.addEventListener('input', () => {
+            highlightTokens(inputText.value);
+            displayTokens(inputText.value);
+        });
+        function displayTokens(inputText) {
+            console.log(tokens);
+            outputDiv.textContent = '';
+
+            for (let i = 0; i < inputText.length; i++) {
+                let tokenFound = false;
+
+                for (let j in tokens) {
+                    if (i == tokens[j].start) {
+                        const span = document.createElement('span');
+                        span.className = tokens[j].type;
+                        span.textContent = inputText.substring(tokens[j].start, tokens[j].end + 1);
+                        i = tokens[j].end;
+                        outputDiv.appendChild(span);
+                        tokenFound = true;
+                        break;
+                    }
+                }
+
+                if (!tokenFound) {
+                    const emptySpan = document.createElement('span');
+                    emptySpan.className = 'empty';
+                    emptySpan.textContent = inputText[i];
+                    outputDiv.appendChild(emptySpan);
+                }
+            }
+        }
+
+        function highlightTokens(text) {
+            tokens = [];
+            let start = 0;
+            let end = 0;
+            let quotationtype = '';
+            let escapeCount = 0;
+
+            // get string tokens
+            for (let i = 0; i < text.length; i++) {
+                if (quotationtype === '') {
+                    if ((text[i] === '"' || text[i] === "'") && escapeCount % 2 === 0) {
+                        quotationtype = text[i];
+                        start = i;
+                    }
+                } else {
+                    if (text[i] === quotationtype && escapeCount % 2 === 0) {
+                        end = i;
+                        tokens.push(new Token('string', start, end));
+                        start = end + 1;
+                        quotationtype = '';
+                    }
+                }
+
+                // Check for escape character
+                if (text[i] === '\\') {
+                    escapeCount++;
+                } else {
+                    escapeCount = 0;
+                }
+            }
+
+            // get master tokens
+            const mastertokens = ["DO", "MAKE", "SET"];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && tokens[t].type == 'string') {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                for (let j in mastertokens) {
+                    if (getWord(text, i) == mastertokens[j]) {
+                        tokens.push(new Token('master', i, i + mastertokens[j].length - 1));
+                        i = i + mastertokens[j].length - 1;
+                        break;
+                    }
+                }
+            }
+
+            // get separator tokens
+            const separatortokens = [";"];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && tokens[t].type == 'string') {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                for (let j in separatortokens) {
+                    if (text[i] == separatortokens[j]) {
+                        tokens.push(new Token('separator', i, i + separatortokens[j].length - 1));
+                        i = i + separatortokens[j].length - 1;
+                        break;
+                    }
+                }
+            }
+
+            // get var_type tokens
+            const var_typetokens = ["INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC"];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && tokens[t].type == 'string') {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                for (let j in var_typetokens) {
+                    if (getWord(text, i) == var_typetokens[j]) {
+                        tokens.push(new Token('var_type', i, i + var_typetokens[j].length - 1));
+                        i = i + var_typetokens[j].length - 1;
+                        break;
+                    }
+                }
+            }
+
+            // get general tokens (variables, functions, etc.)
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start) {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                if (isAlphaNumeric(text[i])) {
+                    let word = getWord(text, i);
+                    if (word.length > 0) {
+                        tokens.push(new Token('general', i, i + word.length - 1));
+                        i = i + word.length - 1;
+                    }
+                }
+            }
+        }
+
+        function getWord (text, start) {
+            let word = '';
+            for (let i = start; i < text.length; i++) {
+                if (!isAlphaNumeric(text[i])) break;
+                word += text[i];
+            }
+            return word;
+        }
+
+        function isAlphaNumeric (char) {
+            return char.match(/^[a-z0-9_]+$/i);
+        }
+
+        class Token {
+            constructor(type, start, end) {
+                this.type = type;
+                this.start = start;
+                this.end = end;
+            }
+        }
+    </script>
+</body>
+</html>
