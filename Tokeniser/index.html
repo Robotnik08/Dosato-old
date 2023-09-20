@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             text-align: center;
-            font-family: monospace;
+            font-family: 'Courier New', Courier, monospace;
             overflow-x: hidden;
         }
         /* Create a flex container to arrange elements horizontally */
@@ -25,6 +25,7 @@
         /* Style the elements */
         h1 {
             margin: 10px; /* Add some spacing between elements */
+            font-size: xx-large;
         }
 
         textarea {
@@ -32,33 +33,58 @@
             resize: none; /* Prevent the textarea from being resized */
             width: 100%;
             height: 100%;
+            font-size: xxx-large;
         }
 
         #outputDiv {
             text-align: left;
             border: 1px solid #ccc; /* Add a border to the output div */
-            background-color: #f0f0f0;
+            background-color: #000044;
             padding: 0 10px 0 10px; /* Add some padding to the output div */
             width: 100%;
             height: 100%;
+            font-size: xxx-large;
+            overflow: auto;
         }
         .master {
-            background-color:lightgreen;
+            color:lightgreen;
         }
         .string {
-            background-color:darkgoldenrod;
+            color:darkgoldenrod;
         }
         .separator {
-            background-color:lightblue;
+            color: lightcoral;
         }
         .var_type {
-            background-color:red;
+            color:lightseagreen;
         }
         .general {
-            background-color: yellow;
+            color:yellow;
         }
         .empty {
-            background-color:lightgray;
+            color:grey;
+        }
+        .comment {
+            color:darkgreen;
+            font-weight: bold;
+        }
+        .operator {
+            color:lightpink;
+        }
+        .number {
+            color:lightblue;
+        }
+        .extension {
+            color:lightcoral;
+        }
+        .bracket0 {
+            color: crimson;
+        }
+        .bracket1 {
+            color: darkorange;
+        }
+        .bracket2 {
+            color: darkorchid;
         }
     </style>
     <title>Tokaniser</title>
@@ -83,8 +109,8 @@
             displayTokens(inputText.value);
         });
         function displayTokens(inputText) {
-            console.log(tokens);
             outputDiv.textContent = '';
+            const code = document.createElement('code');
 
             for (let i = 0; i < inputText.length; i++) {
                 let tokenFound = false;
@@ -95,7 +121,7 @@
                         span.className = tokens[j].type;
                         span.textContent = inputText.substring(tokens[j].start, tokens[j].end + 1);
                         i = tokens[j].end;
-                        outputDiv.appendChild(span);
+                        code.appendChild(span);
                         tokenFound = true;
                         break;
                     }
@@ -105,9 +131,10 @@
                     const emptySpan = document.createElement('span');
                     emptySpan.className = 'empty';
                     emptySpan.textContent = inputText[i];
-                    outputDiv.appendChild(emptySpan);
+                    code.appendChild(emptySpan);
                 }
             }
+            outputDiv.appendChild(code);
         }
 
         function highlightTokens(text) {
@@ -116,13 +143,34 @@
             let end = 0;
             let quotationtype = '';
             let escapeCount = 0;
-
-            // get string tokens
+            let inComment = false;
+            // get comment and string tokens
             for (let i = 0; i < text.length; i++) {
                 if (quotationtype === '') {
                     if ((text[i] === '"' || text[i] === "'") && escapeCount % 2 === 0) {
                         quotationtype = text[i];
                         start = i;
+                        continue;
+                    }
+                    if (text[i] === '/' && text[i + 1] === '/' && !inComment) {
+                        let foundEnd = false;
+                        start = i;
+                        for (let j = i; j < text.length; j++) {
+                            if (text[j] === '\n') {
+                                end = j - 1;
+                                tokens.push(new Token('comment', start, end));
+                                start = end + 1;
+                                i = j;
+                                foundEnd = true;
+                                break;
+                            }
+                        }
+                        if (!foundEnd) {
+                            end = text.length - 1;
+                            tokens.push(new Token('comment', start, end));
+                            start = end + 1;
+                            i = text.length;
+                        }
                     }
                 } else {
                     if (text[i] === quotationtype && escapeCount % 2 === 0) {
@@ -140,38 +188,19 @@
                     escapeCount = 0;
                 }
             }
-
             // get master tokens
             const mastertokens = ["DO", "MAKE", "SET"];
             for (let i = 0; i < text.length; i++) {
-                for (let t in tokens) {
-                    if (i == tokens[t].start && tokens[t].type == 'string') {
-                        i = tokens[t].end;
+                for (let t of tokens) {
+                    if (i == t.start && (t.type == 'string' || t.type == 'comment')) {
+                        i = t.end;
                         break;
                     }
                 }
-                for (let j in mastertokens) {
-                    if (getWord(text, i) == mastertokens[j]) {
-                        tokens.push(new Token('master', i, i + mastertokens[j].length - 1));
-                        i = i + mastertokens[j].length - 1;
-                        break;
-                    }
-                }
-            }
-
-            // get separator tokens
-            const separatortokens = [";"];
-            for (let i = 0; i < text.length; i++) {
-                for (let t in tokens) {
-                    if (i == tokens[t].start && tokens[t].type == 'string') {
-                        i = tokens[t].end;
-                        break;
-                    }
-                }
-                for (let j in separatortokens) {
-                    if (text[i] == separatortokens[j]) {
-                        tokens.push(new Token('separator', i, i + separatortokens[j].length - 1));
-                        i = i + separatortokens[j].length - 1;
+                for (let j of mastertokens) {
+                    if (getWord(text, i) == j) {
+                        tokens.push(new Token('master', i, i + j.length - 1));
+                        i += j.length - 1;
                         break;
                     }
                 }
@@ -181,7 +210,7 @@
             const var_typetokens = ["INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC"];
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
-                    if (i == tokens[t].start && tokens[t].type == 'string') {
+                    if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
                         i = tokens[t].end;
                         break;
                     }
@@ -189,11 +218,141 @@
                 for (let j in var_typetokens) {
                     if (getWord(text, i) == var_typetokens[j]) {
                         tokens.push(new Token('var_type', i, i + var_typetokens[j].length - 1));
-                        i = i + var_typetokens[j].length - 1;
+                        i += var_typetokens[j].length - 1;
                         break;
                     }
                 }
             }
+
+            // get extension tokens
+            const extension_tokens = [
+                "WHEN", "WHILE", "ELSE", "ELSEWHEN", "CATCH", "STORE", "THEN" 
+            ];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                for (let j in extension_tokens) {
+                    if (getWord(text, i) == extension_tokens[j]) {
+                        tokens.push(new Token('extension', i, i + extension_tokens[j].length - 1));
+                        i += extension_tokens[j].length - 1;
+                        break;
+                    }
+                }
+            }
+            // get bracket tokens
+            const brackettokens = ["()", "{}", "[]"];
+            let bracketTier = 0;
+            let bracketTypeHiarcy = [];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                // check for opening brackets
+                for (let j = 0; j < brackettokens.length; j++) {
+                    if (text[i] == brackettokens[j][0]) {
+                        bracketTier++;
+                        tokens.push(new Token('bracket' + ((bracketTier - 1) % 3), i, i, bracketTier));
+                        bracketTypeHiarcy.push(j);
+                        break;
+                    }
+                }
+                // check for closing brackets
+                for (let j = 0; j < brackettokens.length; j++) {
+                    if (text[i] == brackettokens[j][1]) {
+                        tokens.push(new Token('bracket' + ((bracketTier - 1) % 3), i, i, bracketTier));
+                        if (bracketTypeHiarcy[bracketTypeHiarcy.length - 1] == j) {
+                            bracketTypeHiarcy.pop();
+                            bracketTier--;
+                        }
+                        break;
+                    }
+                }
+            }
+
+
+            // get separator tokens
+            const separatortokens = [";"];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                for (let j in separatortokens) {
+                    if (text[i] == separatortokens[j]) {
+                        tokens.push(new Token('separator', i, i + separatortokens[j].length - 1));
+                        i += separatortokens[j].length - 1;
+                        break;
+                    }
+                }
+            }
+
+            // getNumber tokens
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                if (isNumeric(text[i])) {
+                    let start = i;
+                    let end = i;
+                    let foundDecimal = false;
+                    for (let j = i; j < text.length; j++) {
+                        if (isNumeric(text[j])) {
+                            end = j;
+                        } else if (text[j] == '.' && !foundDecimal) {
+                            end = j;
+                            foundDecimal = true;
+                        } else {
+                            break;
+                        }
+                    }
+                    tokens.push(new Token('number', start, end));
+                    i = end;
+                }
+            }
+
+
+            // get operator tokens
+            const operatortokens = ["+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "|", "^", "~", "?", ":", ".", ",", "#",
+                                    "+=", "-=", "*=", "/=", "%=", "++", "--", "==", "!=", ">=", "<=", "&&", "||", "<<", ">>",
+            ];
+            for (let i = 0; i < text.length; i++) {
+                for (let t in tokens) {
+                    if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment' || tokens[t].type == 'number')) {
+                        i = tokens[t].end;
+                        break;
+                    }
+                }
+                let foundBig = false;
+                for (let j in operatortokens) {
+                    if (text[i] + text[i+1] == operatortokens[j]) {
+                        tokens.push(new Token('operator', i, i + operatortokens[j].length - 1));
+                        i += operatortokens[j].length-1;
+                        foundBig = true;
+                        break;
+                    }
+                }
+                if (foundBig) continue;
+                for (let j in operatortokens) {
+                    if (text[i] == operatortokens[j]) {
+                        tokens.push(new Token('operator', i, i + operatortokens[j].length - 1));
+                        i += operatortokens[j].length-1;
+                        break;
+                    }
+                }
+            }
+
 
             // get general tokens (variables, functions, etc.)
             for (let i = 0; i < text.length; i++) {
@@ -207,9 +366,18 @@
                     let word = getWord(text, i);
                     if (word.length > 0) {
                         tokens.push(new Token('general', i, i + word.length - 1));
-                        i = i + word.length - 1;
+                        i += word.length - 1;
                     }
                 }
+            }
+
+            console.log(tokens);
+        }
+        function printTokens () {
+            let c = 0;
+            for (let t of tokens) {
+                console.log(`${c}. ${t.toString()}`);
+                c++;
             }
         }
 
@@ -225,14 +393,23 @@
         function isAlphaNumeric (char) {
             return char.match(/^[a-z0-9_]+$/i);
         }
+        function isNumeric (char) {
+            return char.match(/^[0-9.]+$/i);
+        }
 
         class Token {
-            constructor(type, start, end) {
+            constructor(type, start, end, meta = 0) {
                 this.type = type;
                 this.start = start;
                 this.end = end;
+                this.meta = meta;
+            }
+
+            toString () {
+                return `{ type: ${this.type}, start: ${this.start}, end: ${this.end}, meta: ${this.meta}}`;
             }
         }
+
     </script>
 </body>
 </html>
