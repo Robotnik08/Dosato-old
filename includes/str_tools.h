@@ -3,19 +3,79 @@
 
 #include <string.h>
 
+// forward declarations
+
+/**
+ * @brief Check if a character is numeric
+ * @param c The character to check
+*/
+int isNumeric (char c);
+/**
+ * @brief Check if a character is alphabetic
+ * @param c The character to check
+*/
+int isAlpha (char c);
+/**
+ * @brief Check if a character is empty
+ * @param c The character to check
+*/
+int isEmpty (char c);
+/**
+ * @brief Check if a character is alphanumeric
+ * @param c The character to check
+*/
+int isAlphaNumeric (char c);
+/**
+ * @brief Split a string into an array of strings, make sure to free the result
+ * @param input The string to split
+ * @param separator The separator to split by
+*/
+char** str_split(const char* input, const char* separator);
+/**
+ * @brief Replace all instances of a string with another string
+ * @param in The string to replace in
+ * @param selector The string to replace
+ * @param replacement The string to replace with
+*/
+void str_replace(char *in, const char *selector, const char *replacement);
+/**
+ * @brief Get the Next Word in a String, make sure to free the result
+ * @param text The text to get the word from
+ * @param start The index to start at
+*/
+char* getWord (const char* text, int start);
+
+int isNumeric (char c) {
+    return c >= '0' && c <= '9';
+}
+
+int isAlpha (char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+int isAlphaNumeric (char c) {
+    return isNumeric(c) || isAlpha(c) || c == '_';
+}
+
+int isEmpty (char c) {
+    return c = ' ' || c == '\t' || c == '\n';
+}
+
 char** str_split(const char* input, const char* separator) {
     int count = 1;
     const char* temp = input;
+    // Count the number of times the separator appears in the input string
     while ((temp = strstr(temp, separator))) {
         count++;
         temp += strlen(separator);
     }
-
+    // Allocate memory for the substrings
     char** substrings = (char**)malloc((count + 1) * sizeof(char*));
 
     const char* start = input;
     int i = 0;
 
+    // Loop through the input string, splitting it by the separator
     while (1) {
         const char* end = strstr(start, separator);
         if (end == NULL) {
@@ -32,7 +92,7 @@ char** str_split(const char* input, const char* separator) {
         start = end + strlen(separator);
         i++;
     }
-
+    // Add a null terminator to the end of the array
     substrings[count] = NULL;
 
     return substrings;
@@ -59,6 +119,28 @@ void str_replace(char *in, const char *selector, const char *replacement) {
     strcpy(in, result);
 
     free(result);
+}
+char* getWord(const char* text, int start) {
+    // Find the length of the word (number of alphanumeric characters)
+    int wordLength = 0;
+    for (int i = start; i < strlen(text); i++) {
+        if (!isAlphaNumeric(text[i])) {
+            break;
+        }
+        wordLength++;
+    }
+
+    // Allocate memory for the word (including space for the null terminator)
+    char* word = (char*)malloc((wordLength + 1) * sizeof(char));
+
+    // Copy the characters of the word from the input text
+    for (int i = 0; i < wordLength; i++) {
+        word[i] = text[start + i];
+    }
+
+    // Add the null terminator to make it a valid C string
+    word[wordLength] = '\0';
+    return word;
 }
 
 #endif

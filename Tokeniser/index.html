@@ -193,7 +193,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t of tokens) {
                     if (i == t.start && (t.type == 'string' || t.type == 'comment')) {
-                        i = t.end;
+                        i = t.end + 1;
                         break;
                     }
                 }
@@ -211,7 +211,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
@@ -231,7 +231,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
@@ -250,7 +250,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
@@ -282,7 +282,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
@@ -299,17 +299,30 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
                 if (isNumeric(text[i])) {
+                    if (text[i] == '.') {
+                        if (!isNumeric(text[i + 1])) continue;
+                    }
                     let start = i;
                     let end = i;
                     let foundDecimal = false;
+
+                    let invalid = false;
                     for (let j = i; j < text.length; j++) {
+                        if (j && !isNumeric(text[j-1]) && !isEmpty(text[j-1])) {
+                            invalid = true;
+                            for (let k = j; k < text.length && isNumeric(text[k]); k++) {
+                                end = k;
+                            }
+                            break;
+                        }
                         if (isNumeric(text[j])) {
                             end = j;
+                            if (text[j] == '.' && foundDecimal) break;
                         } else if (text[j] == '.' && !foundDecimal) {
                             end = j;
                             foundDecimal = true;
@@ -317,7 +330,7 @@
                             break;
                         }
                     }
-                    tokens.push(new Token('number', start, end));
+                    if (!invalid) tokens.push(new Token('number', start, end));
                     i = end;
                 }
             }
@@ -330,7 +343,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment' || tokens[t].type == 'number')) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
@@ -358,7 +371,7 @@
             for (let i = 0; i < text.length; i++) {
                 for (let t in tokens) {
                     if (i == tokens[t].start) {
-                        i = tokens[t].end;
+                        i = tokens[t].end + 1;
                         break;
                     }
                 }
@@ -391,9 +404,15 @@
         }
 
         function isAlphaNumeric (char) {
+            if (!char) return false;
             return char.match(/^[a-z0-9_]+$/i);
         }
+        function isEmpty (char) {
+            if (!char) return false;
+            return char.match(/^[\s]+$/i);
+        }
         function isNumeric (char) {
+            if (!char) return false;
             return char.match(/^[0-9.]+$/i);
         }
 

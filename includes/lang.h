@@ -4,11 +4,11 @@
 #include <stdlib.h>
 
 #include "process.h"
-#include "parser.h"
+#include "token.h"
 
 const int RECURSION_LIMIT = 1000;
 
-int run (char** code_lines, int num_lines) {
+int run (Token* tokens, int num_lines) {
     // initialize the main Process
     Process* proc = malloc(sizeof(Process));
     proc->status = 0;	
@@ -16,11 +16,6 @@ int run (char** code_lines, int num_lines) {
 
     // initialize the main Scope
     proc->scopes = malloc(sizeof(Scope)*RECURSION_LIMIT);
-
-
-    while (code_lines[proc->reader] != NULL) {
-        proc->reader += run_line(proc, code_lines[proc->reader]);
-    }
 
     // free the data
     int code = proc->status;

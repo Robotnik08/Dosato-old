@@ -10,7 +10,10 @@ typedef enum {
     TOKEN_MASTER_KEYWORD,
     TOKEN_KEYWORD,
     TOKEN_IDENTIFIER,
-    TOKEN_SEPARATOR
+    TOKEN_PARENTHESIS,
+    TOKEN_TYPE_KEYWORD,
+    TOKEN_SEPARATOR,
+    TOKEN_END = -1
 } TokenType;
 
 typedef struct {
