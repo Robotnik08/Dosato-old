@@ -4,17 +4,12 @@
 #include "str_tools.h"
 #include "token.h"
 
-#define MASTER_KEYWORDS {"DO", "MAKE", "SET"}
-#define KEYWORDS {"WHEN", "WHILE", "ELSE", "ELSEWHEN", "CATCH", "STORE", "THEN"}
-#define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC"}
-#define SEPARATORS {';'}
-#define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "|", "^", "~", "?", ":", ".", ",", "#", \
-                    "+=", "-=", "*=", "/=", "%=", "++", "--", "==", "!=", ">=", "<=", "&&", "||", "<<", ">>"}
-#define BRACKETS {"()", "{}", "[]"}
-
-
-
 void tokenise (Token** tokens, const char* full_code, const int code_length);
+void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry);
+int getTokenAmount (Token* tokens);
+void printTokens (Token* tokens);
+void sortTokens (Token** tokens);
+
 void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry) {
     int numTokens = 0;
     if (*tokensPtr) {
@@ -33,6 +28,7 @@ void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry) 
     // Add a sentinel token to mark the end of the array.
     (*tokensPtr)[numTokens + 1].type = TOKEN_END;
 }
+
 int getTokenAmount (Token* tokens) {
     if (!tokens) return 0;
     int amount = 0;
@@ -41,7 +37,19 @@ int getTokenAmount (Token* tokens) {
     }
     return amount;
 }
-void printTokens (Token* tokens);
+
+void sortTokens (Token** tokens) {
+    int tokenCount = getTokenAmount(*tokens);
+    for (int i = 0; i < tokenCount; i++) {
+        for (int j = 0; j < tokenCount - i - 1; j++) {
+            if ((*tokens)[j].start > (*tokens)[j + 1].start) {
+                Token temp = (*tokens)[j];
+                (*tokens)[j] = (*tokens)[j + 1];
+                (*tokens)[j + 1] = temp;
+            }
+        }
+    }
+}
 
 void tokenise (Token** tokens, const char* full_code, const int code_length) {
 
@@ -106,14 +114,13 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         for (int j = 0; j < sizeof(mastertokens)/sizeof(char*); j++) {
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, mastertokens[j])) {
                 free(next_word);
-                addToken(tokens, TOKEN_MASTER_KEYWORD, i, i + strlen(mastertokens[j]) - 1, 0);
+                addToken(tokens, TOKEN_MASTER_KEYWORD, i, i + strlen(mastertokens[j]) - 1, j);
                 i += strlen(mastertokens[j]) - 1;
                 break;
             } else {
@@ -128,14 +135,13 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         for (int j = 0; j < sizeof(var_typetokens)/sizeof(char*); j++) {
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, var_typetokens[j])) {
                 free(next_word);
-                addToken(tokens, TOKEN_TYPE_KEYWORD, i, i + strlen(var_typetokens[j]) - 1, 0);
+                addToken(tokens, TOKEN_EXT, i, i + strlen(var_typetokens[j]) - 1, j);
                 i += strlen(var_typetokens[j]) - 1;
                 break;
             } else {
@@ -145,19 +151,18 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
     }
 
     // get extension tokens
-    const char* extension_tokens[] = KEYWORDS;
+    const char* extension_tokens[] = EXTENSION_KEYWORDS;
     for (int i = 0; i < code_length; i++) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         for (int j = 0; j < sizeof(extension_tokens)/sizeof(char*); j++) {
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, extension_tokens[j])) {
                 free(next_word);
-                addToken(tokens, TOKEN_KEYWORD, i, i + strlen(extension_tokens[j]) - 1, 0);
+                addToken(tokens, TOKEN_KEYWORD, i, i + strlen(extension_tokens[j]) - 1, j);
                 i += strlen(extension_tokens[j]) - 1;
                 break;
             } else {
@@ -175,14 +180,13 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         // check for opening brackets
         for (int j = 0; j < sizeof(brackettokens)/sizeof(char*); j++) {
             if (full_code[i] == brackettokens[j][0]) {
                 bracketTier++;
-                addToken(tokens, TOKEN_PARENTHESIS, i, i, bracketTier);
+                addToken(tokens, TOKEN_PARENTHESIS, i, i, getBracketType(full_code[i]) | bracketTier);
                 bracketTypeHiarcy[bracketTier - 1] = j;
                 break;
             }
@@ -190,7 +194,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         // check for closing brackets
         for (int j = 0; j < sizeof(brackettokens)/sizeof(char*); j++) {
             if (full_code[i] == brackettokens[j][1]) {
-                addToken(tokens, TOKEN_PARENTHESIS, i, i, bracketTypeHiarcy[bracketTier - 1] == j ? bracketTier : -1);
+                addToken(tokens, TOKEN_PARENTHESIS, i, i, getBracketType(full_code[i]) | (bracketTypeHiarcy[bracketTier - 1] == j ? bracketTier : -1));
                 if (bracketTypeHiarcy[bracketTier - 1] == j) {
                     bracketTypeHiarcy[bracketTier - 1] = -1;
                     bracketTier--;
@@ -206,7 +210,6 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         for (int j = 0; j < sizeof(separatortokens); j++) {
@@ -222,12 +225,11 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
-        if (isNumeric(full_code[i])) {
+        if (isFloateric(full_code[i])) {
             if (full_code[i] == '.') {
-                if (!isNumeric(full_code[i + 1])) continue;
+                if (!isFloateric(full_code[i + 1])) continue;
             }
             int start = i;
             int end = i;
@@ -235,14 +237,14 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
 
             int invalid = 0;
             for (int j = i; j < code_length; j++) {
-                if (j && !isNumeric(full_code[j-1]) && !isEmpty(full_code[j-1])) {
+                if (j && isAlphaNameric(full_code[j-1])) {
                     invalid = 1;
-                    for (int k = j; k < code_length && isNumeric(full_code[k]); k++) {
+                    for (int k = j; k < code_length && isFloateric(full_code[k]); k++) {
                         end = k;
                     }
                     break;
                 }
-                if (isNumeric(full_code[j])) {
+                if (isFloateric(full_code[j])) {
                     end = j;
                     if (full_code[j] == '.' && foundDecimal) break;
                 } else if (full_code[j] == '.' && !foundDecimal) {
@@ -273,7 +275,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             bigoperator[1] = full_code[i+1];
             if (!strcmp(bigoperator, operatortokens[j])) {
                 free(bigoperator);
-                addToken(tokens, TOKEN_OPERATOR, i, i + strlen(operatortokens[j]) - 1, 0);
+                addToken(tokens, TOKEN_OPERATOR, i, i + strlen(operatortokens[j]) - 1, j);
                 i++;
                 foundBig = 1;
                 break;
@@ -284,7 +286,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         if (foundBig) continue;
         for (int j = 0; j < sizeof(operatortokens)/sizeof(char*); j++) {
             if (full_code[i] == operatortokens[j][0]) {
-                addToken(tokens, TOKEN_OPERATOR, i, i + strlen(operatortokens[j]) - 1, 0);
+                addToken(tokens, TOKEN_OPERATOR, i, i + strlen(operatortokens[j]) - 1, j);
                 break;
             }
         }
@@ -297,7 +299,6 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         if (isAlphaNumeric(full_code[i])) {
@@ -309,6 +310,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             free(word);
         }
     }
+
+    // sort tokens
+    sortTokens(tokens);
 }
 
 void printTokens (Token* tokens) {

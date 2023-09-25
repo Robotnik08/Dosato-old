@@ -26,6 +26,16 @@ int isEmpty (char c);
 */
 int isAlphaNumeric (char c);
 /**
+ * @brief Check if a character is Alpha or has an underscore
+ * @param c The character to check
+*/
+int isAlphaNameric (char c);
+/**
+ * @brief Check if a character is a number or a period
+ * @param c The character to check
+*/
+int isFloateric (char c);
+/**
  * @brief Split a string into an array of strings, make sure to free the result
  * @param input The string to split
  * @param separator The separator to split by
@@ -55,6 +65,14 @@ int isAlpha (char c) {
 
 int isAlphaNumeric (char c) {
     return isNumeric(c) || isAlpha(c) || c == '_';
+}
+
+int isAlphaNameric (char c) {
+    return isAlpha(c) || c == '_';
+}
+
+int isFloateric (char c) {
+    return isNumeric(c) || c == '.';
 }
 
 int isEmpty (char c) {

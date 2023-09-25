@@ -194,7 +194,6 @@
                 for (let t of tokens) {
                     if (i == t.start && (t.type == 'string' || t.type == 'comment')) {
                         i = t.end + 1;
-                        break;
                     }
                 }
                 for (let j of mastertokens) {
@@ -212,7 +211,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 for (let j in var_typetokens) {
@@ -232,7 +230,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 for (let j in extension_tokens) {
@@ -251,7 +248,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 // check for opening brackets
@@ -283,7 +279,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 for (let j in separatortokens) {
@@ -300,7 +295,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment')) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 if (isNumeric(text[i])) {
@@ -344,7 +338,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start && (tokens[t].type == 'string' || tokens[t].type == 'comment' || tokens[t].type == 'number')) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 let foundBig = false;
@@ -372,7 +365,6 @@
                 for (let t in tokens) {
                     if (i == tokens[t].start) {
                         i = tokens[t].end + 1;
-                        break;
                     }
                 }
                 if (isAlphaNumeric(text[i])) {

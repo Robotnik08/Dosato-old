@@ -5,6 +5,8 @@
 #include "includes/str_tools.h"
 #include "includes/lang.h"
 #include "includes/lexer.h"
+#include "includes/parser.h"
+
 // forward declarations
 int QUIT (int code);
 
@@ -49,6 +51,7 @@ int main (int argc, char* argv[])
     int size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
+    // read the file into a string
     char* contents = malloc(size);
 
     fread(contents, 1, size, file);
@@ -56,9 +59,16 @@ int main (int argc, char* argv[])
 
     fclose(file);
 
+    // tokenise the string
     Token* tokens = NULL;
     tokenise(&tokens, contents, size);
     printTokens(tokens);
+
+    // parse into an AST
+    // int index = 0;
+    // AstNode* root = parseExpression(contents, tokens, &index);
+
+    // printAst(root);
 
     free(tokens);
     free(contents);
