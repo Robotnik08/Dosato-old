@@ -62,13 +62,12 @@ int main (int argc, char* argv[])
     // tokenise the string
     Token* tokens = NULL;
     tokenise(&tokens, contents, size);
-    printTokens(tokens);
+    // printTokens(tokens);
 
-    // parse into an AST
-    // int index = 0;
-    // AstNode* root = parseExpression(contents, tokens, &index);
+    // parse the tokens
+    Node root = parse(tokens, getTokenAmount(tokens));
 
-    // printAst(root);
+    printNode(&root, 1, 1);
 
     free(tokens);
     free(contents);

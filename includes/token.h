@@ -69,13 +69,6 @@ typedef enum {
 } OperatorType;
 
 typedef enum {
-    M_NULL,
-    FUNCTION_CALL,
-    SET_VAR,
-    MAKE_VAR
-} MasterKeywordType;
-
-typedef enum {
     D_NULL,
     TYPE_INT,
     TYPE_BOOL,
@@ -109,9 +102,20 @@ typedef enum {
 
 typedef enum {
     NODE_NULL,
+    NODE_PROGRAM,
     NODE_FUNCTION_CALL,
     NODE_SET_VAR,
-    NODE_MAKE_VAR
+    NODE_MAKE_VAR,
+    NODE_FUNCTION_DECLARATION,
+    NODE_EXPRESSION,
+    NODE_STATEMENT,
+    NODE_LITERAL,
+    NODE_IDENTIFIER,
+    NODE_OPERATOR,
+    NODE_BLOCK,
+
+
+    NODE_END = -1
 } NodeType;
 
 typedef struct {
