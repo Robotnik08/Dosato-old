@@ -90,6 +90,14 @@ typedef enum {
 } DataType;
 
 typedef enum {
+    MASTER_DO,
+    MASTER_MAKE,
+    MASTER_SET,
+
+    M_NULL = -1
+} MasterKeywordType;
+
+typedef enum {
     E_NULL,
     EXT_WHEN,
     EXT_WHILE,
@@ -104,8 +112,8 @@ typedef enum {
     NODE_NULL,
     NODE_PROGRAM,
     NODE_FUNCTION_CALL,
-    NODE_SET_VAR,
     NODE_MAKE_VAR,
+    NODE_SET_VAR,
     NODE_FUNCTION_DECLARATION,
     NODE_EXPRESSION,
     NODE_STATEMENT,
@@ -113,8 +121,7 @@ typedef enum {
     NODE_IDENTIFIER,
     NODE_OPERATOR,
     NODE_BLOCK,
-
-
+    
     NODE_END = -1
 } NodeType;
 
