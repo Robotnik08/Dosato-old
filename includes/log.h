@@ -20,6 +20,12 @@ typedef enum {
     ERROR_RUNTIME,
     ERROR_PARSER,
     ERROR_EXPECTED_MASTER,
+    ERROR_EXPECTED_IDENTIFIER,
+    ERROR_WRONG_BRACKET_ROUND,
+    ERROR_WRONG_BRACKET_SQUARE,
+    ERROR_WRONG_BRACKET_CURLY,
+    ERROR_EXPECTED_ARGUMENTS,
+    ERROR_EXPECTED_ARGUMENT,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -35,6 +41,12 @@ const char* ERROR_MESSAGES[] = {
     "Runtime Error", 
     "Parser Error",
     "Expected Master Keyword as first token (DO, SET, MAKE)",
+    "Expected Identifier",
+    "Bracket is incorrect, expected a round bracket ( )",
+    "Bracket is incorrect, expected a square bracket [ ]",
+    "Bracket is incorrect, expected a curly bracket { }",
+    "Expected () after function call",
+    "Expected an argument",
     "Unknown Error"
 };
 

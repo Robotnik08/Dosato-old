@@ -115,37 +115,30 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
     root.body = NULL;
     
     // loop through the tokens
-    for (int i = start; i < end; i++) {
-        switch (type) {
-            case NODE_PROGRAM:
-            case NODE_BLOCK:
+    switch (type) {
+
+        // if the node is a program or a block, check for full lines of code
+        case NODE_PROGRAM:
+        case NODE_BLOCK:
+            for (int i = start; i < end; i++) {
                 if (tokens[i].type == TOKEN_MASTER_KEYWORD) {
                     int full_line = getFullLine(tokens, i);
-                    switch (tokens[i].carry)
-                    {
-                        case MASTER_DO:
-                            addToBody(&root.body, parse(full_code, tokens, i+1, full_line, NODE_FUNCTION_CALL));
-                            i = full_line;
-                            break;
-                        case MASTER_MAKE:
-                            // addToBody(&root.body, i, i, NODE_MAKE_VAR);
-                            break;
-                        case MASTER_SET:
-                            // addToBody(&root.body, i, i, NODE_SET_VAR);
-                            break;
-                        default:
-                            break;
-                    }
-                } else {
-                    // printError(getLine(full_code, tokens[i].start), ERROR_EXPECTED_MASTER);
+                    addToBody(&root.body, parse(full_code, tokens, i+1, full_line, NODE_FUNCTION_CALL + tokens[i].carry));
+                    i = full_line;
+                } else if (tokens[i].type != TOKEN_SEPARATOR) {
+                    printError(getLine(full_code, tokens[i].start), ERROR_EXPECTED_MASTER);
                 }
-                break;
-            case NODE_FUNCTION_CALL:
+            }
+            break;
+        
+        // if the node is a function call, check for identifiers and extensions
+        case NODE_FUNCTION_CALL:
+            for (int i = start; i < end; i++) {
                 if (tokens[i].type == TOKEN_IDENTIFIER) {
                     int args_end = getBlock(tokens, i+1);
                     addToBody(&root.body, parse(full_code, tokens, i, args_end, NODE_FUNCTION_IDENTIFIER));
                     i = args_end;
-                } else if (tokens[i].type == TOKEN_KEYWORD) {
+                } else if (tokens[i].type == TOKEN_EXT) {
                     int t_end = end;
                     const ExtensionKeywordType types[] = EXTENSION_ACCEPTS;
                     switch (types[tokens[i].carry])
@@ -165,11 +158,69 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     addToBody(&root.body, parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry -1));
                     i = t_end;
                 }
+            }
+            break;
+        // if the node is a function identifier, check for arguments
+        case NODE_FUNCTION_IDENTIFIER:
+            if (tokens[start].type != TOKEN_IDENTIFIER) {
+                printError(getLine(full_code, tokens[start].start), ERROR_EXPECTED_IDENTIFIER);
+            }
+            if (tokens[start + 1].type == TOKEN_PARENTHESIS) {
+                if (tokens[start + 1].carry & BRACKET_ROUND) {
+                    addToBody(&root.body, parse(full_code, tokens, start + 1, getBlock(tokens, start + 1), NODE_ARGUMENTS));
+                } else {
+                    printError(getLine(full_code, tokens[start + 1].start), ERROR_WRONG_BRACKET_ROUND);
+                }
+            } else {
+                printError(getLine(full_code, tokens[start + 1].start), ERROR_EXPECTED_ARGUMENTS);
+            }
+            break;
+        // if the node is a function declaration, check for arguments
+        case NODE_ARGUMENTS:
+            int arg_start = start + 1;
+            for (int i = start + 1; i < end - 1; i++) {
+                if (tokens[i].type == TOKEN_OPERATOR && tokens[i].carry == OPERATOR_COMMA) {
+                    addToBody(&root.body, parse(full_code, tokens, arg_start, i-1, NODE_ARGUMENT));
+                    arg_start = i + 1;
+                }
+            }
+            if (arg_start > end-1) printError(getLine(full_code, tokens[arg_start].start), ERROR_EXPECTED_ARGUMENT);
+            addToBody(&root.body, parse(full_code, tokens, arg_start, end-1, NODE_ARGUMENT));
+            break;
+        // if the node is an argument, check for identifiers, literals and expressions
+        case NODE_ARGUMENT:
+            if (start - end == 0) {
+                if (tokens[start].type == TOKEN_IDENTIFIER) {
+                    addToBody(&root.body, parse(full_code, tokens, start, end, NODE_IDENTIFIER));
+                } else if (tokens[start].type == TOKEN_NUMBER || tokens[start].type == TOKEN_STRING) {
+                    addToBody(&root.body, parse(full_code, tokens, start, end, NODE_LITERAL));
+                } else {
+                    printError(getLine(full_code, tokens[start].start), ERROR_EXPECTED_IDENTIFIER);
+                }
+            }
+            else {
+                addToBody(&root.body, parse(full_code, tokens, start, end, NODE_EXPRESSION));
+            }
+            break;
+        // if the node is an expression, check for operators
+        case NODE_EXPRESSION:
+            // work in progress
+            for (int i = end-1; i >= start; i--) {
+                if (tokens[i].type == TOKEN_OPERATOR) {
+                    addToBody(&root.body, parse(full_code, tokens, start, i-1, NODE_EXPRESSION));
+                    addToBody(&root.body, parse(full_code, tokens, i, i, NODE_OPERATOR));
+                    addToBody(&root.body, parse(full_code, tokens, i+1, end, NODE_EXPRESSION));
+                    return root;
+                }
+            }
+            break;
+        
+        case NODE_IDENTIFIER:
+        case NODE_LITERAL:
+            // these are base nodes and therefore don't need to be parsed
+            break;
 
-                break;
-        }
     }
-
     return root;
 }
 

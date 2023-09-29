@@ -1,5 +1,4 @@
 import { getTokens } from './lexer.mjs';
-import { Parser } from './parser.mjs';
 
 // JavaScript code to handle the interaction
 const inputText = document.getElementById('inputText');
@@ -11,9 +10,6 @@ inputText.addEventListener('input', () => {
     tokens = getTokens(inputText.value);
     console.log(tokens);
     displayTokens(inputText.value, tokens);
-    // const parser = new Parser(tokens);
-    // const ast = parser.parse();
-    // console.log(ast);
 });
 function displayTokens(inputText, t) {
     outputDiv.textContent = '';

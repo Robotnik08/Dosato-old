@@ -157,7 +157,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, var_typetokens[j])) {
                 free(next_word);
-                addToken(tokens, TOKEN_EXT, i, i + strlen(var_typetokens[j]) - 1, j);
+                addToken(tokens, TOKEN_VAR_TYPE, i, i + strlen(var_typetokens[j]) - 1, j);
                 i += strlen(var_typetokens[j]) - 1;
                 break;
             } else {
@@ -178,7 +178,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, extension_tokens[j])) {
                 free(next_word);
-                addToken(tokens, TOKEN_KEYWORD, i, i + strlen(extension_tokens[j]) - 1, j);
+                addToken(tokens, TOKEN_EXT, i, i + strlen(extension_tokens[j]) - 1, j);
                 i += strlen(extension_tokens[j]) - 1;
                 break;
             } else {
@@ -309,6 +309,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
     }
 
     tokenCount = getTokenAmount(*tokens); // update token count to include all tokens so far
+    sortTokens(tokens); // sort tokens so that they are in order
     
     // get general tokens (variables, functions, etc.)
     for (int i = 0; i < code_length; i++) {
