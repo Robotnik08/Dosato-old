@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include "token.h"
+#include "log.h"
+#include "str_tools.h"
 
 typedef struct Node Node;
 
@@ -105,32 +107,66 @@ int getBlock (Token* tokens, const int start) {
     return length-1;
 }
 
-Node parse (const char* full_code, Token* tokens, const int start, const int end, const NodeType type) {
-    // test nodes to be printed
-    
+Node parse (const char* full_code, Token* tokens, const int start, const int end, const NodeType type) {    
     Node root;
     root.start = start;
     root.end = end;
     root.type = type;
     root.body = NULL;
     
+    // loop through the tokens
     for (int i = start; i < end; i++) {
-        if (tokens[i].type == TOKEN_MASTER_KEYWORD) {
-            int full_line = getFullLine(tokens, i);
-            switch (tokens[i].carry)
-            {
-                case MASTER_DO:
-                    addToBody(&root.body, parse(full_code, tokens, i+1, full_line, NODE_FUNCTION_CALL));
-                    i = full_line;
-                    break;
-                case MASTER_MAKE:
-                    // addToBody(&root.body, i, i, NODE_MAKE_VAR);
-                    break;
-                case MASTER_SET:
-                    // addToBody(&root.body, i, i, NODE_SET_VAR);
-                    break;
-                default:
-            }
+        switch (type) {
+            case NODE_PROGRAM:
+            case NODE_BLOCK:
+                if (tokens[i].type == TOKEN_MASTER_KEYWORD) {
+                    int full_line = getFullLine(tokens, i);
+                    switch (tokens[i].carry)
+                    {
+                        case MASTER_DO:
+                            addToBody(&root.body, parse(full_code, tokens, i+1, full_line, NODE_FUNCTION_CALL));
+                            i = full_line;
+                            break;
+                        case MASTER_MAKE:
+                            // addToBody(&root.body, i, i, NODE_MAKE_VAR);
+                            break;
+                        case MASTER_SET:
+                            // addToBody(&root.body, i, i, NODE_SET_VAR);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    // printError(getLine(full_code, tokens[i].start), ERROR_EXPECTED_MASTER);
+                }
+                break;
+            case NODE_FUNCTION_CALL:
+                if (tokens[i].type == TOKEN_IDENTIFIER) {
+                    int args_end = getBlock(tokens, i+1);
+                    addToBody(&root.body, parse(full_code, tokens, i, args_end, NODE_FUNCTION_IDENTIFIER));
+                    i = args_end;
+                } else if (tokens[i].type == TOKEN_KEYWORD) {
+                    int t_end = end;
+                    const ExtensionKeywordType types[] = EXTENSION_ACCEPTS;
+                    switch (types[tokens[i].carry])
+                    {
+                        case NEEDS_BLOCK:
+                        case NEEDS_EXPRESSION:
+                            if (tokens[i+1].type == TOKEN_PARENTHESIS) {
+                                t_end = getBlock(tokens, i+1);
+                            } else {
+                                printError(getLine(full_code, tokens[i+1].start), ERROR_PARSER);
+                            }
+                            break;
+                        case NEEDS_FUNCTION:
+                            t_end = getBlock(tokens, i+2);
+                            break;
+                    }
+                    addToBody(&root.body, parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry -1));
+                    i = t_end;
+                }
+
+                break;
         }
     }
 

@@ -3,9 +3,9 @@
 #include <string.h>
 
 #include "includes/str_tools.h"
-#include "includes/lang.h"
 #include "includes/lexer.h"
 #include "includes/parser.h"
+#include "includes/log.h"
 
 // forward declarations
 int QUIT (int code);
@@ -53,15 +53,16 @@ int main (int argc, char* argv[])
     {
         debug = 1;
     }
-    fseek(file, 0, SEEK_END);
-    int size = ftell(file);
+    int size = 0;
+    while (fgetc(file) != EOF) {
+        size++;
+    }
     fseek(file, 0, SEEK_SET);
 
     // read the file into a string
     char* contents = malloc(size);
-
+    contents[size] = '\0';
     fread(contents, 1, size, file);
-    contents[size] = '\0'; // null terminate
 
     fclose(file);
 
@@ -70,14 +71,13 @@ int main (int argc, char* argv[])
     Token* tokens = NULL;
     tokenise(&tokens, contents, size);
 
-
     // parse the tokens
     Node root = parse(contents, tokens, 0, getTokenAmount(tokens)-1, NODE_PROGRAM);
 
     if (debug) {
         printf("CONTENTS:\n\n");
-        for (int i = 0; i < size + 10; i++) {
-            printf("%c", contents[i] == '\0' ? '!' : contents[i]);
+        for (int i = 0; i < size; i++) {
+            printf("%c", contents[i]);
         }
         printf("\n\n\n\nTOKENS:\n\n");
         printTokens(tokens);

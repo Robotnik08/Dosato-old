@@ -2,7 +2,8 @@
 #define TOKEN_H
 
 #define MASTER_KEYWORDS {"DO", "MAKE", "SET"}
-#define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "ELSEWHEN", "CATCH", "STORE", "THEN"}
+#define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "CATCH", "STORE", "THEN"}
+#define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_IDENTIFIER, NEEDS_FUNCTION}
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
 #define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "|", "^", "~", "?", ":", ".", ",", "#", \
@@ -98,14 +99,14 @@ typedef enum {
 } MasterKeywordType;
 
 typedef enum {
-    E_NULL,
     EXT_WHEN,
     EXT_WHILE,
     EXT_ELSE,
-    EXT_ELSEWHEN,
     EXT_CATCH,
     EXT_STORE,
-    EXT_THEN
+    EXT_THEN,
+
+    E_NULL = -1
 } ExtensionKeywordType;
 
 typedef enum {
@@ -121,6 +122,15 @@ typedef enum {
     NODE_IDENTIFIER,
     NODE_OPERATOR,
     NODE_BLOCK,
+    NODE_FUNCTION_IDENTIFIER,
+    NODE_ARGUMENTS,
+
+    NODE_WHEN,
+    NODE_WHILE,
+    NODE_ELSE,
+    NODE_CATCH,
+    NODE_STORE,
+    NODE_THEN,
     
     NODE_END = -1
 } NodeType;
@@ -130,7 +140,13 @@ typedef struct {
     TokenType type;
     int carry;
 } Token;
-
+typedef enum {
+    NEEDS_NULL,
+    NEEDS_BLOCK,
+    NEEDS_EXPRESSION,
+    NEEDS_IDENTIFIER,
+    NEEDS_FUNCTION
+} KeyWordFollowUpType;
 /**
  * @brief Get the type of a bracket
  * @param bracket The bracket to get the type of
@@ -152,5 +168,6 @@ BracketType getBracketType (char bracket) {
             return BRACKET_NULL;
     }
 }
+
 
 #endif

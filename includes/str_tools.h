@@ -54,6 +54,12 @@ void str_replace(char *in, const char *selector, const char *replacement);
  * @param start The index to start at
 */
 char* getWord (const char* text, int start);
+/**
+ * @brief Get the line number of a character in a string
+ * @param text The text to get the line number from
+ * @param pos The index of the character to get the line number of
+*/
+int getLine (const char* text, int pos);
 
 int isNumeric (char c) {
     return c >= '0' && c <= '9';
@@ -159,6 +165,15 @@ char* getWord(const char* text, int start) {
     // Add the null terminator to make it a valid C string
     word[wordLength] = '\0';
     return word;
+}
+int getLine (const char* text, int pos) {
+    int line = 1;
+    for (int i = 0; i < pos; i++) {
+        if (text[i] == '\n') {
+            line++;
+        }
+    }
+    return line;
 }
 
 #endif

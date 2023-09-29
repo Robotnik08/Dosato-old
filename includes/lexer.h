@@ -9,6 +9,7 @@ void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry);
 int getTokenAmount (Token* tokens);
 void printTokens (Token* tokens);
 void sortTokens (Token** tokens);
+void trimComments (Token** tokens);
 
 void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry) {
     int numTokens = 0;
@@ -49,6 +50,21 @@ void sortTokens (Token** tokens) {
             }
         }
     }
+}
+
+void trimComments (Token** tokens) {
+    int tokenCount = getTokenAmount(*tokens);
+    for (int i = 0; i < tokenCount; i++) {
+        if ((*tokens)[i].type == TOKEN_COMMENT) {
+            for (int j = i; j < tokenCount; j++) {
+                (*tokens)[j] = (*tokens)[j + 1];
+            }
+            tokenCount--;
+            i--;
+        }
+    }
+    *tokens = realloc(*tokens, (tokenCount + 1) * sizeof(Token));
+    (*tokens)[tokenCount].type = TOKEN_END;
 }
 
 void tokenise (Token** tokens, const char* full_code, const int code_length) {
@@ -313,6 +329,8 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
 
     // sort tokens
     sortTokens(tokens);
+
+    trimComments(tokens);
 }
 
 void printTokens (Token* tokens) {
