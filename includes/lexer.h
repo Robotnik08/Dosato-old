@@ -274,6 +274,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             i = end;
         }
     }
+    
+    tokenCount = getTokenAmount(*tokens); // update token count to include all tokens so far
+    sortTokens(tokens); // sort tokens so that they are in order
 
     // get operator tokens
     const char* operatortokens[] = OPERATORS;

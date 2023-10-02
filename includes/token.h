@@ -6,8 +6,11 @@
 #define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_IDENTIFIER, NEEDS_FUNCTION}
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
-#define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "|", "^", "~", "?", ":", ".", ",", "#", \
-                    "+=", "-=", "*=", "/=", "%=", "++", "--", "==", "!=", ">=", "<=", "&&", "||", "<<", ">>"}
+#define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#", \
+                   "+=", "-=", "*=", "/=", "%=", "++", "--", "==", "!=", ">=", "<=", "&&", "||", "<<", ">>"}
+// operator precedence is borrowed from C
+#define OPERATOR_PRECEDENCE {4,4,3,3,3,14,6,6,2,8,9,10,2,13,13,1,15,1,14,14,14,14,14,2,2,7,7,6,6,11,12,5,5}
+
 #define BRACKETS {"()", "{}", "[]"}
 
 typedef enum {

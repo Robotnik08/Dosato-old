@@ -2,6 +2,7 @@
 #define LOG_H
 
 #include <stdio.h>
+#include "str_tools.h"
 
 typedef enum {
     ERROR,
@@ -51,7 +52,7 @@ const char* ERROR_MESSAGES[] = {
 };
 
 void logText (const LogType type, const char* contents);
-void printError (const int line, const ErrorType type);
+void printError (const char* full_code, const int pos, const ErrorType type);
 
 void logText (const LogType type, const char* contents) {
     switch (type) {
@@ -67,10 +68,10 @@ void logText (const LogType type, const char* contents) {
         exit(1);
     }
 }
-void printError (const int line, const ErrorType type) {
+void printError (const char* full_code, const int pos, const ErrorType type) {
     printf("ERROR:\n");
     printf("%s\n", ERROR_MESSAGES[type]);
-    printf("At line %i\n", line);
+    printf("At line %i:%i\n", getLine(full_code, pos), getLineCol(full_code, pos));
     exit(type);
 }
 

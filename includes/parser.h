@@ -55,7 +55,7 @@ Node parse (const char* code, Token* tokens, const int start, const int end, con
  * @param node The node to print
  * @param depth The depth of the node
 */
-void printNode (const Node* node, const int depth, int isRoot);
+void printNode (const char* full_code, const Token* tokens, const Node* node, const int depth, int isRoot);
 
 /**
  * @brief Get the length of a node's body
@@ -106,6 +106,16 @@ int getBlock (Token* tokens, const int start) {
     }
     return length-1;
 }
+int getBlockReverse (Token* tokens, const int start) {
+    int length = getTokenAmount(tokens);
+    int targetCarry = tokens[start].carry;
+    for (int i = start-1; i >= 0; i--) {
+        if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry == targetCarry) {
+            return i;
+        }
+    }
+    return 0;
+}
 
 Node parse (const char* full_code, Token* tokens, const int start, const int end, const NodeType type) {    
     Node root;
@@ -126,7 +136,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     addToBody(&root.body, parse(full_code, tokens, i+1, full_line, NODE_FUNCTION_CALL + tokens[i].carry));
                     i = full_line;
                 } else if (tokens[i].type != TOKEN_SEPARATOR) {
-                    printError(getLine(full_code, tokens[i].start), ERROR_EXPECTED_MASTER);
+                    printError(full_code, tokens[i].start, ERROR_EXPECTED_MASTER);
                 }
             }
             break;
@@ -148,7 +158,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             if (tokens[i+1].type == TOKEN_PARENTHESIS) {
                                 t_end = getBlock(tokens, i+1);
                             } else {
-                                printError(getLine(full_code, tokens[i+1].start), ERROR_PARSER);
+                                printError(full_code, tokens[i+1].start, ERROR_PARSER);
                             }
                             break;
                         case NEEDS_FUNCTION:
@@ -163,16 +173,16 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         // if the node is a function identifier, check for arguments
         case NODE_FUNCTION_IDENTIFIER:
             if (tokens[start].type != TOKEN_IDENTIFIER) {
-                printError(getLine(full_code, tokens[start].start), ERROR_EXPECTED_IDENTIFIER);
+                printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
             }
             if (tokens[start + 1].type == TOKEN_PARENTHESIS) {
                 if (tokens[start + 1].carry & BRACKET_ROUND) {
                     addToBody(&root.body, parse(full_code, tokens, start + 1, getBlock(tokens, start + 1), NODE_ARGUMENTS));
                 } else {
-                    printError(getLine(full_code, tokens[start + 1].start), ERROR_WRONG_BRACKET_ROUND);
+                    printError(full_code, tokens[start + 1].start, ERROR_WRONG_BRACKET_ROUND);
                 }
             } else {
-                printError(getLine(full_code, tokens[start + 1].start), ERROR_EXPECTED_ARGUMENTS);
+                printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_ARGUMENTS);
             }
             break;
         // if the node is a function declaration, check for arguments
@@ -184,7 +194,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     arg_start = i + 1;
                 }
             }
-            if (arg_start > end-1) printError(getLine(full_code, tokens[arg_start].start), ERROR_EXPECTED_ARGUMENT);
+            if (arg_start > end-1) printError(full_code, tokens[arg_start].start, ERROR_EXPECTED_ARGUMENT);
             addToBody(&root.body, parse(full_code, tokens, arg_start, end-1, NODE_ARGUMENT));
             break;
         // if the node is an argument, check for identifiers, literals and expressions
@@ -195,7 +205,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 } else if (tokens[start].type == TOKEN_NUMBER || tokens[start].type == TOKEN_STRING) {
                     addToBody(&root.body, parse(full_code, tokens, start, end, NODE_LITERAL));
                 } else {
-                    printError(getLine(full_code, tokens[start].start), ERROR_EXPECTED_IDENTIFIER);
+                    printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
                 }
             }
             else {
@@ -205,12 +215,30 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         // if the node is an expression, check for operators
         case NODE_EXPRESSION:
             // work in progress
-            for (int i = end-1; i >= start; i--) {
-                if (tokens[i].type == TOKEN_OPERATOR) {
-                    addToBody(&root.body, parse(full_code, tokens, start, i-1, NODE_EXPRESSION));
-                    addToBody(&root.body, parse(full_code, tokens, i, i, NODE_OPERATOR));
-                    addToBody(&root.body, parse(full_code, tokens, i+1, end, NODE_EXPRESSION));
-                    return root;
+            if (end - start > 0) {
+                int p_values[] = OPERATOR_PRECEDENCE;
+                for (int o = 0; o < end-start/2; o++) { // o is the offset, discarding the first and last token when parentheses are present
+                    for (int p = 15; p > 0; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
+                        for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
+                            if (tokens[i].type == TOKEN_PARENTHESIS) {
+                                i = getBlockReverse(tokens, i);
+                            }
+                            if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
+                                addToBody(&root.body, parse(full_code, tokens, start + o, i-1, NODE_EXPRESSION));
+                                addToBody(&root.body, parse(full_code, tokens, i, i, NODE_OPERATOR));
+                                addToBody(&root.body, parse(full_code, tokens, i+1, end - o, NODE_EXPRESSION));
+                                return root;
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (tokens[start].type == TOKEN_IDENTIFIER) {
+                    root.type = NODE_IDENTIFIER;
+                } else if (tokens[start].type == TOKEN_NUMBER || tokens[start].type == TOKEN_STRING) {
+                    root.type = NODE_LITERAL;
+                } else {
+                    printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
                 }
             }
             break;
@@ -224,7 +252,98 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
     return root;
 }
 
-void printNode (const Node* node, int depth, int isRoot) {
+
+// debug print functions these are not needed for the parser to work, and leak a bit of memory, no biggie
+
+char* getNodeTypeString(NodeType type) {
+    char* nodeTypeString = NULL;
+
+    switch (type) {
+        case NODE_NULL:
+            nodeTypeString = "NODE_NULL";
+            break;
+        case NODE_PROGRAM:
+            nodeTypeString = "program";
+            break;
+        case NODE_FUNCTION_CALL:
+            nodeTypeString = "function call";
+            break;
+        case NODE_MAKE_VAR:
+            nodeTypeString = "make var";
+            break;
+        case NODE_SET_VAR:
+            nodeTypeString = "set var";
+            break;
+        case NODE_FUNCTION_DECLARATION:
+            nodeTypeString = "function declaration";
+            break;
+        case NODE_EXPRESSION:
+            nodeTypeString = "expression";
+            break;
+        case NODE_STATEMENT:
+            nodeTypeString = "statement";
+            break;
+        case NODE_LITERAL:
+            nodeTypeString = "literal";
+            break;
+        case NODE_IDENTIFIER:   
+            nodeTypeString = "identifier";
+            break;
+        case NODE_OPERATOR: 
+            nodeTypeString = "operator";
+            break;
+        case NODE_BLOCK:
+            nodeTypeString = "block";
+            break;
+        case NODE_FUNCTION_IDENTIFIER:
+            nodeTypeString = "function identifier";
+            break;
+        case NODE_ARGUMENTS:    
+            nodeTypeString = "arguments";
+            break;
+        case NODE_ARGUMENT:
+            nodeTypeString = "argument";
+            break;
+        case NODE_WHEN:
+            nodeTypeString = "when";
+            break;
+        case NODE_WHILE:
+            nodeTypeString = "while";
+            break;
+        case NODE_ELSE:
+            nodeTypeString = "else";
+            break;
+        case NODE_CATCH:    
+            nodeTypeString = "catch";
+            break;
+        case NODE_STORE:
+            nodeTypeString = "store";
+            break;
+        case NODE_THEN:
+            nodeTypeString = "then";
+            break;
+        case NODE_END:
+            nodeTypeString = "NODE_END";
+            break;
+        default:
+            nodeTypeString = "Unknown"; // Return a default value for invalid types
+            break;
+    }
+
+    return nodeTypeString;
+}
+ 
+void getStringFromNode (const char* full_code, const Token* tokens, const Node* node, char** string) {
+    *string = (char*)malloc(sizeof(char) * (tokens[node->end].end - tokens[node->start].start + 1));
+
+    int stringIndex = 0;
+    for (int i = tokens[node->start].start; i <= tokens[node->end].end; i++) {
+        (*string)[stringIndex++] = full_code[i] == '\n' ? ' ' : full_code[i];
+    }
+    (*string)[stringIndex] = '\0';
+}
+
+void printNode (const char* full_code, const Token* tokens, const Node* node, int depth, int isRoot) {
     if (isRoot) {
         printf("{\n");
         printf("  \"root\": ");
@@ -250,7 +369,15 @@ void printNode (const Node* node, int depth, int isRoot) {
     for (int i = 0; i < depth+1; i++) {
         printf("  ");
     }
-    printf("\"type\": %d", node->type);
+    printf("\"type\": \"%s\",\n", getNodeTypeString(node->type));
+
+    
+    for (int i = 0; i < depth+1; i++) {
+        printf("  ");
+    }
+    char *stringFromNode;
+    getStringFromNode(full_code, tokens, node, &stringFromNode);
+    printf("\"text\": \"%s\"", stringFromNode);
 
     if (node->body != NULL) {
         printf(",\n");
@@ -259,7 +386,7 @@ void printNode (const Node* node, int depth, int isRoot) {
         }
         printf("\"body\": [\n");
         for (int i = 0; i < getBodyLength(node->body); i++) {
-            printNode(&node->body[i], depth + 2, 0);
+            printNode(full_code, tokens, &node->body[i], depth + 2, 0);
             if (i != getBodyLength(node->body) - 1) {
                 printf(",\n");
             }

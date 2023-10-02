@@ -83,7 +83,7 @@ int main (int argc, char* argv[])
         printTokens(tokens);
 
         printf("\n\n\nAST:\n\n");
-        printNode(&root, 1, 1);
+        printNode(contents, tokens, &root, 1, 1);
     }
 
     destroyNode(&root);

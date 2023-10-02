@@ -60,6 +60,12 @@ char* getWord (const char* text, int start);
  * @param pos The index of the character to get the line number of
 */
 int getLine (const char* text, int pos);
+/**
+ * @brief Get the column number of a character in a string
+ * @param text The text to get the column number from
+ * @param pos The index of the character to get the column number of
+*/
+int getLineCol (const char* text, int pos);
 
 int isNumeric (char c) {
     return c >= '0' && c <= '9';
@@ -174,6 +180,16 @@ int getLine (const char* text, int pos) {
         }
     }
     return line;
+}
+int getLineCol (const char* text, int pos) {
+    int col = 1;
+    for (int i = 0; i < pos; i++) {
+        if (text[i] == '\n') {
+            col = 0;
+        }
+        col++;
+    }
+    return col;
 }
 
 #endif
