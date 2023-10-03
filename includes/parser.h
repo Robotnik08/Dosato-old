@@ -170,6 +170,21 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 }
             }
             break;
+        case NODE_MAKE_VAR:
+            if (tokens[start].type != TOKEN_VAR_TYPE) {
+                printError(full_code, tokens[start].start, ERROR_EXPECTED_TYPE);
+            }
+            addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
+            if (tokens[start + 1].type != TOKEN_IDENTIFIER) {
+                printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_IDENTIFIER);
+            }
+            if (tokens[start + 2].type == TOKEN_OPERATOR && tokens[start + 2].carry == OPERATOR_ASSIGN) {
+                addToBody(&root.body, parse(full_code, tokens, start + 1, start + 1, NODE_IDENTIFIER));
+                addToBody(&root.body, parse(full_code, tokens, start + 3, end-1, NODE_EXPRESSION));
+            } else {
+                printError(full_code, tokens[start + 2].start, ERROR_EXPECTED_ASSIGN_OPERATOR);
+            }
+            break;
         // if the node is a function identifier, check for arguments
         case NODE_FUNCTION_IDENTIFIER:
             if (tokens[start].type != TOKEN_IDENTIFIER) {
@@ -269,10 +284,10 @@ char* getNodeTypeString(NodeType type) {
             nodeTypeString = "function call";
             break;
         case NODE_MAKE_VAR:
-            nodeTypeString = "make var";
+            nodeTypeString = "make_var";
             break;
         case NODE_SET_VAR:
-            nodeTypeString = "set var";
+            nodeTypeString = "set_var";
             break;
         case NODE_FUNCTION_DECLARATION:
             nodeTypeString = "function declaration";
@@ -303,6 +318,9 @@ char* getNodeTypeString(NodeType type) {
             break;
         case NODE_ARGUMENT:
             nodeTypeString = "argument";
+            break;
+        case NODE_TYPE_IDENTIFIER:
+            nodeTypeString = "type_identifier";
             break;
         case NODE_WHEN:
             nodeTypeString = "when";

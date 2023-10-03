@@ -27,6 +27,8 @@ typedef enum {
     ERROR_WRONG_BRACKET_CURLY,
     ERROR_EXPECTED_ARGUMENTS,
     ERROR_EXPECTED_ARGUMENT,
+    ERROR_EXPECTED_TYPE,
+    ERROR_EXPECTED_ASSIGN_OPERATOR,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -48,6 +50,8 @@ const char* ERROR_MESSAGES[] = {
     "Bracket is incorrect, expected a curly bracket { }",
     "Expected () after function call",
     "Expected an argument",
+    "Expected a type (INT, FLOAT, STRING, BOOL etc)",
+    "Expected an assignment operator",
     "Unknown Error"
 };
 
