@@ -1,13 +1,25 @@
+/**
+ * @author Sebastiaan Heins
+ * @file main.c
+ * @brief The main file and entry point of the Dosato interpreter
+ * @version 0.0.3
+ * @date 05-10-2023
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// includes
 #include "includes/str_tools.h"
 #include "includes/lexer.h"
 #include "includes/parser.h"
 #include "includes/log.h"
 
-// forward declarations
+/**
+ * @brief Quit the program with a code
+ * @param code The code to quit with
+*/
 int QUIT (int code);
 
 // global variables
@@ -16,12 +28,14 @@ int debug = 0;
 
 int main (int argc, char* argv[])
 {
+    // if no arguments are given, show hint
     if (argc < 2)
     {
         printf("Use -h or -help for help\n");
         return QUIT(0);
     }
-    
+
+    // if the first argument is -h or --help, show help
     if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
     {
         printf("Commands:\n");
@@ -33,26 +47,29 @@ int main (int argc, char* argv[])
         return QUIT(0);
     }
 
+    // if the first argument is -v or --version, show the version number
     if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)
     {
-        printf("Dosato Version: 0.0.2\n");
+        printf("Dosato Version: 0.0.3\n");
         printf("2023, made by Sebastiaan Heins\n");
 
         return QUIT(0);
     }
 
+    // open the file
     FILE* file = fopen(argv[1], "r");
 
+    // if the file could not be opened, show an error
     if (file == NULL)
     {
         printf("Could not open file (reading: %s).\n", argv[1]);
-
         return QUIT(1);
     }
-    if (argv[2] != NULL && (!strcmp(argv[2], "-d") || !strcmp(argv[2], "--debug")))
-    {
-        debug = 1;
-    }
+    
+    // check if the file should be run in debug mode
+    debug = argv[2] != NULL && (!strcmp(argv[2], "-d") || !strcmp(argv[2], "--debug"));
+
+    // get the size of the file
     int size = 0;
     while (fgetc(file) != EOF) {
         size++;
@@ -64,16 +81,22 @@ int main (int argc, char* argv[])
     contents[size] = '\0';
     fread(contents, 1, size, file);
 
+    // close the file
     fclose(file);
 
+
+    /// STEP 1: LEXER ///
 
     // tokenise the string
     Token* tokens = NULL;
     tokenise(&tokens, contents, size);
 
+    /// STEP 2: PARSER ///
+
     // parse the tokens
     Node root = parse(contents, tokens, 0, getTokenAmount(tokens)-1, NODE_PROGRAM);
 
+    /// DEBUG ///
     if (debug) {
         printf("CONTENTS:\n\n");
         for (int i = 0; i < size; i++) {
@@ -86,14 +109,15 @@ int main (int argc, char* argv[])
         printNode(contents, tokens, &root, 1, 1);
     }
 
+    /// STEP end: CLEANUP ///
     destroyNode(&root);
 
     free(tokens);
     free(contents);
 
+    // flawless execution
     return QUIT(0);
 }
-
 
 int QUIT (int code)
 {
