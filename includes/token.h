@@ -1,6 +1,6 @@
 /**
  * @file token.h
- * @brief Contains all the token types and their respective enums
+ * @brief Contains all the token types and their respective enums, as well as some helper functions and the token struct
  * @version 0.0.3
  * @date 05-10-2023
 */
@@ -13,7 +13,7 @@
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
 #define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#", \
-                   "+=", "-=", "*=", "/=", "%=", "++", "--", "==", "!=", ">=", "<=", "&&", "||", "<<", ">>"}
+                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>"}
 // operator precedence is borrowed from C
 #define OPERATOR_PRECEDENCE {4,4,3,3,3,14,6,6,2,8,9,10,2,13,13,1,15,1,14,14,14,14,14,2,2,7,7,6,6,11,12,5,5}
 
