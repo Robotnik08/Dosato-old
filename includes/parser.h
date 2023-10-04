@@ -1,3 +1,10 @@
+/**
+ * @file parser.h
+ * @brief The parser is used to parse a list of tokens into an AST
+ * @version 0.0.3
+ * @date 05-10-2023
+*/
+
 #ifndef PARSER_H
 #define PARSER_H
 
@@ -5,7 +12,9 @@
 #include "token.h"
 #include "log.h"
 #include "str_tools.h"
-
+/**
+ * @brief The Node Type is used to represent a node in the AST
+*/
 typedef struct Node Node;
 
 struct Node {
@@ -21,8 +30,9 @@ struct Node {
 Node createNullTerminatedNode();
 
 /**
- * @brief Create a null terminated node
- * @return The null terminated node
+ * @brief Add a node to the body of a node
+ * @param body The body to add the node to
+ * @param node The node to add to the body
 */
 void addToBody (Node** body, Node node);
 
@@ -30,7 +40,7 @@ void addToBody (Node** body, Node node);
  * @brief Get the full line starting at a token
  * @param tokens The list of tokens
  * @param start The index of the token to start at
- * @return The full line
+ * @return The index of the last token of the line
 */
 int getFullLine (Token* tokens, const int start);
 
@@ -38,31 +48,65 @@ int getFullLine (Token* tokens, const int start);
  * @brief Get the block starting at a token
  * @param tokens The list of tokens
  * @param start The index of the token to start at
- * @return The full block
+ * @return The index of thelast token of the block
 */
 int getBlock (Token* tokens, const int start);
 
 /**
+ * @brief Get the block starting at a token, but reads backwards
+ * @param tokens The list of tokens
+ * @param start The index of the token to start at
+ * @return The index of the first token of the block
+*/
+int getBlockReverse (Token* tokens, const int start);
+
+/**
  * @brief Parse a list of tokens into an AST
  * @param tokens The list of tokens to parse
- * @param length The length of the list of tokens
- * @return The root node of the AST
+ * @param start The index of the first token to parse
+ * @param end The index of the last token to parse
+ * @return The resulting AST from the list of tokens (don't forget to destroy it)
 */
 Node parse (const char* code, Token* tokens, const int start, const int end, const NodeType type);
 
 /**
+ * @brief Get the amount of nodes in a node's body 
+ * @param nodes The node's body
+ * @return The amount of nodes in the body (excluding the null terminator)
+*/
+int getBodyLength (const Node* nodes);
+
+/**
+ * @brief Destroy a node and all of it's children, freeing the memory
+ * @param node The node to destroy
+*/
+void destroyNode (Node* node);
+
+/**
+ * @brief Get the string version of a node type
+ * @param type The node type
+ * @return The string version of the node type
+*/
+char* getNodeTypeString(NodeType type);
+
+/**
+ * @brief Get the string of the full code from a node, start of first token and end of last token
+ * @param full_code The full code
+ * @param tokens The list of tokens
+ * @param node The node to get the string version of
+ * @param string The string version of the node
+ * @return The string version of the node (don't forget to free it)
+*/
+void getStringFromNode (const char* full_code, const Token* tokens, const Node* node, char** string);
+
+/**
  * @brief Print a node
  * @param node The node to print
- * @param depth The depth of the node
+ * @param depth The depth of the node (this is used for indentation, root should be 1)
+ * @param isRoot Whether or not the node is the root node (boolean)
 */
 void printNode (const char* full_code, const Token* tokens, const Node* node, const int depth, int isRoot);
 
-/**
- * @brief Get the length of a node's body
- * @param nodes The node's body
- * @return The length of the node's body
-*/
-int getBodyLength (const Node* nodes);
 
 
 
@@ -117,13 +161,30 @@ int getBlockReverse (Token* tokens, const int start) {
     return 0;
 }
 
+int getBodyLength (const Node* nodes) {
+    if (nodes == NULL) return 0;
+    int i = 0;
+    while (nodes[i].type != NODE_END) {
+        i++;
+    }
+    return i;
+}
+
+void destroyNode (Node* node) {
+    if (node->body != NULL) {
+        for (int i = 0; i < getBodyLength(node->body); i++) {
+            destroyNode(&node->body[i]);
+        }
+        free(node->body);
+    }
+}
+
 Node parse (const char* full_code, Token* tokens, const int start, const int end, const NodeType type) {
     Node root;
     root.start = start;
     root.end = end;
     root.type = type;
     root.body = NULL;
-
     switch (type) {
         // if the node is a program or a block, check for full lines of code
         case NODE_PROGRAM:
@@ -141,30 +202,62 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         
         // if the node is a function call, check for identifiers and extensions
         case NODE_FUNCTION_CALL:
+            int got_identifier = 0;
             for (int i = start; i < end; i++) {
                 if (tokens[i].type == TOKEN_IDENTIFIER) {
+                    if (got_identifier) printError(full_code, tokens[i].start, ERROR_EXPECTED_EXTENSION);
                     int args_end = getBlock(tokens, i+1);
                     addToBody(&root.body, parse(full_code, tokens, i, args_end, NODE_FUNCTION_IDENTIFIER));
                     i = args_end;
+                    got_identifier = 1;
                 } else if (tokens[i].type == TOKEN_EXT) {
                     int t_end = end;
                     const ExtensionKeywordType types[] = EXTENSION_ACCEPTS;
+                    Node ext_root;
                     switch (types[tokens[i].carry])
                     {
+                        case NEEDS_FUNCTION:
+                            if (tokens[i+1].type == TOKEN_IDENTIFIER) {
+                                if (tokens[i+2].type == TOKEN_PARENTHESIS && tokens[i+2].carry & BRACKET_ROUND) {
+                                    t_end = getBlock(tokens, i+2);
+                                    ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
+                                    addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_FUNCTION_IDENTIFIER));
+                                    break;
+                                }
+                                printError(full_code, tokens[i+2].start, ERROR_EXPECTED_ARGUMENTS);
+                            }
+                            // if function not found search for a block instead (break missing on purpose)
+
                         case NEEDS_BLOCK:
-                        case NEEDS_EXPRESSION:
-                            if (tokens[i+1].type == TOKEN_PARENTHESIS) {
+                            if (tokens[i+1].type == TOKEN_PARENTHESIS && tokens[i+1].carry & BRACKET_CURLY) {
                                 t_end = getBlock(tokens, i+1);
+                                ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
+                                addToBody (&ext_root.body, parse(full_code, tokens, i+2, t_end-1, NODE_BLOCK));
                             } else {
-                                printError(full_code, tokens[i+1].start, ERROR_PARSER);
+                                printError(full_code, tokens[i+1].start, ERROR_EXPECTED_BLOCK);
                             }
                             break;
-                        case NEEDS_FUNCTION:
-                            t_end = getBlock(tokens, i+2);
+                        case NEEDS_IDENTIFIER:
+                            if (tokens[i+1].type != TOKEN_IDENTIFIER) {
+                                printError(full_code, tokens[i+1].start, ERROR_EXPECTED_IDENTIFIER);
+                            }
+                            t_end = i+1;
+                            ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
+                            addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_IDENTIFIER));
                             break;
+                        case NEEDS_EXPRESSION:
+                            if (tokens[i+1].type == TOKEN_PARENTHESIS && tokens[i+1].carry & BRACKET_ROUND) {
+                                t_end = getBlock(tokens, i+1);
+                                ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
+                                addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_EXPRESSION));
+                                break;
+                            }
+                            printError(full_code, tokens[i+1].start, ERROR_EXPECTED_EXPRESSION);
                     }
-                    addToBody(&root.body, parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry -1));
+                    addToBody(&root.body, ext_root);
                     i = t_end;
+                } else {
+                    printError(full_code, tokens[i].start, ERROR_EXPECTED_EXTENSION);
                 }
             }
             break;
@@ -185,16 +278,16 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 int args_end = getBlock(tokens, start + 2);
                 addToBody(&root.body, parse(full_code, tokens, start + 2, args_end, NODE_ARGUMENTS));
                 if (tokens[args_end + 1].type != TOKEN_PARENTHESIS || !(tokens[args_end + 1].carry & BRACKET_CURLY)) {
-                    printError(full_code, tokens[args_end + 1].start, ERROR_WRONG_BRACKET_CURLY);
+                    printError(full_code, tokens[args_end + 1].start, ERROR_EXPECTED_BLOCK);
                 }
-                int blockEnd = getBlock(tokens, args_end + 1);
-                if (blockEnd + 1 != end) {
-                    printError(full_code, tokens[blockEnd + 1].start, ERROR_EXPECTED_SEPERATOR);
+                int block_end = getBlock(tokens, args_end + 1);
+                if (block_end + 1 != end) {
+                    printError(full_code, tokens[block_end + 1].start, ERROR_EXPECTED_SEPERATOR);
                 }
-                if (args_end + 2 - blockEnd <= 0) {
+                if (block_end - 2 - args_end <= 0) {
                     printError(full_code, tokens[args_end + 1].start, ERROR_EMPTY_BLOCK);
                 } 
-                addToBody(&root.body, parse(full_code, tokens, args_end + 2, blockEnd-1, NODE_BLOCK));
+                addToBody(&root.body, parse(full_code, tokens, args_end + 2, block_end-1, NODE_BLOCK));
                 break;
             }
             if (tokens[start + 2].type == TOKEN_OPERATOR && tokens[start + 2].carry == OPERATOR_ASSIGN) {
@@ -279,6 +372,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         
         case NODE_IDENTIFIER:
         case NODE_LITERAL:
+        case NODE_OPERATOR:
             // these are base nodes and therefore don't need to be parsed
             break;
 
@@ -287,7 +381,9 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
 }
 
 
-// debug print functions these are not needed for the parser to work, and leak a bit of memory, no biggie
+/**
+ * debug functions for printing the AST
+*/
 
 char* getNodeTypeString(NodeType type) {
     char* nodeTypeString = NULL;
@@ -353,8 +449,8 @@ char* getNodeTypeString(NodeType type) {
         case NODE_CATCH:    
             nodeTypeString = "catch";
             break;
-        case NODE_STORE:
-            nodeTypeString = "store";
+        case NODE_INTO:
+            nodeTypeString = "into";
             break;
         case NODE_THEN:
             nodeTypeString = "then";
@@ -419,6 +515,7 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     char *stringFromNode;
     getStringFromNode(full_code, tokens, node, &stringFromNode);
     printf("\"text\": \"%s\"", stringFromNode);
+    free(stringFromNode);
 
     if (node->body != NULL) {
         printf(",\n");
@@ -447,24 +544,6 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     if (isRoot) {
         printf("\n}");
     }
-}
-
-void destroyNode (Node* node) {
-    if (node->body != NULL) {
-        for (int i = 0; i < getBodyLength(node->body); i++) {
-            destroyNode(&node->body[i]);
-        }
-        free(node->body);
-    }
-}
-
-int getBodyLength (const Node* nodes) {
-    if (nodes == NULL) return 0;
-    int i = 0;
-    while (nodes[i].type != NODE_END) {
-        i++;
-    }
-    return i;
 }
 
 

@@ -1,8 +1,14 @@
+/**
+ * @file token.h
+ * @brief Contains all the token types and their respective enums
+ * @version 0.0.3
+ * @date 05-10-2023
+*/
 #ifndef TOKEN_H
 #define TOKEN_H
 
 #define MASTER_KEYWORDS {"DO", "MAKE", "SET"}
-#define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "CATCH", "STORE", "THEN"}
+#define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "CATCH", "INTO", "THEN"}
 #define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_IDENTIFIER, NEEDS_FUNCTION}
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
@@ -134,7 +140,7 @@ typedef enum {
     NODE_WHILE,
     NODE_ELSE,
     NODE_CATCH,
-    NODE_STORE,
+    NODE_INTO,
     NODE_THEN,
     
     NODE_END = -1

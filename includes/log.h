@@ -32,6 +32,9 @@ typedef enum {
     ERROR_EXPECTED_COMMA,
     ERROR_EXPECTED_SEPERATOR,
     ERROR_EMPTY_BLOCK,
+    ERROR_EXPECTED_EXTENSION,
+    ERROR_EXPECTED_BLOCK,
+    ERROR_EXPECTED_EXPRESSION,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -51,13 +54,16 @@ const char* ERROR_MESSAGES[] = {
     "Bracket is incorrect, expected a round bracket ( )",
     "Bracket is incorrect, expected a square bracket [ ]",
     "Bracket is incorrect, expected a curly bracket { }",
-    "Expected () after function call",
+    "Expected () after function call (arguments)",
     "Expected an argument",
     "Expected a type (INT, FLOAT, STRING, BOOL etc)",
     "Expected an assignment operator",
     "Expected a comma",
     "Expected a seperator (;)",
     "Empty Block, expected a statement",
+    "Expected an extension (WHEN, WHILE, ELSE, etc)",
+    "Expected a block { }",
+    "Expected an expression",
     "Unknown Error"
 };
 
@@ -80,7 +86,7 @@ void logText (const LogType type, const char* contents) {
 }
 void printError (const char* full_code, const int pos, const ErrorType type) {
     printf("ERROR:\n");
-    printf("%s\n", ERROR_MESSAGES[type]);
+    printf("E%i: %s\n", type, ERROR_MESSAGES[type]);
     printf("At line %i:%i\n", getLine(full_code, pos), getLineCol(full_code, pos));
     exit(type);
 }
