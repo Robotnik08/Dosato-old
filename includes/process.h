@@ -1,6 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include <stdlib.h>
+
 #include "scope.h"
 #include "str_tools.h"
 

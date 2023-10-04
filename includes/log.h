@@ -29,6 +29,9 @@ typedef enum {
     ERROR_EXPECTED_ARGUMENT,
     ERROR_EXPECTED_TYPE,
     ERROR_EXPECTED_ASSIGN_OPERATOR,
+    ERROR_EXPECTED_COMMA,
+    ERROR_EXPECTED_SEPERATOR,
+    ERROR_EMPTY_BLOCK,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -52,6 +55,9 @@ const char* ERROR_MESSAGES[] = {
     "Expected an argument",
     "Expected a type (INT, FLOAT, STRING, BOOL etc)",
     "Expected an assignment operator",
+    "Expected a comma",
+    "Expected a seperator (;)",
+    "Empty Block, expected a statement",
     "Unknown Error"
 };
 

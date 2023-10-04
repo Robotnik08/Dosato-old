@@ -117,16 +117,14 @@ int getBlockReverse (Token* tokens, const int start) {
     return 0;
 }
 
-Node parse (const char* full_code, Token* tokens, const int start, const int end, const NodeType type) {    
+Node parse (const char* full_code, Token* tokens, const int start, const int end, const NodeType type) {
     Node root;
     root.start = start;
     root.end = end;
     root.type = type;
     root.body = NULL;
-    
-    // loop through the tokens
-    switch (type) {
 
+    switch (type) {
         // if the node is a program or a block, check for full lines of code
         case NODE_PROGRAM:
         case NODE_BLOCK:
@@ -170,6 +168,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 }
             }
             break;
+        // MAKING a variable or function
         case NODE_MAKE_VAR:
             if (tokens[start].type != TOKEN_VAR_TYPE) {
                 printError(full_code, tokens[start].start, ERROR_EXPECTED_TYPE);
@@ -177,6 +176,26 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
             if (tokens[start + 1].type != TOKEN_IDENTIFIER) {
                 printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_IDENTIFIER);
+            }
+            if (tokens[start].carry == TYPE_FUNC) {
+                root.type = NODE_FUNCTION_DECLARATION;
+                if (tokens[start + 2].type != TOKEN_PARENTHESIS || !(tokens[start + 2].carry & BRACKET_ROUND)) {
+                    printError(full_code, tokens[start + 2].start, ERROR_EXPECTED_ARGUMENTS);
+                }
+                int args_end = getBlock(tokens, start + 2);
+                addToBody(&root.body, parse(full_code, tokens, start + 2, args_end, NODE_ARGUMENTS));
+                if (tokens[args_end + 1].type != TOKEN_PARENTHESIS || !(tokens[args_end + 1].carry & BRACKET_CURLY)) {
+                    printError(full_code, tokens[args_end + 1].start, ERROR_WRONG_BRACKET_CURLY);
+                }
+                int blockEnd = getBlock(tokens, args_end + 1);
+                if (blockEnd + 1 != end) {
+                    printError(full_code, tokens[blockEnd + 1].start, ERROR_EXPECTED_SEPERATOR);
+                }
+                if (args_end + 2 - blockEnd <= 0) {
+                    printError(full_code, tokens[args_end + 1].start, ERROR_EMPTY_BLOCK);
+                } 
+                addToBody(&root.body, parse(full_code, tokens, args_end + 2, blockEnd-1, NODE_BLOCK));
+                break;
             }
             if (tokens[start + 2].type == TOKEN_OPERATOR && tokens[start + 2].carry == OPERATOR_ASSIGN) {
                 addToBody(&root.body, parse(full_code, tokens, start + 1, start + 1, NODE_IDENTIFIER));
@@ -200,7 +219,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_ARGUMENTS);
             }
             break;
-        // if the node is a function declaration, check for arguments
+        // if the node is a function call, check for arguments
         case NODE_ARGUMENTS:
             int arg_start = start + 1;
             for (int i = start + 1; i < end - 1; i++) {
@@ -253,7 +272,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 } else if (tokens[start].type == TOKEN_NUMBER || tokens[start].type == TOKEN_STRING) {
                     root.type = NODE_LITERAL;
                 } else {
-                    printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
+                    // printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
                 }
             }
             break;
@@ -352,6 +371,10 @@ char* getNodeTypeString(NodeType type) {
 }
  
 void getStringFromNode (const char* full_code, const Token* tokens, const Node* node, char** string) {
+    if (node->start > node->end) {
+        *string = "Error: start > end";
+        return;
+    }
     *string = (char*)malloc(sizeof(char) * (tokens[node->end].end - tokens[node->start].start + 1));
 
     int stringIndex = 0;

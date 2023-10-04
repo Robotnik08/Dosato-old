@@ -73,7 +73,7 @@ typedef enum {
 } OperatorType;
 
 typedef enum {
-    D_NULL,
+    D_NULL = -1,
     TYPE_INT,
     TYPE_BOOL,
     TYPE_STRING,
@@ -157,6 +157,7 @@ typedef enum {
  * @param bracket The bracket to get the type of
 */
 BracketType getBracketType (char bracket);
+void printTokens (Token* tokens);
 
 BracketType getBracketType (char bracket) {
     switch (bracket) {
@@ -174,5 +175,17 @@ BracketType getBracketType (char bracket) {
     }
 }
 
+void printTokens (Token* tokens) {
+    if (tokens == NULL) {
+        printf("No tokens.\n");
+        return;
+    }
+    int i = 0;
+    while (tokens[i].type != TOKEN_END) {
+        printf("Token %d. start: %d, end: %d, type: %d, carry: %d\n",
+               i, tokens[i].start, tokens[i].end, tokens[i].type, tokens[i].carry);
+        i++;
+    }
+}
 
 #endif

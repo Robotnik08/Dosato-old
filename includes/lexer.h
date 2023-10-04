@@ -68,16 +68,14 @@ void trimComments (Token** tokens) {
 }
 
 void tokenise (Token** tokens, const char* full_code, const int code_length) {
+    int tokenCount = 0;
 
+    // get comment and string tokens
     int start = 0;
     int end = 0;
     char quotationtype = '\0';
     int escapeCount = 0;
     int inComment = 0;
-
-    int tokenCount = 0;
-
-    // get comment and string tokens
     for (int i = 0; i < code_length; i++) {
         if (quotationtype == '\0') {
             if ((full_code[i] == '"' || full_code[i] == '\'') && escapeCount % 2 == 0) {
@@ -122,7 +120,8 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
     }
     
-    tokenCount = getTokenAmount(*tokens); // update token count with the string and comment tokens
+    tokenCount = getTokenAmount(*tokens); // update token count to include all tokens so far
+    sortTokens(tokens); // sort tokens so that they are in order
     
     // get master tokens
     const char* mastertokens[] = MASTER_KEYWORDS;
@@ -144,6 +143,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
     }
+    
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
 
     // get var_type tokens
     const char* var_typetokens[] = VAR_TYPES;
@@ -165,6 +167,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
     }
+    
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
 
     // get extension tokens
     const char* extension_tokens[] = EXTENSION_KEYWORDS;
@@ -186,6 +191,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
     }
+    
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
     
     // get bracket tokens
     const char* brackettokens[] = BRACKETS;
@@ -220,6 +228,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
     }
 
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
+
     // get separator tokens
     const char separatortokens[] = SEPARATORS;
     for (int i = 0; i < code_length; i++) {
@@ -235,6 +246,9 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
     }
+    
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
 
     // getNumber tokens
     for (int i = 0; i < code_length; i++) {
@@ -275,8 +289,8 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
     }
     
-    tokenCount = getTokenAmount(*tokens); // update token count to include all tokens so far
-    sortTokens(tokens); // sort tokens so that they are in order
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
 
     // get operator tokens
     const char* operatortokens[] = OPERATORS;
@@ -284,7 +298,6 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
                 i = (*tokens)[t].end + 1;
-                break;
             }
         }
         int foundBig = 0;
@@ -311,8 +324,8 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
     }
 
-    tokenCount = getTokenAmount(*tokens); // update token count to include all tokens so far
-    sortTokens(tokens); // sort tokens so that they are in order
+    tokenCount = getTokenAmount(*tokens);
+    sortTokens(tokens);
     
     // get general tokens (variables, functions, etc.)
     for (int i = 0; i < code_length; i++) {
@@ -331,22 +344,8 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
     }
 
-    // sort tokens
+    // finalise tokens
     sortTokens(tokens);
-
-    trimComments(tokens);
-}
-
-void printTokens (Token* tokens) {
-    if (tokens == NULL) {
-        printf("No tokens.\n");
-        return;
-    }
-    int i = 0;
-    while (tokens[i].type != TOKEN_END) {
-        printf("Token %d. start: %d, end: %d, type: %d, carry: %d\n",
-               i, tokens[i].start, tokens[i].end, tokens[i].type, tokens[i].carry);
-        i++;
-    }
+    trimComments(tokens); // comments will be ignored from now on
 }
 #endif
