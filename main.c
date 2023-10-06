@@ -16,6 +16,7 @@
 #include "includes/parser.h"
 #include "includes/log.h"
 
+// forward declarations
 /**
  * @brief Quit the program with a code
  * @param code The code to quit with
@@ -24,7 +25,6 @@ int QUIT (int code);
 
 // global variables
 int debug = 0;
-
 
 int main (int argc, char* argv[])
 {
