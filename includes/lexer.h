@@ -267,7 +267,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
 
             int invalid = 0;
             for (int j = i; j < code_length; j++) {
-                if (j && isAlphaNameric(full_code[j-1])) {
+                if (isAlphaNameric(full_code[j-1])) {
                     invalid = 1;
                     for (int k = j; k < code_length && isFloateric(full_code[k]); k++) {
                         end = k;

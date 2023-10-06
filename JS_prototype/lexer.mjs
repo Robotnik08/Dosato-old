@@ -170,7 +170,7 @@ export function getTokens(text) {
 
             let invalid = false;
             for (let j = i; j < text.length; j++) {
-                if (j && !isNumeric(text[j-1]) && !isEmpty(text[j-1])) {
+                if (!isNumeric(text[j-1]) && !isEmpty(text[j-1])) {
                     invalid = true;
                     for (let k = j; k < text.length && isNumeric(text[k]); k++) {
                         end = k;
