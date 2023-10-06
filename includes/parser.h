@@ -237,6 +237,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                 printError(full_code, tokens[i+1].start, ERROR_EXPECTED_BLOCK);
                             }
                             break;
+                            
                         case NEEDS_IDENTIFIER:
                             if (tokens[i+1].type != TOKEN_IDENTIFIER) {
                                 printError(full_code, tokens[i+1].start, ERROR_EXPECTED_IDENTIFIER);
@@ -245,6 +246,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
                             addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_IDENTIFIER));
                             break;
+
                         case NEEDS_EXPRESSION:
                             if (tokens[i+1].type == TOKEN_PARENTHESIS && tokens[i+1].carry & BRACKET_ROUND) {
                                 t_end = getBlock(tokens, i+1);
@@ -314,6 +316,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             break;
         // if the node is a function call, check for arguments
         case NODE_ARGUMENTS:
+            if (start == end-1) break; // if there are no arguments, don't parse anything
             int arg_start = start + 1;
             for (int i = start + 1; i < end - 1; i++) {
                 if (tokens[i].type == TOKEN_OPERATOR && tokens[i].carry == OPERATOR_COMMA) {
@@ -359,6 +362,8 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         }
                     }
                 }
+                // if no operators were found, check for parentheses and get the literal or identifier
+                
             } else {
                 if (tokens[start].type == TOKEN_IDENTIFIER) {
                     root.type = NODE_IDENTIFIER;
