@@ -141,6 +141,7 @@ int getFullLine (Token* tokens, const int start) {
 }
 
 int getBlock (Token* tokens, const int start) {
+    if (tokens[start].type != TOKEN_PARENTHESIS) return start;
     int length = getTokenAmount(tokens);
     int targetCarry = tokens[start].carry;
     for (int i = start+1; i < length; i++) {
@@ -148,9 +149,10 @@ int getBlock (Token* tokens, const int start) {
             return i;
         }
     }
-    return length-1;
+    return start;
 }
 int getBlockReverse (Token* tokens, const int start) {
+    if (tokens[start].type != TOKEN_PARENTHESIS) return start;
     int length = getTokenAmount(tokens);
     int targetCarry = tokens[start].carry;
     for (int i = start-1; i >= 0; i--) {
@@ -158,7 +160,27 @@ int getBlockReverse (Token* tokens, const int start) {
             return i;
         }
     }
-    return 0;
+    return start;
+}
+
+int getExpression (Token* tokens, const int start) {
+    int length = getTokenAmount(tokens);
+    for (int i = start+1; i < length; i++) {
+        if (tokens[i].type == TOKEN_SEPARATOR || (tokens[i].type == TOKEN_PARENTHESIS && !(tokens[i].carry & BRACKET_ROUND)) || tokens[i].type == TOKEN_MASTER_KEYWORD || tokens[i].type == TOKEN_EXT || tokens[i].type == TOKEN_NULL) {
+            return i-1;
+        }
+    }
+    return -1;
+}
+
+int getSetExpression (Token* tokens, const int start) {
+    int length = getTokenAmount(tokens);
+    for (int i = start+1; i < length; i++) {
+        if (tokens[i].type == TOKEN_SEPARATOR || (tokens[i].type == TOKEN_PARENTHESIS && !(tokens[i].carry & BRACKET_ROUND)) || tokens[i].type == TOKEN_MASTER_KEYWORD || tokens[i].type == TOKEN_EXT || tokens[i].type == TOKEN_NULL || (tokens[i].type == TOKEN_OPERATOR && tokens[i].carry == OPERATOR_COMMA) || (tokens[i].type == TOKEN_OPERATOR && isAssignmentOperator(tokens[i].carry))) {
+            return i-1;
+        }
+    }
+    return -1;
 }
 
 int getBodyLength (const Node* nodes) {
@@ -237,19 +259,10 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                 printError(full_code, tokens[i+1].start, ERROR_EXPECTED_BLOCK);
                             }
                             break;
-                            
-                        case NEEDS_IDENTIFIER:
-                            if (tokens[i+1].type != TOKEN_IDENTIFIER) {
-                                printError(full_code, tokens[i+1].start, ERROR_EXPECTED_IDENTIFIER);
-                            }
-                            t_end = i+1;
-                            ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
-                            addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_IDENTIFIER));
-                            break;
 
                         case NEEDS_EXPRESSION:
-                            if (tokens[i+1].type == TOKEN_PARENTHESIS && tokens[i+1].carry & BRACKET_ROUND) {
-                                t_end = getBlock(tokens, i+1);
+                            int t_end = getExpression(tokens, i+1);
+                            if (t_end != -1) {
                                 ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
                                 addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_EXPRESSION));
                                 break;
@@ -299,6 +312,22 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 printError(full_code, tokens[start + 2].start, ERROR_EXPECTED_ASSIGN_OPERATOR);
             }
             break;
+        // SETTING a variable
+        case NODE_SET_VAR:
+            int t_end = getSetExpression(tokens, start);
+            if (t_end == -1) {
+                printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
+            }
+            addToBody(&root.body, parse(full_code, tokens, start, t_end, NODE_EXPRESSION));
+            if (tokens[t_end + 1].type == TOKEN_OPERATOR) {
+                if (!isAssignmentOperator(tokens[t_end + 1].carry)) printError(full_code, tokens[t_end + 1].start, ERROR_EXPECTED_ASSIGN_OPERATOR);
+                addToBody(&root.body, parse(full_code, tokens, t_end + 1, t_end + 1, NODE_OPERATOR));
+            } else {
+                printError(full_code, tokens[t_end + 1].start, ERROR_EXPECTED_ASSIGN_OPERATOR);
+            }
+            if (tokens[end].type != TOKEN_SEPARATOR) printError(full_code, tokens[end].start, ERROR_EXPECTED_SEPERATOR);
+            addToBody(&root.body, parse(full_code, tokens, t_end + 2, end-1, NODE_EXPRESSION));
+            break;
         // if the node is a function identifier, check for arguments
         case NODE_FUNCTION_IDENTIFIER:
             if (tokens[start].type != TOKEN_IDENTIFIER) {
@@ -344,17 +373,17 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             break;
         // if the node is an expression, check for operators
         case NODE_EXPRESSION:
-            // work in progress
             if (end - start > 0) {
+                // splitting the expression into blocks of parentheses and operators
                 int p_values[] = OPERATOR_PRECEDENCE;
                 for (int o = 0; o < end-start/2; o++) { // o is the offset, discarding the first and last token when parentheses are present
                     for (int p = 15; p > 0; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
-                            if (tokens[i].type == TOKEN_PARENTHESIS) {
+                            if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & BRACKET_ROUND) {
                                 i = getBlockReverse(tokens, i);
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
-                                addToBody(&root.body, parse(full_code, tokens, start + o, i-1, NODE_EXPRESSION));
+                                if (tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || full_code[tokens[i-1].start] == ')') addToBody(&root.body, parse(full_code, tokens, start + o, i-1, NODE_EXPRESSION));
                                 addToBody(&root.body, parse(full_code, tokens, i, i, NODE_OPERATOR));
                                 addToBody(&root.body, parse(full_code, tokens, i+1, end - o, NODE_EXPRESSION));
                                 return root;
@@ -362,19 +391,28 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         }
                     }
                 }
-                // if no operators were found, check for parentheses and get the literal or identifier
-                
-            } else {
+                // if no operators were found, check if the expression is valid
+                for (int o = 0; o < end-start/2; o++) {
+                    if (getBlock(tokens, start + o) != end - o) {
+                        if (start + o - 1 - end + o + 1 < 0) printError(full_code, tokens[start + o].start, ERROR_INVALID_EXPRESSION);
+                        addToBody(&root.body, parse(full_code, tokens, start + o - 1, end - o + 1, NODE_EXPRESSION));
+                        return root;
+                    }
+                }
+                printError(full_code, tokens[start].start, ERROR_INVALID_EXPRESSION);
+            } else if (end - start == 0) {
+                // if the expression is only one token, check if it's a literal or identifier
                 if (tokens[start].type == TOKEN_IDENTIFIER) {
                     root.type = NODE_IDENTIFIER;
                 } else if (tokens[start].type == TOKEN_NUMBER || tokens[start].type == TOKEN_STRING) {
                     root.type = NODE_LITERAL;
                 } else {
-                    // printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
+                    printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
                 }
+                break;
             }
+            printError(full_code, tokens[start].start, ERROR_EXPECTED_EXPRESSION);
             break;
-        
         case NODE_IDENTIFIER:
         case NODE_LITERAL:
         case NODE_OPERATOR:

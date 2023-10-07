@@ -7,17 +7,21 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <stdio.h>
+
 #define MASTER_KEYWORDS {"DO", "MAKE", "SET"}
 #define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "CATCH", "INTO", "THEN"}
-#define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_IDENTIFIER, NEEDS_FUNCTION}
+#define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_EXPRESSION, NEEDS_FUNCTION}
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
 #define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#", \
-                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>"}
+                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>","&=","|=", "^=",\
+                   "~~"}
 // operator precedence is borrowed from C
-#define OPERATOR_PRECEDENCE 
+#define OPERATOR_PRECEDENCE \
                   { 4,   4,   3,   3,   3,   14,  6,   6,   2,   8,   9,   10,  2,   13,  13,  1,   15,  1, \
-                    14,  14,  14,  14,  14,  2,   2,   7,   7,   6,   6,   11,  12,  5,   5}
+                    14,  14,  14,  14,  14,  2,   2,   7,   7,   6,   6,   11,  12,  5,   5,   14,  14,  14,\
+                    14}
 
 #define BRACKETS {"()", "{}", "[]"}
 
@@ -78,6 +82,10 @@ typedef enum {
     OPERATOR_OR_OR,
     OPERATOR_SHIFT_LEFT,
     OPERATOR_SHIFT_RIGHT,
+    OPERATOR_AND_ASSIGN,
+    OPERATOR_OR_ASSIGN,
+    OPERATOR_XOR_ASSIGN,
+    OPERATOR_NOT_NOT,
 } OperatorType;
 
 typedef enum {
@@ -137,6 +145,7 @@ typedef enum {
     NODE_ARGUMENTS,
     NODE_ARGUMENT,
     NODE_TYPE_IDENTIFIER,
+    NODE_ARRAY_DECLARATION,
 
     NODE_WHEN,
     NODE_WHILE,
@@ -157,7 +166,6 @@ typedef enum {
     NEEDS_NULL,
     NEEDS_BLOCK,
     NEEDS_EXPRESSION,
-    NEEDS_IDENTIFIER,
     NEEDS_FUNCTION
 } KeyWordFollowUpType;
 /**
@@ -166,6 +174,8 @@ typedef enum {
 */
 BracketType getBracketType (char bracket);
 void printTokens (Token* tokens);
+int isAssignmentOperator (OperatorType operator);
+
 
 BracketType getBracketType (char bracket) {
     switch (bracket) {
@@ -194,6 +204,25 @@ void printTokens (Token* tokens) {
                i, tokens[i].start, tokens[i].end, tokens[i].type, tokens[i].carry);
         i++;
     }
+}
+
+int isAssignmentOperator (OperatorType operator) {
+    switch (operator) {
+        case OPERATOR_ASSIGN:
+        case OPERATOR_ADD_ASSIGN:
+        case OPERATOR_SUBTRACT_ASSIGN:
+        case OPERATOR_MULTIPLY_ASSIGN:
+        case OPERATOR_DIVIDE_ASSIGN:
+        case OPERATOR_MODULO_ASSIGN:
+        case OPERATOR_AND_ASSIGN:
+        case OPERATOR_OR_ASSIGN:
+        case OPERATOR_XOR_ASSIGN:
+        case OPERATOR_INCREMENT:
+        case OPERATOR_DECREMENT:
+        case OPERATOR_NOT_NOT:
+            return 1;
+    }
+    return 0;
 }
 
 #endif

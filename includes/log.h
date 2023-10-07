@@ -35,6 +35,7 @@ typedef enum {
     ERROR_EXPECTED_EXTENSION,
     ERROR_EXPECTED_BLOCK,
     ERROR_EXPECTED_EXPRESSION,
+    ERROR_INVALID_EXPRESSION,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -64,6 +65,7 @@ const char* ERROR_MESSAGES[] = {
     "Expected an extension (WHEN, WHILE, ELSE, etc)",
     "Expected a block { }",
     "Expected an expression",
+    "Invalid Expression",
     "Unknown Error"
 };
 

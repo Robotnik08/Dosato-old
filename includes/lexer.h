@@ -302,17 +302,12 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
         int foundBig = 0;
         for (int j = 0; j < sizeof(operatortokens)/sizeof(char*); j++) {
-            char* bigoperator = malloc(2);
-            bigoperator[0] = full_code[i];
-            bigoperator[1] = full_code[i+1];
+            char bigoperator[3] = { full_code[i], full_code[i+1], '\0' };
             if (!strcmp(bigoperator, operatortokens[j])) {
-                free(bigoperator);
                 addToken(tokens, TOKEN_OPERATOR, i, i + strlen(operatortokens[j]) - 1, j);
                 i++;
                 foundBig = 1;
                 break;
-            } else {
-                free(bigoperator);
             }
         }
         if (foundBig) continue;
