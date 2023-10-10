@@ -1,3 +1,11 @@
+/**
+ * @author Sebastiaan Heins
+ * @file lexer.h
+ * @brief The lexer does a lexical analysis of the code and tokenises it, returning a list of tokens (defined in token.h)
+ * @version 1.0
+ * @date 05-10-2023
+*/
+
 #ifndef LEXER_H
 #define LEXER_H
 

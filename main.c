@@ -15,6 +15,7 @@
 #include "includes/lexer.h"
 #include "includes/parser.h"
 #include "includes/log.h"
+#include "includes/ast_debug.h"
 
 // forward declarations
 /**
@@ -93,7 +94,7 @@ int main (int argc, char* argv[])
 
     /// STEP 2: PARSER ///
 
-    // parse the tokens
+    // parse the tokens, starting at the root node, containing the entire program
     Node root = parse(contents, tokens, 0, getTokenAmount(tokens)-1, NODE_PROGRAM);
 
     /// DEBUG ///

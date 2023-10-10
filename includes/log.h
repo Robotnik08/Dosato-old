@@ -1,3 +1,11 @@
+/**
+ * @author Sebastiaan Heins
+ * @file log.h
+ * @brief The logging file, these functions are used to log errors and warnings in the dosato interpreter
+ * @version 1.0
+ * @date 05-10-2023
+*/
+
 #ifndef LOG_H
 #define LOG_H
 
@@ -36,6 +44,7 @@ typedef enum {
     ERROR_EXPECTED_BLOCK,
     ERROR_EXPECTED_EXPRESSION,
     ERROR_INVALID_EXPRESSION,
+    ERROR_OPERATOR_NOT_UNARY,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -66,10 +75,17 @@ const char* ERROR_MESSAGES[] = {
     "Expected a block { }",
     "Expected an expression",
     "Invalid Expression",
+    "Operator is not unary (must be -, ! or ~)",
     "Unknown Error"
 };
 
 void logText (const LogType type, const char* contents);
+/**
+ * @brief Prints an error message and quits the program with the error code
+ * @param full_code The full code
+ * @param pos The position of the error
+ * @param type The type of error, also the error code
+*/
 void printError (const char* full_code, const int pos, const ErrorType type);
 
 void logText (const LogType type, const char* contents) {
