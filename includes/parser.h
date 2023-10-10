@@ -199,6 +199,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             }
             break;
         // if the node is a function call, split the arguments into separate expressions
+        // OR if the node is an array expression, split the arguments into separate expressions
         case NODE_ARRAY_EXPRESSION:
         case NODE_ARGUMENTS:
             if (start == end-1) break; // if there are no arguments, don't parse anything

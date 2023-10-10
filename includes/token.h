@@ -16,7 +16,7 @@
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
 #define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#", \
-                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>","&=","|=", "^=",\
+                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>","&=","|=","^=",\
                    "~~"}
 // operator precedence is borrowed from C
 #define OPERATOR_PRECEDENCE \

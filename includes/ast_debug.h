@@ -93,6 +93,12 @@ char* getNodeTypeString(NodeType type) {
         case NODE_TYPE_IDENTIFIER:
             nodeTypeString = "type_identifier";
             break;
+        case NODE_ARRAY_DECLARATION:
+            nodeTypeString = "array_declaration";
+            break;
+        case NODE_ARRAY_EXPRESSION:
+            nodeTypeString = "array_expression";
+            break;
         case NODE_WHEN:
             nodeTypeString = "when";
             break;
