@@ -100,6 +100,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     addToBody(&root.body, ext_root);
                     i = t_end;
                 } else {
+                    // TO DO, allow inline block calls
                     printError(full_code, tokens[i].start, ERROR_EXPECTED_EXTENSION);
                 }
             }
