@@ -63,6 +63,12 @@ char* getNodeTypeString(NodeType type) {
         case NODE_FUNCTION_DECLARATION:
             nodeTypeString = "function declaration";
             break;
+        case NODE_FUNCTION_DECLARATION_ARGUMENTS:
+            nodeTypeString = "function_declaration_arguments";
+            break;
+        case NODE_FUNCTION_DECLARATION_ARGUMENT:
+            nodeTypeString = "function_declaration_argument";
+            break;
         case NODE_EXPRESSION:
             nodeTypeString = "expression";
             break;

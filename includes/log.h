@@ -45,6 +45,7 @@ typedef enum {
     ERROR_EXPECTED_EXPRESSION,
     ERROR_INVALID_EXPRESSION,
     ERROR_OPERATOR_NOT_UNARY,
+    ERROR_INVALID_FUNCTION_DECLARATION_ARGUMENT,
     ERROR_UNKNOWN
 
 } ErrorType;
@@ -76,6 +77,7 @@ const char* ERROR_MESSAGES[] = {
     "Expected an expression",
     "Invalid Expression",
     "Operator is not unary (must be -, ! or ~)",
+    "Invalid function declaration argument",
     "Unknown Error"
 };
 

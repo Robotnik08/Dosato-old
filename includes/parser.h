@@ -1,4 +1,5 @@
 /**
+ * @author Sebastiaan Heins
  * @file parser.h
  * @brief The parser is used to parse a list of tokens into an AST
  * @version 0.0.3
@@ -125,7 +126,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     printError(full_code, tokens[start + 2].start, ERROR_EXPECTED_ARGUMENTS);
                 }
                 int args_end = getBlock(tokens, start + 2);
-                addToBody(&root.body, parse(full_code, tokens, start + 2, args_end, NODE_ARGUMENTS));
+                addToBody(&root.body, parse(full_code, tokens, start + 2, args_end, NODE_FUNCTION_DECLARATION_ARGUMENTS));
 
                 // if theres no block, throw an error
                 if (tokens[args_end + 1].type != TOKEN_PARENTHESIS || !(tokens[args_end + 1].carry & BRACKET_CURLY)) {
@@ -213,6 +214,39 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             if (arg_start > end-1) printError(full_code, tokens[arg_start].start, ERROR_EXPECTED_ARGUMENT);
             addToBody(&root.body, parse(full_code, tokens, arg_start, end-1, NODE_EXPRESSION));
             break;
+        // if the node is a function declaration, check if the arguments are valid, this is done by checking if a type and identifier are present
+        case NODE_FUNCTION_DECLARATION_ARGUMENTS:
+            if (start == end-1) break; // if there are no arguments, don't parse anything
+            arg_start = start + 1;
+            for (int i = start + 1; i < end - 1; i++) {
+                if (tokens[i].type == TOKEN_OPERATOR && tokens[i].carry == OPERATOR_COMMA) {
+                    addToBody(&root.body, parse(full_code, tokens, arg_start, i-1, NODE_FUNCTION_DECLARATION_ARGUMENT));
+                    arg_start = i + 1;
+                }
+            }
+            if (arg_start > end-1) printError(full_code, tokens[arg_start].start, ERROR_EXPECTED_ARGUMENT);
+            addToBody(&root.body, parse(full_code, tokens, arg_start, end-1, NODE_FUNCTION_DECLARATION_ARGUMENT));
+            break;
+        // if the node is a function declaration argument, check if the type and identifier are valid
+        case NODE_FUNCTION_DECLARATION_ARGUMENT:
+            if (tokens[start].type == TOKEN_VAR_TYPE && tokens[start].carry == TYPE_ARRAY) {
+                if (tokens[start + 1].type != TOKEN_VAR_TYPE) {
+                    printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_TYPE);
+                }
+                addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
+                addToBody(&root.body, parse(full_code, tokens, start + 1, end, NODE_FUNCTION_DECLARATION_ARGUMENT));
+                break;
+            }
+            if (end - start != 1) printError(full_code, tokens[start].start, ERROR_INVALID_FUNCTION_DECLARATION_ARGUMENT);
+            if (tokens[start].type != TOKEN_VAR_TYPE) {
+                printError(full_code, tokens[start].start, ERROR_EXPECTED_TYPE);
+            }
+            if (tokens[start + 1].type != TOKEN_IDENTIFIER) {
+                printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_IDENTIFIER);
+            }
+            addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
+            addToBody(&root.body, parse(full_code, tokens, start + 1, start + 1, NODE_IDENTIFIER));
+            break;
         // binary expressions are expressions that have an operator in the middle (e.g. 1 + 1, true && false, 0b1010 | 0b0101)
         case NODE_EXPRESSION:
             if (end - start > 0) {
@@ -222,8 +256,9 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 for (int o = 0; o < end-start/2 && !exit_loop; o++) { // o is the offset, discarding the first and last token when parentheses are present
                     for (int p = 15; p > 0 && !exit_loop; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
-                            if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & BRACKET_ROUND) {
+                            if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
                                 i = getBlockReverse(tokens, i);
+                                if (tokens[i].carry & BRACKET_SQUARE) exit_loop = 1; // exit the loops
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
                                 if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || full_code[tokens[i-1].start] == ')')) {
@@ -240,10 +275,14 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 }
                 // if no operators were found, check if the expression is valid
                 for (int o = 0; o < end-start/2; o++) {
+                    if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_SQUARE) {
+                        addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_ARRAY_EXPRESSION));
+                        return root;
+                    }
                     if (getBlock(tokens, start + o) != end - o) {
                         if (tokens[start + o].type == TOKEN_OPERATOR) {
                             addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_UNARY_EXPRESSION));
-                        } 
+                        }
                         else {
                             if (end - o - start + o > 0) printError(full_code, tokens[start + o].start, ERROR_INVALID_EXPRESSION);
                             addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));

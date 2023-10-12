@@ -1,3 +1,11 @@
+/**
+ * @author Sebastiaan Heins
+ * @file node.h
+ * @brief Contains all the node types and their respective enums, as well as some helper functions and the node struct
+ * @version 0.0.3
+ * @date 05-10-2023
+*/
+
 #ifndef NODE_H
 #define NODE_H
 

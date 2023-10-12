@@ -1,4 +1,5 @@
 /**
+ * @author Sebastiaan Heins
  * @file token.h
  * @brief Contains all the token types and their respective enums, as well as some helper functions and the token struct
  * @version 0.0.3
@@ -136,6 +137,8 @@ typedef enum {
     NODE_MAKE_VAR,
     NODE_SET_VAR,
     NODE_FUNCTION_DECLARATION,
+    NODE_FUNCTION_DECLARATION_ARGUMENTS,
+    NODE_FUNCTION_DECLARATION_ARGUMENT,
     NODE_EXPRESSION,
     NODE_UNARY_EXPRESSION,
     NODE_STATEMENT,
