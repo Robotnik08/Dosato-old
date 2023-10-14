@@ -160,3 +160,26 @@ CATCH is used to execute code when the code returns an error. It is followed by 
 DO sum (1,2) THEN SAY (_);
 ```
 THEN is used to execute code after the function is called. It is followed by a code block, surrounded by curly braces just like the DO call.<br>
+
+## Built In Functions
+
+### SAY
+
+```
+DO SAY ("Hello World!");
+```
+SAY is a function that prints the argument to the console. It is followed by an argument, surrounded by parentheses.<br>
+
+### RETURN
+
+```
+DO RETURN (5);
+```
+RETURN is a function that returns a value from a function. It is followed by an argument, surrounded by parentheses.<br>
+
+### LISTEN
+
+```
+DO LISTEN (x);
+```
+LISTEN is a function that gets input from the user. It is followed by a variable identifier, surrounded by parentheses.<br>
