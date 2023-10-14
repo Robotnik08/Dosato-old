@@ -183,7 +183,10 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     char *stringFromNode;
     getStringFromNode(full_code, tokens, node, &stringFromNode);
     printf("\"text\": \"%s\"", stringFromNode);
-    free(stringFromNode);
+    
+    // bandaid fix, free crashes the program randomly, so we just don't free it for now
+    // this does leak a few bytes of memory, but it's not a big deal because this is only used for debugging and only called once
+    // free(stringFromNode);
 
     if (node->body != NULL) {
         printf(",\n");

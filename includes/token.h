@@ -28,7 +28,7 @@
 #define BRACKETS {"()", "{}", "[]"}
 
 typedef enum {
-    TOKEN_NULL = -1,
+    TOKEN_NULL = -2,
     TOKEN_COMMENT,
     TOKEN_STRING,
     TOKEN_NUMBER,

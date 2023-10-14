@@ -89,7 +89,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             break;
                         // if the extension needs an expression, parse the expression
                         case NEEDS_EXPRESSION:
-                            int t_end = getExpression(tokens, i+1);
+                            t_end = getExpression(tokens, i+1);
                             if (t_end != -1) {
                                 ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
                                 addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_EXPRESSION));
@@ -99,8 +99,14 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     }
                     addToBody(&root.body, ext_root);
                     i = t_end;
+                    got_identifier = 0;
+                } else if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & BRACKET_CURLY) {
+                    if (got_identifier) printError(full_code, tokens[i].start, ERROR_EXPECTED_EXTENSION);
+                    int t_end = getBlock(tokens, i);
+                    addToBody(&root.body, parse(full_code, tokens, i+1, t_end-1, NODE_BLOCK));
+                    i = t_end;
+                    got_identifier = 1;
                 } else {
-                    // TO DO, allow inline block calls
                     printError(full_code, tokens[i].start, ERROR_EXPECTED_EXTENSION);
                 }
             }
@@ -238,7 +244,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 addToBody(&root.body, parse(full_code, tokens, start + 1, end, NODE_FUNCTION_DECLARATION_ARGUMENT));
                 break;
             }
-            if (end - start != 1) printError(full_code, tokens[start].start, ERROR_INVALID_FUNCTION_DECLARATION_ARGUMENT);
+            if (!(end - start > 2 || end - start == 1)) printError(full_code, tokens[start].start, ERROR_INVALID_FUNCTION_DECLARATION_ARGUMENT);
             if (tokens[start].type != TOKEN_VAR_TYPE) {
                 printError(full_code, tokens[start].start, ERROR_EXPECTED_TYPE);
             }
@@ -247,6 +253,13 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             }
             addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
             addToBody(&root.body, parse(full_code, tokens, start + 1, start + 1, NODE_IDENTIFIER));
+            if (end - start > 2) {
+                if (tokens[start + 2].type != TOKEN_OPERATOR || tokens[start + 2].carry != OPERATOR_ASSIGN) {
+                    printError(full_code, tokens[start + 2].start, ERROR_EXPECTED_ASSIGN_OPERATOR);
+                }
+                addToBody(&root.body, parse(full_code, tokens, start + 2, start + 2, NODE_OPERATOR));
+                addToBody(&root.body, parse(full_code, tokens, start + 3, end, NODE_EXPRESSION));
+            }
             break;
         // binary expressions are expressions that have an operator in the middle (e.g. 1 + 1, true && false, 0b1010 | 0b0101)
         case NODE_EXPRESSION:
@@ -254,7 +267,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 // splitting the expression into blocks of parentheses and operators
                 int p_values[] = OPERATOR_PRECEDENCE;
                 int exit_loop = 0;
-                for (int o = 0; o < end-start/2 && !exit_loop; o++) { // o is the offset, discarding the first and last token when parentheses are present
+                for (int o = 0; o < (end - start)/2 && !exit_loop; o++) { // o is the offset, discarding the first and last token when parentheses are present
                     for (int p = 15; p > 0 && !exit_loop; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
                             if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
@@ -275,7 +288,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     }
                 }
                 // if no operators were found, check if the expression is valid
-                for (int o = 0; o < end-start/2; o++) {
+                for (int o = 0; o < (end - start + 2)/2; o++) {
                     if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_SQUARE) {
                         addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_ARRAY_EXPRESSION));
                         return root;
@@ -288,6 +301,12 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             if (end - o - start + o > 0) printError(full_code, tokens[start + o].start, ERROR_INVALID_EXPRESSION);
                             addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
                         }
+                        return root;
+                    }
+                    
+                    if (o == (end - start + 2)/2 - 1) {
+                        printf("%d, %d, %d, %d, %d\n", end - o - start + o, end - o, start + o, o, (end - start + 2)/2 - 1);
+                        addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
                         return root;
                     }
                 }
