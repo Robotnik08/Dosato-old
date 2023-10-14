@@ -183,3 +183,119 @@ RETURN is a function that returns a value from a function. It is followed by an 
 DO LISTEN (x);
 ```
 LISTEN is a function that gets input from the user. It is followed by a variable identifier, surrounded by parentheses.<br>
+
+### TYPEOF
+
+```
+DO TYPEOF (x) THEN SAY (_);
+```
+TYPEOF is a function that returns the type of a variable. It is followed by a variable identifier, surrounded by parentheses.<br>
+
+### LENGTH
+
+```
+DO LENGTH (x) THEN SAY (_);
+```
+LENGTH is a function that returns the length of a string or array. It is followed by a variable identifier, surrounded by parentheses.<br>
+
+### APPEND
+
+```
+DO APPEND (x, 5);
+```
+APPEND is a function that appends a value to an array. It is followed by a variable identifier, surrounded by parentheses, then a comma, then the value to append.<br>
+
+### POP
+
+```
+DO POP (x);
+```
+POP is a function that removes the last value of an array. It is followed by a variable identifier, surrounded by parentheses.<br>
+
+### PUSH
+
+```
+DO PUSH (x, 5);
+```
+PUSH is a function that adds a value to the end of an array. It is followed by a variable identifier, surrounded by parentheses, then a comma, then the value to add.<br>
+
+### REMOVE
+
+```
+DO REMOVE (x, 5);
+```
+REMOVE is a function that removes a value from an array. It is followed by a variable identifier, surrounded by parentheses, then a comma, then the value to remove.<br>
+
+### REVERSE
+
+```
+DO REVERSE (x);
+```
+REVERSE is a function that reverses an array. It is followed by a variable identifier, surrounded by parentheses.<br>
+
+### SORT
+
+```
+DO SORT (x);
+```
+SORT is a function that sorts an array. It is followed by a variable identifier, surrounded by parentheses.<br>
+
+### SPLIT
+
+```
+DO SPLIT (x, " ");
+```
+
+SPLIT is a function that splits a string into an array. It is followed by a variable identifier, surrounded by parentheses, then a comma, then the value to split by.<br>
+
+## Built In Variables
+
+### _
+
+```
+DO sum (1,2) THEN SAY (_);
+```
+_ is a variable that stores the return value of a function. It is used with the THEN extension.<br>
+
+### NULL
+
+```
+DO SAY (NULL);
+```
+NULL is a variable that stores nothing (0). It is used to set variables to nothing.<br>
+
+### TRUE
+
+```
+DO SAY (TRUE);
+```
+TRUE is a variable that stores true. It is used to set variables to true.<br>
+
+### FALSE
+
+```
+DO SAY (FALSE);
+```
+FALSE is a variable that stores false. It is used to set variables to false.<br>
+
+## Installation
+
+### Windows
+
+Coming Soon!
+
+### Linux
+
+Coming Soon!
+
+### Mac
+
+Coming Soon!
+
+## Contributing
+
+Coming Soon!
+
+## License
+
+Sebastiaan Heins - 2023
