@@ -91,7 +91,7 @@ char* getNodeTypeString(NodeType type) {
             nodeTypeString = "block";
             break;
         case NODE_FUNCTION_IDENTIFIER:
-            nodeTypeString = "function identifier";
+            nodeTypeString = "function_identifier";
             break;
         case NODE_ARGUMENTS:    
             nodeTypeString = "arguments";
