@@ -16,6 +16,7 @@
 #include "includes/parser.h"
 #include "includes/log.h"
 #include "includes/ast_debug.h"
+#include "includes/ast.h"
 
 // forward declarations
 /**
@@ -85,36 +86,47 @@ int main (int argc, char* argv[])
     // close the file
     fclose(file);
 
+    // the main module, containing the entry point of the program
+    AST main;
+    main.full_code = malloc (size);
+    strcpy(main.full_code, contents);
+
+    main.filename = argv[1];
+
+    // the modules, containing the code of the modules, TO DO (modules are not implemented yet)
+    AST* modules = NULL;
+    int module_amount = 0;
 
     /// STEP 1: LEXER ///
 
     // tokenise the string
-    Token* tokens = NULL;
-    tokenise(&tokens, contents, size);
+    main.tokens = NULL;
+    tokenise(&main.tokens, main.full_code, size);
 
     /// STEP 2: PARSER ///
 
     // parse the tokens, starting at the root node, containing the entire program
-    Node root = parse(contents, tokens, 0, getTokenAmount(tokens)-1, NODE_PROGRAM);
+    main.root = parse(main.full_code, main.tokens, 0, getTokenAmount(main.tokens)-1, NODE_PROGRAM);
 
     /// DEBUG ///
     if (debug) {
-        printf("CONTENTS:\n\n");
+        printf("CONTENTS (%s):\n\n", main.filename);
         for (int i = 0; i < size; i++) {
-            printf("%c", contents[i]);
+            printf("%c", main.full_code[i]);
         }
         printf("\n\n\n\nTOKENS:\n\n");
-        printTokens(tokens);
+        printTokens(main.tokens);
 
         printf("\n\n\nAST:\n\n");
-        printNode(contents, tokens, &root, 1, 1);
+        printNode(main.full_code, main.tokens, &main.root, 1, 1);
     }
 
     /// STEP end: CLEANUP ///
-    destroyNode(&root);
+    destroyNode(&main.root);
 
-    free(tokens);
+    free(main.tokens);
     free(contents);
+    free(main.full_code);
 
     // flawless execution
     return QUIT(0);

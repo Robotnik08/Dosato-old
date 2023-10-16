@@ -29,7 +29,7 @@
 
 typedef enum {
     TOKEN_NULL = -2,
-    TOKEN_COMMENT,
+    TOKEN_COMMENT = 0,
     TOKEN_STRING,
     TOKEN_NUMBER,
     TOKEN_OPERATOR,

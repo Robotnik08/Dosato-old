@@ -83,7 +83,6 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
     int end = 0;
     char quotationtype = '\0';
     int escapeCount = 0;
-    int inComment = 0;
     for (int i = 0; i < code_length; i++) {
         if (quotationtype == '\0') {
             if ((full_code[i] == '"' || full_code[i] == '\'') && escapeCount % 2 == 0) {
@@ -91,7 +90,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
                 start = i;
                 continue;
             }
-            if (full_code[i] == '/' && full_code[i + 1] == '/' && !inComment) {
+            if (full_code[i] == '/' && full_code[i + 1] == '/') {
                 int foundEnd = 0;
                 start = i;
                 for (int j = i; j < code_length; j++) {
