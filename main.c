@@ -17,6 +17,7 @@
 #include "includes/log.h"
 #include "includes/ast_debug.h"
 #include "includes/ast.h"
+#include "includes/process.h"
 
 // forward declarations
 /**
@@ -86,32 +87,33 @@ int main (int argc, char* argv[])
     // close the file
     fclose(file);
 
-    // the main module, containing the entry point of the program
-    AST main = loadAST(argv[1], contents);
-
-    // the modules, containing the code of the modules, TO DO (modules are not implemented yet)
-    AST* modules = NULL;
-    int module_amount = 0;
+    // the main process, containing the entry point of the program
+    Process main = createProcess(debug, 1);
+    main.code = malloc(sizeof(AST));
+    main.code[0] = createNullTerminatedAST();
+    addAST(&main.code, loadAST(argv[1], contents));
 
     /// DEBUG ///
     if (debug) {
-        printf("CONTENTS (%s):\n\n", main.filename);
+        printf("CONTENTS (%s):\n\n", main.code[0].filename);
         for (int i = 0; i < size; i++) {
-            printf("%c", main.full_code[i]);
+            printf("%c",main.code[0].full_code[i]);
         }
         printf("\n\n\n\nTOKENS:\n\n");
-        printTokens(main.tokens);
+        printTokens(main.code[0].tokens);
 
         printf("\n\n\nAST:\n\n");
-        printNode(main.full_code, main.tokens, &main.root, 1, 1);
+        printNode(main.code[0].full_code, main.code[0].tokens, &main.code[0].root, 1, 1);
     }
 
+    int exit_code = runProcess(&main);
+
     /// CLEANUP ///
-    destroyAST(&main);
+    destroyProcess(&main);
     free(contents);
 
     // flawless execution
-    return QUIT(0);
+    return QUIT(exit_code);
 }
 
 int QUIT (int code)

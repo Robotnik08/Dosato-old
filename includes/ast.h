@@ -14,6 +14,25 @@ typedef struct {
 } AST;
 
 /**
+ * @brief Create a null terminated AST, null terminated ASTs are used to represent bounds of AST pointers
+ * @return The null terminated AST
+*/
+AST createNullTerminatedAST ();
+
+/**
+ * @brief Check if an AST is null terminated
+ * @param ast The AST to check
+ * @return Whether or not the AST is null terminated
+*/
+int checkIfNullTerminatedAST (const AST* ast);
+
+/**
+ * @brief Get the length of an array of ASTs
+ * @param asts The array of ASTs
+ * @return The length of the array
+*/
+int getASTsLength (const AST* asts);
+/**
  * @brief Load an AST from a file
  * @param filename The name of the file
  * @param full_code The full code of the file
@@ -29,6 +48,30 @@ AST loadAST (const char* filename, const char* full_code);
 void destroyAST (AST* ast);
 
 
+AST createNullTerminatedAST () {
+    AST ast;
+    ast.filename = NULL;
+    return ast;
+}
+
+int checkIfNullTerminatedAST (const AST* ast) {
+    return ast->filename == NULL;
+}
+
+int getASTsLength (const AST* asts) {
+    int i = 0;
+    while (!checkIfNullTerminatedAST(&asts[i])) {
+        i++;
+    }
+    return i;
+}
+
+void addAST (AST** asts, AST ast) {
+    int length = getASTsLength(*asts);
+    *asts = realloc(*asts, sizeof(AST) * (length + 2));
+    (*asts)[length] = ast;
+    (*asts)[length+1] = createNullTerminatedAST();
+}
 AST loadAST (const char* filename, const char* full_code) {
     AST ast;
     ast.filename = malloc(strlen(filename));
