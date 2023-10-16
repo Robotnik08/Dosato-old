@@ -87,26 +87,11 @@ int main (int argc, char* argv[])
     fclose(file);
 
     // the main module, containing the entry point of the program
-    AST main;
-    main.full_code = malloc (size);
-    strcpy(main.full_code, contents);
-
-    main.filename = argv[1];
+    AST main = loadAST(argv[1], contents);
 
     // the modules, containing the code of the modules, TO DO (modules are not implemented yet)
     AST* modules = NULL;
     int module_amount = 0;
-
-    /// STEP 1: LEXER ///
-
-    // tokenise the string
-    main.tokens = NULL;
-    tokenise(&main.tokens, main.full_code, size);
-
-    /// STEP 2: PARSER ///
-
-    // parse the tokens, starting at the root node, containing the entire program
-    main.root = parse(main.full_code, main.tokens, 0, getTokenAmount(main.tokens)-1, NODE_PROGRAM);
 
     /// DEBUG ///
     if (debug) {
@@ -121,12 +106,9 @@ int main (int argc, char* argv[])
         printNode(main.full_code, main.tokens, &main.root, 1, 1);
     }
 
-    /// STEP end: CLEANUP ///
-    destroyNode(&main.root);
-
-    free(main.tokens);
+    /// CLEANUP ///
+    destroyAST(&main);
     free(contents);
-    free(main.full_code);
 
     // flawless execution
     return QUIT(0);
