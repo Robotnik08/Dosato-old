@@ -96,6 +96,7 @@ AST loadAST (const char* filename, const char* full_code) {
 }
 
 void destroyAST (AST* ast) {
+    if (ast->filename == NULL) return;
     destroyNode(&ast->root);
     free(ast->tokens);
     free(ast->full_code);

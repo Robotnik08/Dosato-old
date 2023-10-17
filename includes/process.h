@@ -15,13 +15,20 @@
 
 #include "ast.h"
 #include "scope.h"
+#include "garbagecollector.h"
 
 typedef struct {
     AST* code;
+
     int debug;
     int running;
     int exit_code;
-    Scope scope;
+
+    int error_code;
+    int error_ast_index;
+    int error_location;
+
+    Scope main_scope;
 } Process;
 
 /**
@@ -58,46 +65,11 @@ Process createProcess (int debug, int main) {
     Process process;
     process.code = malloc(sizeof(AST));
     addAST(&process.code, createNullTerminatedAST());
-    process.scope = createScope(0);
-    populateDefaultVariables(&process.scope, main);
-    process.debug = 0;
-}
 
-void populateDefaultVariables (Scope* scope, int main) {
-    // define constants in the global scope
-    // ALL pointers ownership is transferred to the variable, and must be freed in the variable's destroy function
-
-    // these variables only exist in the main process
-    if (main) {
-        // the return value of the last function call is stored in the _ variable
-        // this variable is the only variable that can mutate it's type
-        // despite it being constant, the return value of a function can modify it
-        // it defaults to 0
-        int* return_value = 0;
-        addVariable(scope, createVariable("_", TYPE_INT, return_value, 1));
-
-        // BOOL constants
-        int* const_true = malloc(sizeof(int));
-        *const_true = 1;
-        int* const_false = malloc(sizeof(int));
-        *const_false = 0;
-        addVariable(scope, createVariable("TRUE", TYPE_BOOL, const_true, 1));
-        addVariable(scope, createVariable("FALSE", TYPE_BOOL, const_false, 1));
-
-        // MATH constants
-        double* const_pi = malloc(sizeof(double));
-        *const_pi = 3.14159265358979323846;
-        addVariable(scope, createVariable("MATH_PI", TYPE_DOUBLE, const_pi, 1));
-        double* const_e = malloc(sizeof(double));
-        *const_e = 2.71828182845904523536;
-        addVariable(scope, createVariable("MATH_E", TYPE_DOUBLE, const_e, 1));
-    }
-
-    // STRING constants
-    char* process_name = main ? "main" : "imported";
-    char* const_process_name = malloc(sizeof(char) * strlen(process_name));
-    strcpy(const_process_name, process_name);
-    addVariable(scope, createVariable("__PROCESS", TYPE_STRING, const_process_name, 1));
+    process.main_scope = createScope(&process.code[0].root, 0, main);
+    process.debug = debug;
+    
+    return process;
 }
 
 void destroyProcess (Process* process) {
@@ -105,7 +77,7 @@ void destroyProcess (Process* process) {
         destroyAST(&process->code[i]);
     }
     free(process->code);
-    destroyScope(&process->scope);
+    destroyScope(&process->main_scope);
 }
 
 int runProcess (Process* process) {
@@ -117,8 +89,13 @@ int runProcess (Process* process) {
         // this is the heartbeat of the interpreter, it keeps the process running until it is stopped
         process->running = 0;
 
-    
+
     }
+
+    if (process->error_code != 0) {
+        printError(process->code[process->error_ast_index].full_code, process->error_location, process->error_code);
+    }
+
     return process->exit_code;
 }
 

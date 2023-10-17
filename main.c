@@ -107,7 +107,6 @@ int main (int argc, char* argv[])
     }
 
     int exit_code = runProcess(&main);
-
     /// CLEANUP ///
     destroyProcess(&main);
     free(contents);

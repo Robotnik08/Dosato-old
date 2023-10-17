@@ -1,7 +1,7 @@
 /**
  * @author Sebastiaan Heins
  * @file scope.h
- * @brief Contains the scope struct and helper functions and the variable struct and helper functions
+ * @brief Contains the scope struct and helper functions
  * @version 0.5
  * @date 17-10-2023
 */
@@ -12,44 +12,26 @@
 #include <stdio.h>
 
 #include "token.h"
-
-typedef struct {
-    char* name;
-    DataType type;
-    void* value;
-    int constant;
-} Variable;
+#include "variable.h"
 
 typedef struct Scope Scope;
 
 struct Scope {
     int running_line;
+    int running_ast;
     Variable* variables;
+    Node* body;
     Scope* child;
 };
 
-/**
- * @brief Create a variable
- * @param name The name of the variable
- * @param type The type of the variable
- * @param valueptr The pointer to the value of the variable
- * @param constant Whether or not the variable is constant
- * @return The variable
-*/
-Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant);
+#include "garbagecollector.h"
 
 /**
- * @brief Create a null terminated variable
- * @return The null terminated variable
+ * @brief Populate the default variables in a scope
+ * @param scope The scope to add the variables to
+ * @param main Whether or not the process is the main process
 */
-Variable createNullTerminatedVariable ();
-
-/**
- * @brief Get the length of a list of variables
- * @param list The list of variables
- * @return The length of the list
-*/
-int getVariablesLength (const Variable* list);
+void populateDefaultVariables (Scope* scope, int main);
 
 /**
  * @brief Create a scope
@@ -57,7 +39,20 @@ int getVariablesLength (const Variable* list);
  * @return The scope
  * @warning The scope must be destroyed after use
 */
-Scope createScope (const int running_line);
+Scope createScope (Node* body, int ast_index, int main);
+
+/**
+ * @brief Create a null terminated scope
+ * @return The null terminated scope
+*/
+Scope createNullTerminatedScope ();
+
+/**
+ * @brief Get the length of a scope chain
+ * @param scope The scope to get the length of
+ * @return The length of the scope chain
+*/
+int getScopeLength (const Scope* scope);
 
 /**
  * @brief Destroy a scope, freeing all memory
@@ -79,42 +74,82 @@ Scope* getLastScope (Scope* scope);
 */
 void addVariable (Scope* scope, Variable variable);
 
+/**
+ * @brief Add a scope to a scope array
+ * @param scope The scope to add the variable to
+ * @param variable The variable to add to the scope
+*/
+void addScope (Scope** scope, Scope new_scope);
 
-Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant) {
-    Variable variable;
-    variable.name = malloc(sizeof(char) * (strlen(name) + 1));
-    strcpy(variable.name, name);
-    variable.type = type;
-    variable.value = valueptr;
-    variable.constant = constant;
-    return variable;
-}
+void populateDefaultVariables (Scope* scope, int main) {
+    // define constants in the global scope
+    // ALL pointers ownership is transferred to the variable, and must be freed in the variable's destroy function
 
-Variable createNullTerminatedVariable () {
-    Variable variable;
-    variable.name = NULL;
-    return variable;
-}
+    // these variables only exist in the main process
+    if (main) {
+        // the return value of the last function call is stored in the _ variable
+        // this variable is the only variable that can mutate it's type
+        // despite it being constant, the return value of a function can modify it
+        // it defaults to 0
+        int* return_value = 0;
+        addVariable(scope, createVariable("_", TYPE_INT, return_value, 1, 0));
 
-int getVariablesLength (const Variable* list) {
-    int length = 0;
-    while (list[length].name != NULL) {
-        length++;
+        // BOOL constants
+        int* const_true = malloc(sizeof(int));
+        *const_true = 1;
+        int* const_false = malloc(sizeof(int));
+        *const_false = 0;
+        addVariable(scope, createVariable("TRUE", TYPE_BOOL, const_true, 1, 0));
+        addVariable(scope, createVariable("FALSE", TYPE_BOOL, const_false, 1, 0));
+
+        // MATH constants
+        double* const_pi = malloc(sizeof(double));
+        *const_pi = 3.14159265358979323846;
+        addVariable(scope, createVariable("MATH_PI", TYPE_DOUBLE, const_pi, 1, 0));
+        double* const_e = malloc(sizeof(double));
+        *const_e = 2.71828182845904523536;
+        addVariable(scope, createVariable("MATH_E", TYPE_DOUBLE, const_e, 1, 0));
     }
-    return length;
+
+    // STRING constants
+    char* process_name = main ? "main" : "imported";
+    char* const_process_name = malloc(sizeof(char) * strlen(process_name));
+    strcpy(const_process_name, process_name);
+    addVariable(scope, createVariable("__PROCESS", TYPE_STRING, const_process_name, 1, 0));
 }
 
-Scope createScope (const int running_line) {
+Scope createScope (Node* body, int ast_index, int main) {
     Scope scope;
-    scope.running_line = running_line;
+    scope.body = body;
+    scope.running_line = 0;
+    scope.running_ast = ast_index;
     scope.variables = malloc(sizeof(Variable));
     scope.variables[0] = createNullTerminatedVariable();
+    populateDefaultVariables(&scope, main);
     scope.child = NULL;
     return scope;
 }
 
+Scope createNullTerminatedScope () {
+    Scope scope;
+    scope.body = NULL;
+    scope.running_line = -1;
+    scope.variables = NULL;
+    scope.child = NULL;
+    return scope;
+}
+
+int getScopeLength (const Scope* scope) {
+    int length = 0;
+    while (scope->running_line != -1) {
+        length++;
+        scope = scope->child;
+    }
+    return length;
+}
+
 void destroyScope (Scope* scope) {
-    // for now we don't need to do anything
+    cleanScope(scope);
 }
 
 Scope* getLastScope (Scope* scope) {
@@ -125,11 +160,32 @@ Scope* getLastScope (Scope* scope) {
     return last_scope;
 }
 
+void removeLastScope (Scope* scope) {
+    Scope* last_scope = scope;
+    if (getLastScope(scope) == scope) {
+        // there is only one scope
+        destroyScope(scope);
+        return;
+    }
+    while (last_scope->child->child != NULL) {
+        last_scope = last_scope->child;
+    }
+    destroyScope(last_scope->child);
+    last_scope->child = NULL;
+}
+
 void addVariable (Scope* scope, Variable variable) {
     int length = getVariablesLength(scope->variables);
     scope->variables = realloc(scope->variables, sizeof(Variable) * (length + 2));
     scope->variables[length] = variable;
     scope->variables[length+1] = createNullTerminatedVariable();
+}
+
+void addScope (Scope** scope, Scope new_scope) {
+    int length = getScopeLength(*scope);
+    *scope = realloc(*scope, sizeof(Scope) * (length + 2));
+    (*scope)[length] = new_scope;
+    (*scope)[length+1] = createNullTerminatedScope();
 }
 
 #endif
