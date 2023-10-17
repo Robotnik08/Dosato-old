@@ -2,7 +2,7 @@
  * @author Sebastiaan Heins
  * @file process.h
  * @brief Contains the process struct and helper functions
- * @version 0.0.4
+ * @version 0.5
  * @date 17-10-2023
 */
 

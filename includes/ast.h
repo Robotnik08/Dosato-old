@@ -2,7 +2,7 @@
  * @author Sebastiaan Heins
  * @file ast.h
  * @brief Contains the ast struct and helper functions
- * @version 0.0.4
+ * @version 1.0
  * @date 17-10-2023
 */
 

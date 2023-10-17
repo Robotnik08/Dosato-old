@@ -2,7 +2,7 @@
  * @author Sebastiaan Heins
  * @file token.h
  * @brief Contains all the token types and their respective enums, as well as some helper functions and the token struct
- * @version 0.0.3
+ * @version 1.0
  * @date 05-10-2023
 */
 

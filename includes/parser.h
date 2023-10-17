@@ -2,7 +2,7 @@
  * @author Sebastiaan Heins
  * @file parser.h
  * @brief The parser is used to parse a list of tokens into an AST
- * @version 0.0.3
+ * @version 1.0
  * @date 05-10-2023
 */
 
