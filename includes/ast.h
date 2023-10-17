@@ -1,3 +1,11 @@
+/**
+ * @author Sebastiaan Heins
+ * @file ast.h
+ * @brief Contains the ast struct and helper functions
+ * @version 0.0.4
+ * @date 17-10-2023
+*/
+
 #ifndef AST_H
 #define AST_H
 
