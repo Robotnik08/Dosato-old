@@ -305,7 +305,6 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     }
                     
                     if (o == (end - start + 2)/2 - 1) {
-                        printf("%d, %d, %d, %d, %d\n", end - o - start + o, end - o, start + o, o, (end - start + 2)/2 - 1);
                         addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
                         return root;
                     }

@@ -12,12 +12,50 @@
 #include "str_tools.h"
 #include "token.h"
 
+/**
+ * @brief Tokenise a string of code
+ * @param tokens The tokens to fill
+ * @param full_code The full code to tokenise
+ * @param code_length The length of the code
+ * @warning The tokens must be freed after use
+*/
 void tokenise (Token** tokens, const char* full_code, const int code_length);
+
+/**
+ * @brief Add a token to a list of tokens
+ * @param tokensPtr The list of tokens
+ * @param type The type of the token
+ * @param start The start index of the token
+ * @param end The end index of the token
+ * @param carry The carry of the token
+*/
 void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry);
+
+/**
+ * @brief Get the amount of tokens in a list of tokens
+ * @param tokens The list of tokens
+ * @return The amount of tokens
+*/
 int getTokenAmount (Token* tokens);
+
+/**
+ * @brief Print a list of tokens
+ * @param tokens The list of tokens
+*/
 void printTokens (Token* tokens);
+
+/**
+ * @brief Sort a list of tokens
+ * @param tokens The list of tokens
+*/
 void sortTokens (Token** tokens);
+
+/**
+ * @brief Trim comments from a list of tokens
+ * @param tokens The list of tokens
+*/
 void trimComments (Token** tokens);
+
 
 void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry) {
     int numTokens = 0;
