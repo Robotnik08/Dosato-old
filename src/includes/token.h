@@ -130,55 +130,36 @@ typedef enum {
     E_NULL = -1
 } ExtensionKeywordType;
 
-typedef enum {
-    NODE_NULL,
-    NODE_PROGRAM,
-    NODE_FUNCTION_CALL,
-    NODE_MAKE_VAR,
-    NODE_SET_VAR,
-    NODE_FUNCTION_DECLARATION,
-    NODE_FUNCTION_DECLARATION_ARGUMENTS,
-    NODE_FUNCTION_DECLARATION_ARGUMENT,
-    NODE_EXPRESSION,
-    NODE_UNARY_EXPRESSION,
-    NODE_STATEMENT,
-    NODE_LITERAL,
-    NODE_IDENTIFIER,
-    NODE_OPERATOR,
-    NODE_BLOCK,
-    NODE_FUNCTION_IDENTIFIER,
-    NODE_ARGUMENTS,
-    NODE_TYPE_IDENTIFIER,
-    NODE_ARRAY_DECLARATION,
-    NODE_ARRAY_EXPRESSION,
-
-    NODE_WHEN,
-    NODE_WHILE,
-    NODE_ELSE,
-    NODE_CATCH,
-    NODE_INTO,
-    NODE_THEN,
-    
-    NODE_END = -1
-} NodeType;
-
 typedef struct {
     int start, end;
     TokenType type;
     int carry;
 } Token;
+
 typedef enum {
     NEEDS_NULL,
     NEEDS_BLOCK,
     NEEDS_EXPRESSION,
     NEEDS_FUNCTION
 } KeyWordFollowUpType;
+
 /**
  * @brief Get the type of a bracket
  * @param bracket The bracket to get the type of
 */
 BracketType getBracketType (char bracket);
+
+/**
+ * @brief Print all tokens in a token array
+ * @param tokens The token array to print
+*/
 void printTokens (Token* tokens);
+
+/**
+ * @brief Check if an operator is an assignment operator
+ * @param operator The operator to check
+ * @return Whether or not the operator is an assignment operator
+*/
 int isAssignmentOperator (OperatorType operator);
 
 

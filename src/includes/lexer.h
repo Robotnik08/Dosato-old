@@ -39,12 +39,6 @@ void addToken(Token** tokensPtr, TokenType type, int start, int end, int carry);
 int getTokenAmount (Token* tokens);
 
 /**
- * @brief Print a list of tokens
- * @param tokens The list of tokens
-*/
-void printTokens (Token* tokens);
-
-/**
  * @brief Sort a list of tokens
  * @param tokens The list of tokens
 */
