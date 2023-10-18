@@ -29,7 +29,6 @@ void cleanScope (Scope* scope) {
     for (int i = 0; i < length; i++) {
         switch (scope->variables[i].type) {
             case TYPE_STRING:
-                printf("%i, freeing string %s = %s\n", i, scope->variables[i].name , (char*)scope->variables[i].value);
                 free(scope->variables[i].value);
                 break;
         }
