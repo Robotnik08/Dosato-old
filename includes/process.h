@@ -9,6 +9,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,9 @@
 #include "scope.h"
 #include "garbagecollector.h"
 
-typedef struct {
+typedef struct Process Process;
+
+struct Process{
     AST* code;
 
     int debug;
@@ -29,7 +32,9 @@ typedef struct {
     int error_location;
 
     Scope main_scope;
-} Process;
+};
+
+#include "interpreter.h"
 
 /**
  * @brief Create a process
@@ -38,14 +43,7 @@ typedef struct {
  * @return The process
  * @warning The process must be destroyed after use
 */
-Process createProcess (int debug, int main);
-
-/**
- * @brief add the global variables to the scope
- * @param scope The scope to add the variables to
- * @param main Whether or not the process is the main process
-*/
-void populateDefaultVariables (Scope* scope, int main);
+Process createProcess (int debug, int main, AST root_ast);
 
 /**
  * @brief Destroy a process, freeing all memory
@@ -61,10 +59,11 @@ void destroyProcess (Process* process);
 int runProcess (Process* process);
 
 
-Process createProcess (int debug, int main) {
+Process createProcess (int debug, int main, AST root_ast) {
     Process process;
     process.code = malloc(sizeof(AST));
-    addAST(&process.code, createNullTerminatedAST());
+    process.code[0] = createNullTerminatedAST();
+    addAST(&process.code, root_ast);
 
     process.main_scope = createScope(&process.code[0].root, 0, main);
     process.debug = debug;
@@ -83,13 +82,20 @@ void destroyProcess (Process* process) {
 int runProcess (Process* process) {
     process->running = 1;
     process->exit_code = 0; // the exit code of the process, defaults to 0 (success)
+    process->error_code = 0; // the error code of the process, defaults to 0 (no error)
 
     while (process->running) {
-        // process is prematurely stopped, when code is successfully run this is set to 1 to keep the process running
-        // this is the heartbeat of the interpreter, it keeps the process running until it is stopped
-        process->running = 0;
 
+        int code = next(process);
 
+        if (code == -1) {
+            // the process has finished running
+            process->running = 0;
+        } else if (code != 0) {
+            // an error has occured
+            process->running = 0;
+            process->exit_code = code;
+        }
     }
 
     if (process->error_code != 0) {

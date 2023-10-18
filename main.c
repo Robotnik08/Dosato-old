@@ -88,10 +88,7 @@ int main (int argc, char* argv[])
     fclose(file);
 
     // the main process, containing the entry point of the program
-    Process main = createProcess(debug, 1);
-    main.code = malloc(sizeof(AST));
-    main.code[0] = createNullTerminatedAST();
-    addAST(&main.code, loadAST(argv[1], contents));
+    Process main = createProcess(debug, 1, loadAST(argv[1], contents));
 
     /// DEBUG ///
     if (debug) {

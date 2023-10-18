@@ -68,6 +68,12 @@ void destroyScope (Scope* scope);
 Scope* getLastScope (Scope* scope);
 
 /**
+ * @brief Remove the last scope in a scope chain
+ * @param scope The scope to remove the last scope of
+*/
+void removeLastScope (Scope* scope);
+
+/**
  * @brief Add a variable to a scope
  * @param scope The scope to add the variable to
  * @param variable The variable to add
@@ -163,8 +169,7 @@ Scope* getLastScope (Scope* scope) {
 void removeLastScope (Scope* scope) {
     Scope* last_scope = scope;
     if (getLastScope(scope) == scope) {
-        // there is only one scope
-        destroyScope(scope);
+        // there is only one scope, this scope cannot be removed
         return;
     }
     while (last_scope->child->child != NULL) {

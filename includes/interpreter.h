@@ -28,19 +28,25 @@
 */
 int next (Process* process);
 
+/**
+ * @brief Interpret a command (node)
+ * @param process The process to run
+ * @param command The command to interpret
+*/
+int interpretCommand (Process* process, Node* command);
+
 int next (Process* process) {
     if (process->running) {
 
         Scope* scope = getLastScope(&(process->main_scope));
-
-        if (scope->running_line >= getBodyLength(&scope->body->body[scope->running_line])) {
-            destroyLastScope(&process->main_scope);
-            return 0; // the block has finished running
+        if (scope->running_line >= getBodyLength(scope->body->body)) {
+            removeLastScope(&process->main_scope);
+            return -1; // the block has finished running
         }
 
-        interpretCommand(process, &scope->body->body[scope->running_line]);
-
+        int code = interpretCommand(process, &scope->body->body[scope->running_line]);
         scope->running_line++;
+        return code;
     } else {
         // the process must be running to run the next line
         process->error_code = ERROR_PROCESS_NOT_RUNNING;
