@@ -28,10 +28,9 @@ char* getNodeTypeString(NodeType type);
  * @param full_code The full code
  * @param tokens The list of tokens
  * @param node The node to get the string version of
- * @param string The string version of the node
  * @return The string version of the node (don't forget to free it)
 */
-void getStringFromNode (const char* full_code, const Token* tokens, const Node* node, char** string);
+char* getStringFromNode (const char* full_code, const Token* tokens, const Node* node);
 
 /**
  * @brief Print a node
@@ -134,18 +133,19 @@ char* getNodeTypeString(NodeType type) {
     return nodeTypeString;
 }
  
-void getStringFromNode (const char* full_code, const Token* tokens, const Node* node, char** string) {
+char* getStringFromNode (const char* full_code, const Token* tokens, const Node* node) {
+    char* string = NULL;
     if (node->start > node->end) {
-        *string = "Error: start > end";
-        return;
+        return "Error: start > end";
     }
-    *string = (char*)malloc(sizeof(char) * (tokens[node->end].end - tokens[node->start].start + 1));
+    string = (char*)malloc(sizeof(char) * (tokens[node->end].end - tokens[node->start].start + 1));
 
     int stringIndex = 0;
     for (int i = tokens[node->start].start; i <= tokens[node->end].end; i++) {
-        (*string)[stringIndex++] = full_code[i] == '\n' ? ' ' : full_code[i];
+        string[stringIndex++] = full_code[i] == '\n' ? ' ' : full_code[i];
     }
-    (*string)[stringIndex] = '\0';
+    string[stringIndex] = '\0';
+    return string;
 }
 
 void printNode (const char* full_code, const Token* tokens, const Node* node, int depth, int isRoot) {
@@ -180,13 +180,12 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     for (int i = 0; i < depth+1; i++) {
         printf("  ");
     }
-    char *stringFromNode;
-    getStringFromNode(full_code, tokens, node, &stringFromNode);
+    char* stringFromNode = getStringFromNode(full_code, tokens, node);
     printf("\"text\": \"%s\"", stringFromNode);
     
     // bandaid fix, free crashes the program randomly, so we just don't free it for now
     // this does leak a few bytes of memory, but it's not a big deal because this is only used for debugging and only called once
-    // free(stringFromNode);
+    free(stringFromNode);
 
     if (node->body != NULL) {
         printf(",\n");
