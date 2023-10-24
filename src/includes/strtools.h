@@ -1,13 +1,13 @@
 /**
  * @author Sebastiaan Heins
- * @file str_tools.h
+ * @file strtools.h
  * @brief A collection of special string functions
  * @version 1.0
  * @date 05-10-2023
 */
 
-#ifndef STR_TOOLS_H
-#define STR_TOOLS_H
+#ifndef strtools_H
+#define strtools_H
 
 #include <string.h>
 

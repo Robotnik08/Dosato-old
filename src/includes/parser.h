@@ -13,7 +13,7 @@
 #include "token.h"
 #include "node.h"
 #include "log.h"
-#include "str_tools.h"
+#include "strtools.h"
 
 /**
  * @brief Parse a list of tokens into an AST
@@ -117,7 +117,6 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             if (tokens[start].type != TOKEN_VAR_TYPE) {
                 printError(full_code, tokens[start].start, ERROR_EXPECTED_TYPE);
             }
-            addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
 
 
             // if the type is a func, parse the function declaration
@@ -125,15 +124,19 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 // change the node type to a function declaration instead of a variable declaration
                 root.type = NODE_FUNCTION_DECLARATION;
                 // if the second token is not an identifier, throw an error
-                if (tokens[start + 1].type != TOKEN_IDENTIFIER) {
+                if (tokens[start + 1].type != TOKEN_VAR_TYPE) {
+                    printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_TYPE);
+                }
+                addToBody(&root.body, parse(full_code, tokens, start + 1, start + 1, NODE_TYPE_IDENTIFIER));
+                if (tokens[start + 2].type != TOKEN_IDENTIFIER) {
                     printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_IDENTIFIER);
                 }
                 // if theres no argument brackets, throw an error
-                if (tokens[start + 2].type != TOKEN_PARENTHESIS || !(tokens[start + 2].carry & BRACKET_ROUND)) {
-                    printError(full_code, tokens[start + 2].start, ERROR_EXPECTED_ARGUMENTS);
+                if (tokens[start + 3].type != TOKEN_PARENTHESIS || !(tokens[start + 3].carry & BRACKET_ROUND)) {
+                    printError(full_code, tokens[start + 3].start, ERROR_EXPECTED_ARGUMENTS);
                 }
-                int args_end = getBlock(tokens, start + 2);
-                addToBody(&root.body, parse(full_code, tokens, start + 2, args_end, NODE_FUNCTION_DECLARATION_ARGUMENTS));
+                int args_end = getBlock(tokens, start + 3);
+                addToBody(&root.body, parse(full_code, tokens, start + 3, args_end, NODE_FUNCTION_DECLARATION_ARGUMENTS));
 
                 // if theres no block, throw an error
                 if (tokens[args_end + 1].type != TOKEN_PARENTHESIS || !(tokens[args_end + 1].carry & BRACKET_CURLY)) {
@@ -142,7 +145,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 int block_end = getBlock(tokens, args_end + 1);
                 // if the end of the block is not the end of the statement, throw an error
                 if (block_end + 1 != end) {
-                    printError(full_code, tokens[block_end + 1].start, ERROR_EXPECTED_SEPERATOR);
+                    printError(full_code, tokens[block_end].end + 1, ERROR_EXPECTED_SEPERATOR);
                 }
                 // if the block is empty, throw an error
                 if (block_end - 2 - args_end <= 0) {
@@ -151,6 +154,8 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 addToBody(&root.body, parse(full_code, tokens, args_end + 2, block_end-1, NODE_BLOCK));
                 break;
             } else if (tokens[start].carry == TYPE_ARRAY) {
+                // add the array type identifier to the body
+                addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
                 // after ARRAY, there should be a type identifier, if not throw an error
                 if (tokens[start + 1].type != TOKEN_VAR_TYPE) {
                     printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_TYPE);
@@ -161,6 +166,8 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 root.type = NODE_ARRAY_DECLARATION;
                 break;
             }
+
+            addToBody(&root.body, parse(full_code, tokens, start, start, NODE_TYPE_IDENTIFIER));
 
 
             // if the second token is not an identifier, throw an error
@@ -196,6 +203,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             if (tokens[start].type != TOKEN_IDENTIFIER) {
                 printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);
             }
+            addToBody(&root.body, parse(full_code, tokens, start, start, NODE_IDENTIFIER));
             if (tokens[start + 1].type == TOKEN_PARENTHESIS) {
                 if (tokens[start + 1].carry & BRACKET_ROUND) {
                     addToBody(&root.body, parse(full_code, tokens, start + 1, getBlock(tokens, start + 1), NODE_ARGUMENTS));

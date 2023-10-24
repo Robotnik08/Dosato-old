@@ -34,7 +34,6 @@ struct Process{
     Scope main_scope;
 };
 
-#include "interpreter.h"
 
 /**
  * @brief Create a process
@@ -58,6 +57,25 @@ void destroyProcess (Process* process);
 */
 int runProcess (Process* process);
 
+/**
+ * @brief Get the token list of an AST
+ * @param process The process to get the token list from
+ * @param ast_index The index of the AST to get the token list from
+ * @return The token list
+*/
+Token* getTokenList (Process* process, int ast_index);
+
+/**
+ * @brief Get the text of a node
+ * @param process The process to get the text from
+ * @param node The node to get the text from
+ * @param ast_index The index of the AST to get the text from
+ * @return The text of the node
+*/
+char* getNodeText (Process* process, Node* node, int ast_index);
+
+// include these after the struct definition to prevent circular dependencies
+#include "interpreter.h"
 
 Process createProcess (int debug, int main, AST root_ast) {
     Process process;
@@ -65,7 +83,11 @@ Process createProcess (int debug, int main, AST root_ast) {
     process.code[0] = createNullTerminatedAST();
     addAST(&process.code, root_ast);
 
-    process.main_scope = createScope(&process.code[0].root, 0, main);
+    process.error_ast_index = 0;
+    process.error_location = 0;
+    process.error_code = 0;
+
+    process.main_scope = createScope(&process.code[0].root, 0, main, 0);
     process.debug = debug;
     
     return process;
@@ -94,6 +116,7 @@ int runProcess (Process* process) {
         } else if (code != 0) {
             // an error has occured
             process->running = 0;
+            process->error_code = code;
             process->exit_code = code;
         }
     }
@@ -103,6 +126,21 @@ int runProcess (Process* process) {
     }
 
     return process->exit_code;
+}
+
+Token* getTokenList (Process* process, int ast_index) {
+    return process->code[ast_index].tokens;
+}
+
+char* getNodeText (Process* process, Node* node, int ast_index) {
+    Token* tokens = getTokenList(process, ast_index);
+    int length = tokens[node->end].end - tokens[node->start].start + 1;
+    char* str = malloc(sizeof(char) * (length + 1));
+    for (int i = 0; i < length; i++) {
+        str[i] = process->code[ast_index].full_code[tokens[node->start].start + i];
+    }
+    str[length] = '\0';
+    return str;
 }
 
 #endif

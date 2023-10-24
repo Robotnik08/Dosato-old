@@ -10,7 +10,7 @@
 #define LOG_H
 
 #include <stdio.h>
-#include "str_tools.h"
+#include "strtools.h"
 
 typedef enum {
     ERROR,

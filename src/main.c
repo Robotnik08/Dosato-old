@@ -11,7 +11,7 @@
 #include <string.h>
 
 // includes
-#include "includes/str_tools.h"
+#include "includes/strtools.h"
 #include "includes/lexer.h"
 #include "includes/parser.h"
 #include "includes/log.h"

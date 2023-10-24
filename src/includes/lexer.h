@@ -9,7 +9,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "str_tools.h"
+#include "strtools.h"
 #include "token.h"
 
 /**

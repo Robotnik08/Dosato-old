@@ -21,6 +21,7 @@
 #include "scope.h"
 #include "variable.h"
 #include "log.h"
+#include "error.h"
 
 /**
  * @brief Run the interpreter, line by line
@@ -34,6 +35,27 @@ int next (Process* process);
  * @param command The command to interpret
 */
 int interpretCommand (Process* process, Node* command);
+
+/**
+ * @brief Interpret a function call
+ * @param process The process to run
+ * @param func The function to call
+*/
+int functionCall (Process* process, Node* func);
+
+/**
+ * @brief Interpret a variable creation
+ * @param process The process to run
+ * @param func The variable to create
+*/
+int makeVariable (Process* process, Node* func);
+
+/**
+ * @brief Interpret a variable set
+ * @param process The process to run
+ * @param func The variable to set
+*/
+int setVariable (Process* process, Node* func);
 
 int next (Process* process) {
     if (process->running) {
@@ -59,27 +81,59 @@ int next (Process* process) {
 int interpretCommand (Process* process, Node* command) {
     if (!process->running) {
         // the process must be running to run the next line
-        process->error_code = ERROR_PROCESS_NOT_RUNNING;
         process->error_ast_index = 0;
         process->error_location = 0;
         return ERROR_PROCESS_NOT_RUNNING;
     }
 
     Scope* l_scope = getLastScope(&process->main_scope);
-
     switch (command->type) {
         default:
-            process->error_code = ERROR_INTERPRETER_INVALID_COMMAND;
+            return error(process, process->error_ast_index, ERROR_INTERPRETER_INVALID_COMMAND, getTokenList(process, 0)[command->start].start);
             break;
         case NODE_FUNCTION_CALL:
-            printf("function call\n");
+            return functionCall(process, command);
             break;
         case NODE_MAKE_VAR:
-            printf("make var\n");
+            return makeVariable(process, command);
+            break;
+        case NODE_FUNCTION_DECLARATION:
+            return 0;
             break;
         case NODE_SET_VAR:
-            printf("set var\n");
+            return setVariable(process, command);
             break;
     }
+}
+
+int functionCall (Process* process, Node* func) {
+    Token* tokens = getTokenList(process, 0);
+    if (func->body[0].type != NODE_FUNCTION_IDENTIFIER) {
+        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, tokens[func->start].start);
+    }
+    Node* func_node = func->body[0].body;
+    if (func_node[0].type != NODE_IDENTIFIER) {
+        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, tokens[func_node[0].start].start);
+    }
+    if (func_node[1].type != NODE_ARGUMENTS) {
+        return error(process, process->error_ast_index, ERROR_EXPECTED_ARGUMENTS, tokens[func_node[1].start].start);
+    }
+    
+    char* name = getNodeText(process, &func_node[0], 0);
+    printf("function call: %s\n", name);
+
+    
+    free(name);
+    return 0;
+}
+
+int makeVariable (Process* process, Node* line) {
+    printf("make var\n");
+    return 0;
+}
+
+int setVariable (Process* process, Node* line) {
+    printf("set var\n");
+    return 0;
 }
 #endif

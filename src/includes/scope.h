@@ -13,6 +13,7 @@
 
 #include "token.h"
 #include "variable.h"
+#include "function.h"
 
 typedef struct Scope Scope;
 
@@ -20,6 +21,7 @@ struct Scope {
     int running_line;
     int running_ast;
     Variable* variables;
+    Function* functions;
     Node* body;
     Scope* child;
 };
@@ -31,7 +33,7 @@ struct Scope {
  * @param scope The scope to add the variables to
  * @param main Whether or not the process is the main process
 */
-void populateDefaultVariables (Scope* scope, int main);
+void populateDefaultVariables (Scope* scope, int main, int depth);
 
 /**
  * @brief Create a scope
@@ -39,7 +41,7 @@ void populateDefaultVariables (Scope* scope, int main);
  * @return The scope
  * @warning The scope must be destroyed after use
 */
-Scope createScope (Node* body, int ast_index, int main);
+Scope createScope (Node* body, int ast_index, int main, int depth);
 
 /**
  * @brief Create a null terminated scope
@@ -87,7 +89,7 @@ void addVariable (Scope* scope, Variable variable);
 */
 void addScope (Scope** scope, Scope new_scope);
 
-void populateDefaultVariables (Scope* scope, int main) {
+void populateDefaultVariables (Scope* scope, int main, int depth) {
     // define constants in the global scope
     // ALL pointers ownership is transferred to the variable, and must be freed in the variable's destroy function
 
@@ -117,21 +119,30 @@ void populateDefaultVariables (Scope* scope, int main) {
         addVariable(scope, createVariable("MATH_E", TYPE_DOUBLE, const_e, 1, 0));
     }
 
-    // STRING constants
-    char* process_name = main ? "main" : "imported";
-    char* const_process_name = malloc(sizeof(char) * strlen(process_name));
-    strcpy(const_process_name, process_name);
-    addVariable(scope, createVariable("__PROCESS", TYPE_STRING, const_process_name, 1, 0));
+    // the depth of the scope is stored in the __depth variable
+    int* const_scope_depth = malloc(sizeof(int));
+    *const_scope_depth = depth;
+    addVariable(scope, createVariable("__depth", TYPE_INT, const_scope_depth, 1, 0));
 }
 
-Scope createScope (Node* body, int ast_index, int main) {
+void addSystemVariables (Scope* scope, int main, int depth) {
+    if (main) {
+        
+    }
+}
+
+Scope createScope (Node* body, int ast_index, int main, int depth) {
     Scope scope;
     scope.body = body;
     scope.running_line = 0;
     scope.running_ast = ast_index;
     scope.variables = malloc(sizeof(Variable));
     scope.variables[0] = createNullTerminatedVariable();
-    populateDefaultVariables(&scope, main);
+    populateDefaultVariables(&scope, main, depth);
+
+    scope.functions = malloc(sizeof(Function));
+    scope.functions[0] = createNullTerminatedFunction();
+
     scope.child = NULL;
     return scope;
 }
@@ -184,6 +195,13 @@ void addVariable (Scope* scope, Variable variable) {
     scope->variables = realloc(scope->variables, sizeof(Variable) * (length + 2));
     scope->variables[length] = variable;
     scope->variables[length+1] = createNullTerminatedVariable();
+}
+
+void addFunction (Scope* scope, Function func) {
+    int length = getFunctionsLength(scope->functions);
+    scope->functions = realloc(scope->functions, sizeof(Function) * (length + 2));
+    scope->functions[length] = func;
+    scope->functions[length+1] = createNullTerminatedFunction();
 }
 
 void addScope (Scope** scope, Scope new_scope) {
