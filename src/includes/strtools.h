@@ -48,14 +48,14 @@ int isFloateric (char c);
  * @param input The string to split
  * @param separator The separator to split by
 */
-char** str_split(const char* input, const char* separator);
+char** strspl(const char* input, const char* separator);
 /**
  * @brief Replace all instances of a string with another string
  * @param in The string to replace in
  * @param selector The string to replace
  * @param replacement The string to replace with
 */
-void str_replace(char *in, const char *selector, const char *replacement);
+void strrep(char *in, const char *selector, const char *replacement);
 /**
  * @brief Get the Next Word in a String, make sure to free the result
  * @param text The text to get the word from
@@ -115,7 +115,7 @@ int isEmpty (char c) {
     return c = ' ' || c == '\t' || c == '\n';
 }
 
-char** str_split(const char* input, const char* separator) {
+char** strspl(const char* input, const char* separator) {
     int count = 1;
     const char* temp = input;
     // Count the number of times the separator appears in the input string
@@ -152,7 +152,7 @@ char** str_split(const char* input, const char* separator) {
     return substrings;
 }
 
-void str_replace(char *in, const char *selector, const char *replacement) {
+void strrep(char *in, const char *selector, const char *replacement) {
     int in_len = strlen(in);
     int selector_len = strlen(selector);
 
