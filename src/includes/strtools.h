@@ -79,15 +79,16 @@ int getLineCol (const char* text, int pos);
  * @brief Remove the first and last character of a string
  * @param test The string to remove the first and last character of
  * @param amount The amount of characters to remove
+ * @return The new string (don't forget to free it)
 */
-char* removeLastAndFirstChar(char* str, int amount);
+char* removeLastAndFirstChar(const char* str, int amount);
 
 /**
  * @brief Check if a string starts and ends with a character
  * @param str The string to check
  * @param character The character to check
 */
-int strsur (char* str, char character);
+int strsur (const char* str, const char character);
 
 
 int isNumeric (char c) {
@@ -218,7 +219,7 @@ int getLineCol (const char* text, int pos) {
     return col;
 }
 
-char* removeLastAndFirstChar (char* str, int amount) {
+char* removeLastAndFirstChar (const char* str, int amount) {
     char* new_str = malloc(sizeof(char) * (strlen(str) - amount));
     for (int i = 0; i < strlen(str) - amount; i++) {
         new_str[i] = str[i + amount];
@@ -227,7 +228,7 @@ char* removeLastAndFirstChar (char* str, int amount) {
     return new_str;
 }
 
-int strsur (char* str, char character) {
+int strsur (const char* str, const char character) {
     return str[0] == character && str[strlen(str) - 1] == character;
 }
 
