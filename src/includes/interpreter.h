@@ -148,4 +148,5 @@ int setVariable (Process* process, Node* line) {
     printf("set var\n");
     return 0;
 }
+
 #endif
