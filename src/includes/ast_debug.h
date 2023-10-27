@@ -193,9 +193,9 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
             printf("  ");
         }
         printf("\"body\": [\n");
-        for (int i = 0; i < getBodyLength(node->body); i++) {
+        for (int i = 0; i < getNodeBodyLength(node->body); i++) {
             printNode(full_code, tokens, &node->body[i], depth + 2, 0);
-            if (i != getBodyLength(node->body) - 1) {
+            if (i != getNodeBodyLength(node->body) - 1) {
                 printf(",\n");
             }
         }

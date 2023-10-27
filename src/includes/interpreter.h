@@ -61,7 +61,7 @@ int next (Process* process) {
     if (process->running) {
 
         Scope* scope = getLastScope(&(process->main_scope));
-        if (scope->running_line >= getBodyLength(scope->body->body)) {
+        if (scope->running_line >= getNodeBodyLength(scope->body->body)) {
             removeLastScope(&process->main_scope);
             return -1; // the block has finished running
         }
@@ -120,11 +120,23 @@ int functionCall (Process* process, Node* func) {
     }
     
     char* name = getNodeText(process, &func_node[0], 0);
-    printf("function call: %s\n", name);
-
-    
+    Variable* args = malloc(sizeof(Variable) * getNodeBodyLength(func_node[1].body) + 1);
+    for (int i = 0; i < getNodeBodyLength(func_node[1].body); i++) {
+        char* txt = getNodeText(process, &func_node[1].body[i], 0);
+        char* value = malloc(sizeof(char) * strlen(name) + 1);
+        strcpy(value, txt);
+        free(txt);
+        args[i] = createVariable("-temp", TYPE_STRING, value, 0, 0);
+    }
+    args[getNodeBodyLength(func_node[1].body)] = createNullTerminatedVariable();
+    int code = callFunction(name, args, getVariablesLength(args), process);
     free(name);
-    return 0;
+
+    if (code) {
+        return error(process, process->error_ast_index, code, tokens[func_node[0].start].start);
+    }
+    
+    return code;
 }
 
 int makeVariable (Process* process, Node* line) {

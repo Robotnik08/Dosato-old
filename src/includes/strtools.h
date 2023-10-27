@@ -75,6 +75,13 @@ int getLine (const char* text, int pos);
 */
 int getLineCol (const char* text, int pos);
 
+/**
+ * @brief Remove the first and last character of a string
+ * @param test The string to remove the first and last character of
+ * @param amount The amount of characters to remove
+*/
+char* removeFirstAndLast(const char* test, int amount);
+
 int isNumeric (char c) {
     return c >= '0' && c <= '9';
 }

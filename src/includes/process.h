@@ -10,6 +10,7 @@
 #define PROCESS_H
 
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,9 +71,19 @@ Token* getTokenList (Process* process, int ast_index);
  * @param process The process to get the text from
  * @param node The node to get the text from
  * @param ast_index The index of the AST to get the text from
- * @return The text of the node
+ * @return The text of the node (must be freed after use)
 */
 char* getNodeText (Process* process, Node* node, int ast_index);
+
+/**
+ * @brief Call a function
+ * @param name The name of the function to call
+ * @param args The arguments to pass to the function
+ * @param args_length The length of the arguments
+ * @param process The process to call the function in
+ * @return The error code
+*/
+int callFunction (char* name, Variable* args, int args_length, Process* process);
 
 // include these after the struct definition to prevent circular dependencies
 #include "interpreter.h"
@@ -141,6 +152,23 @@ char* getNodeText (Process* process, Node* node, int ast_index) {
     }
     str[length] = '\0';
     return str;
+}
+
+#include "standard-library/dosato-std.h" // include the dosato standard library, after all the other definitions
+
+int callFunction (char* name, Variable* args, int args_length, Process* process) {
+    Function* function = getFunction(&process->main_scope, name);
+    if (function == NULL) {
+        return ERROR_FUNCTION_NOT_FOUND;
+    }
+
+    if (function->arguments_length != args_length) {
+        return ERROR_FUNCTION_ARG_NOT_CORRECT_AMOUNT;
+    }
+
+    standard_call(process, name, args);
+
+    return 0;
 }
 
 #endif

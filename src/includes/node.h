@@ -99,7 +99,7 @@ int getBlockReverse (Token* tokens, const int start);
  * @param nodes The node's body
  * @return The amount of nodes in the body (excluding the null terminator)
 */
-int getBodyLength (const Node* nodes);
+int getNodeBodyLength (const Node* nodes);
 
 /**
  * @brief Destroy a node and all of it's children, freeing the memory
@@ -118,7 +118,7 @@ Node createNullTerminatedNode () {
 }
 
 void addToBody (Node** body, const Node node) {
-    int length = getBodyLength(*body);
+    int length = getNodeBodyLength(*body);
     *body = realloc(*body, sizeof(Node) * (length + 2));
     (*body)[length] = node;
 
@@ -181,7 +181,7 @@ int getSetExpression (Token* tokens, const int start) {
     return -1;
 }
 
-int getBodyLength (const Node* nodes) {
+int getNodeBodyLength (const Node* nodes) {
     if (nodes == NULL) return 0;
     int i = 0;
     while (nodes[i].type != NODE_END) {
@@ -192,7 +192,7 @@ int getBodyLength (const Node* nodes) {
 
 void destroyNode (Node* node) {
     if (node->body != NULL) {
-        for (int i = 0; i < getBodyLength(node->body); i++) {
+        for (int i = 0; i < getNodeBodyLength(node->body); i++) {
             destroyNode(&node->body[i]);
         }
         free(node->body);

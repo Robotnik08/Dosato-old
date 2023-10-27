@@ -83,6 +83,27 @@ void removeLastScope (Scope* scope);
 void addVariable (Scope* scope, Variable variable);
 
 /**
+ * @brief Add a function to a scope
+ * @param scope The scope to add the function to
+ * @param variable The function to add
+*/
+void addFunction (Scope* scope, Function func);
+
+/**
+ * @brief Get a variable from a scope
+ * @param scope The scope to get the variable from
+ * @param name The name of the variable
+*/
+Variable* getVariable (Scope* scope, char* name);
+
+/**
+ * @brief Get a function from a scope
+ * @param scope The scope to get the function from
+ * @param name The name of the function
+*/
+Function* getFunction (Scope* scope, char* name);
+
+/**
  * @brief Add a scope to a scope array
  * @param scope The scope to add the variable to
  * @param variable The variable to add to the scope
@@ -125,9 +146,43 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
     addVariable(scope, createVariable("__depth", TYPE_INT, const_scope_depth, 1, 0));
 }
 
-void addSystemVariables (Scope* scope, int main, int depth) {
+void addSystemFunctions (Scope* scope, int main, int depth) {
     if (main) {
-        
+        // SAY function
+        Argument* args = malloc(sizeof(Argument) * 1);
+        args[0] = (Argument){"MESSAGE", TYPE_STRING };
+        addFunction(scope, createFunction("SAY", NULL, args, 1, TYPE_VOID, 1));
+
+        return; // for now we only test the SAY function
+
+        // SAYN function
+        args = malloc(sizeof(Argument) * 1);
+        args[0] = (Argument){"MESSAGE", TYPE_DOUBLE };
+        addFunction(scope, createFunction("SAYN", NULL, args, 1, TYPE_VOID, 1));
+
+        // LISTEN function
+        addFunction(scope, createFunction("LISTEN", NULL, NULL, 0, TYPE_STRING, 1));
+
+        // STOD function
+        args = malloc(sizeof(Argument) * 1);
+        args[0] = (Argument){"STRING", TYPE_STRING };
+        addFunction(scope, createFunction("STOD", NULL, args, 1, TYPE_DOUBLE, 1));
+
+        // STOI function
+        args = malloc(sizeof(Argument) * 1);
+        args[0] = (Argument){"STRING", TYPE_STRING };
+        addFunction(scope, createFunction("STOI", NULL, args, 1, TYPE_INT, 1));
+
+        // DTOS function
+        args = malloc(sizeof(Argument) * 1);
+        args[0] = (Argument){"DOUBLE", TYPE_DOUBLE };
+        addFunction(scope, createFunction("DTOS", NULL, args, 1, TYPE_STRING, 1));
+
+        // STRLEN function
+        args = malloc(sizeof(Argument) * 1);
+        args[0] = (Argument){"STRING", TYPE_STRING };
+        addFunction(scope, createFunction("STRLEN", NULL, args, 1, TYPE_INT, 1));
+
     }
 }
 
@@ -136,12 +191,14 @@ Scope createScope (Node* body, int ast_index, int main, int depth) {
     scope.body = body;
     scope.running_line = 0;
     scope.running_ast = ast_index;
+    
     scope.variables = malloc(sizeof(Variable));
     scope.variables[0] = createNullTerminatedVariable();
     populateDefaultVariables(&scope, main, depth);
 
     scope.functions = malloc(sizeof(Function));
     scope.functions[0] = createNullTerminatedFunction();
+    addSystemFunctions(&scope, main, depth);
 
     scope.child = NULL;
     return scope;
@@ -202,6 +259,40 @@ void addFunction (Scope* scope, Function func) {
     scope->functions = realloc(scope->functions, sizeof(Function) * (length + 2));
     scope->functions[length] = func;
     scope->functions[length+1] = createNullTerminatedFunction();
+}
+
+Variable* getVariableFromList (Variable* list, char* name) {
+    int length = getVariablesLength(list);
+    for (int i = 0; i < length; i++) {
+        if (!strcmp(list[i].name, name)) {
+            return &list[i];
+        }
+    }
+    return NULL;
+}
+
+Variable* getVariable (Scope* scope, char* name) {
+    while (scope->running_line != -1) {
+        Variable* variable = getVariableFromList(scope->variables, name);
+        if (variable != NULL) {
+            return variable;
+        }
+        scope = scope->child;
+    }
+    return NULL;
+}
+
+Function* getFunction (Scope* scope, char* name) {
+    while (scope->running_line != -1) {
+        int length = getFunctionsLength(scope->functions);
+        for (int i = 0; i < length; i++) {
+            if (!strcmp(scope->functions[i].name, name)) {
+                return &scope->functions[i];
+            }
+        }
+        scope = scope->child;
+    }
+    return NULL;
 }
 
 void addScope (Scope** scope, Scope new_scope) {

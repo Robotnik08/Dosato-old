@@ -10,7 +10,6 @@
 #include "ast.h"
 #include "strtools.h"
 #include "log.h"
-#include "process.h"
 #include "variable.h"
 
 typedef struct Function Function;
@@ -40,9 +39,11 @@ struct Function {
  * @param body The body of the function
  * @param arguments The arguments of the function
  * @param arguments_length The length of the arguments
+ * @param return_type The return type of the function
+ * @param std Whether or not the function is a standard function
  * @return The function
  */
-Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length);
+Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length, DataType return_type, int std);
 
 /**
  * @brief Create a null terminated function
@@ -57,6 +58,7 @@ Function createNullTerminatedFunction ();
  */
 int getFunctionsLength (const Function* list);
 
+
 /**
  * @brief Destroy a function, freeing all memory
  * @param function The function to destroy
@@ -64,13 +66,15 @@ int getFunctionsLength (const Function* list);
 void destroyFunction (Function* function);
 
 
-Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length) {
+
+Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length, DataType return_type, int std) {
     Function function;
     function.name = name;
     function.body = body;
     function.arguments_length = arguments_length;
     function.arguments = arguments;
-    function.std_function = 0;
+    function.std_function = std;
+    function.return_type = return_type;
     return function;
 }
 
@@ -89,15 +93,8 @@ int getFunctionsLength (const Function* list) {
 }
 
 void destroyFunction (Function* function) {
-    return;
-    for (int i = 0; i < function->arguments_length; i++) {
-        free(function->arguments[i].name);
-        // function arguments are not freed because they are templates, and do not have allocated memory
-    }
-    // the function does have ownership of the argument list, so it must be freed
-    free(function->arguments);
+    if (function->arguments != NULL) free(function->arguments);
 
     // the function does not have ownership of the body or it's name (it's name is most likely unallocated anyways), so it must not be freed
 }
-
 #endif

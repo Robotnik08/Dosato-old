@@ -34,6 +34,12 @@ void cleanScope (Scope* scope) {
         }
     }
     free (scope->variables);
+
+    length = getFunctionsLength(scope->functions);
+    for (int i = 0; i < length; i++) {
+        destroyFunction(&scope->functions[i]);
+    }
+    free (scope->functions);
 }
 
 #endif

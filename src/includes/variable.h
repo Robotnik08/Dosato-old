@@ -29,6 +29,7 @@ typedef struct {
  * @param type The type of the variable
  * @param valueptr The pointer to the value of the variable
  * @param constant Whether or not the variable is constant
+ * @param array Whether or not the variable is an array (0 means no array, everything above 1 means array, 2 means array of arrays, etc.)
  * @return The variable
 */
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array);
