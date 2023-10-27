@@ -80,7 +80,15 @@ int getLineCol (const char* text, int pos);
  * @param test The string to remove the first and last character of
  * @param amount The amount of characters to remove
 */
-char* removeFirstAndLast(const char* test, int amount);
+char* removeLastAndFirstChar(char* str, int amount);
+
+/**
+ * @brief Check if a string starts and ends with a character
+ * @param str The string to check
+ * @param character The character to check
+*/
+int strsur (char* str, char character);
+
 
 int isNumeric (char c) {
     return c >= '0' && c <= '9';
@@ -165,6 +173,7 @@ void str_replace(char *in, const char *selector, const char *replacement) {
 
     free(result);
 }
+
 char* getWord(const char* text, int start) {
     // Find the length of the word (number of alphanumeric characters)
     int wordLength = 0;
@@ -187,6 +196,7 @@ char* getWord(const char* text, int start) {
     word[wordLength] = '\0';
     return word;
 }
+
 int getLine (const char* text, int pos) {
     int line = 1;
     for (int i = 0; i < pos; i++) {
@@ -196,6 +206,7 @@ int getLine (const char* text, int pos) {
     }
     return line;
 }
+
 int getLineCol (const char* text, int pos) {
     int col = 1;
     for (int i = 0; i < pos; i++) {
@@ -205,6 +216,19 @@ int getLineCol (const char* text, int pos) {
         col++;
     }
     return col;
+}
+
+char* removeLastAndFirstChar (char* str, int amount) {
+    char* new_str = malloc(sizeof(char) * (strlen(str) - amount));
+    for (int i = 0; i < strlen(str) - amount; i++) {
+        new_str[i] = str[i + amount];
+    }
+    new_str[strlen(str) - amount] = '\0';
+    return new_str;
+}
+
+int strsur (char* str, char character) {
+    return str[0] == character && str[strlen(str) - 1] == character;
 }
 
 #endif
