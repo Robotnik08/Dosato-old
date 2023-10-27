@@ -90,6 +90,12 @@ char* removeLastAndFirstChar(const char* str, int amount);
 */
 int strsur (const char* str, const char character);
 
+/**
+ * @brief Count the amount of times a character appears in a string
+ * @param str The string to check
+ * @param character The character to check
+*/
+int strchl (const char* str, const char character);
 
 int isNumeric (char c) {
     return c >= '0' && c <= '9';
@@ -230,6 +236,16 @@ char* removeLastAndFirstChar (const char* str, int amount) {
 
 int strsur (const char* str, const char character) {
     return str[0] == character && str[strlen(str) - 1] == character;
+}
+
+int strchl (const char* str, const char character) {
+    int count = 0;
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == character) {
+            count++;
+        }
+    }
+    return count;
 }
 
 #endif
