@@ -13,11 +13,11 @@
 #include "../scope.h"
 #include "../process.h"
 
-int standard_call (Process* process, const char* name, const Variable* args);
+int standard_call (Process* process, const char* name, const Variable* args, int argc);
 
-int standard_call (Process* process, const char* name, const Variable* args) {
+int standard_call (Process* process, const char* name, const Variable* args, int argc) {
     if (!strcmp(name, "SAY")) {
-        return say(process, args) ? ERROR_SAY_ERROR : 0;
+        return say(process, args, argc);
     }
     return ERROR_FUNCTION_NOT_FOUND;
 }

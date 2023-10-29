@@ -94,6 +94,7 @@ int strsur (const char* str, const char character);
  * @brief Count the amount of times a character appears in a string
  * @param str The string to check
  * @param character The character to check
+ * @return The amount of times the character appears in the string
 */
 int strchl (const char* str, const char character);
 
@@ -114,11 +115,29 @@ int isAlphaNameric (char c) {
 }
 
 int isFloateric (char c) {
-    return isNumeric(c) || c == '.';
+    return isNumeric(c) || c == '.' || c == 'F';
 }
 
 int isEmpty (char c) {
     return c = ' ' || c == '\t' || c == '\n';
+}
+
+char* itos (long long int i) {
+    char* str = malloc(sizeof(char) * 30);
+    sprintf(str, "%lld", i);
+    return str;
+}
+
+char* uitos (unsigned long long int i) {
+    char* str = malloc(sizeof(char) * 30);
+    sprintf(str, "%llu", i);
+    return str;
+}
+
+char* ftos (double f) {
+    char* str = malloc(sizeof(char) * 30);
+    sprintf(str, "%lf", f);
+    return str;
 }
 
 char** strspl(const char* input, const char* separator) {
@@ -226,11 +245,12 @@ int getLineCol (const char* text, int pos) {
 }
 
 char* removeLastAndFirstChar (const char* str, int amount) {
-    char* new_str = malloc(sizeof(char) * (strlen(str) - amount));
-    for (int i = 0; i < strlen(str) - amount; i++) {
+    char* new_str = malloc(sizeof(char) * (strlen(str) - amount*2));
+    for (int i = 0; i < strlen(str) - amount*2; i++) {
         new_str[i] = str[i + amount];
     }
-    new_str[strlen(str) - amount] = '\0';
+    new_str[strlen(str) - amount-1] = '\0';
+
     return new_str;
 }
 
@@ -247,5 +267,4 @@ int strchl (const char* str, const char character) {
     }
     return count;
 }
-
 #endif

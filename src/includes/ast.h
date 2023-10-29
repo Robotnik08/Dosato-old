@@ -81,10 +81,11 @@ void addAST (AST** asts, AST ast) {
     (*asts)[length+1] = createNullTerminatedAST();
 }
 AST loadAST (const char* filename, const char* full_code) {
+    
     AST ast;
-    ast.filename = malloc(strlen(filename));
+    ast.filename = malloc(strlen(filename)+1);
     strcpy(ast.filename, filename);
-    ast.full_code = malloc(strlen(full_code));
+    ast.full_code = malloc(strlen(full_code)+1);
     strcpy(ast.full_code, full_code);
 
     ast.tokens = NULL;

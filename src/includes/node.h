@@ -55,6 +55,7 @@ struct Node {
     int start, end;
     NodeType type;
     Node* body;
+    char* text;
 };
 
 /**
@@ -114,6 +115,7 @@ Node createNullTerminatedNode () {
     node.end = 0;
     node.type = NODE_END;
     node.body = NULL;
+    node.text = NULL;
     return node;
 }
 
@@ -196,6 +198,7 @@ void destroyNode (Node* node) {
             destroyNode(&node->body[i]);
         }
         free(node->body);
+        free(node->text);
     }
 }
 

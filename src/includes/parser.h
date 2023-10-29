@@ -14,6 +14,7 @@
 #include "node.h"
 #include "log.h"
 #include "strtools.h"
+#include "ast_debug.h"
 
 /**
  * @brief Parse a list of tokens into an AST
@@ -28,6 +29,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
     Node root;
     root.start = start;
     root.end = end;
+    root.text = getStringFromNode(full_code, tokens, &root);
     root.type = type;
     root.body = NULL;
     switch (type) {

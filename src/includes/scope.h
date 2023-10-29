@@ -155,11 +155,6 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         return; // for now we only test the SAY function
 
-        // SAYN function
-        args = malloc(sizeof(Argument) * 1);
-        args[0] = (Argument){"MESSAGE", TYPE_DOUBLE };
-        addFunction(scope, createFunction("SAYN", NULL, args, 1, TYPE_VOID, 1));
-
         // LISTEN function
         addFunction(scope, createFunction("LISTEN", NULL, NULL, 0, TYPE_STRING, 1));
 
@@ -283,7 +278,7 @@ Variable* getVariable (Scope* scope, char* name) {
 }
 
 Function* getFunction (Scope* scope, char* name) {
-    while (scope->running_line != -1) {
+    while (scope != NULL) {
         int length = getFunctionsLength(scope->functions);
         for (int i = 0; i < length; i++) {
             if (!strcmp(scope->functions[i].name, name)) {

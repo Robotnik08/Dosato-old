@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "token.h"
+#include "strtools.h"
 
 typedef struct {
     char* name;
@@ -47,6 +48,19 @@ Variable createNullTerminatedVariable ();
 */
 int getVariablesLength (const Variable* list);
 
+/**
+ * @brief Destroys a variable, freeing all memory
+ * @param variable The variable to destroy
+ * 
+*/
+void destroyVariable (Variable* variable);
+
+/**
+ * @brief Convert a variable to a string
+ * @param variable The variable to convert
+ * @return The string
+*/
+char* toString (Variable* variable);
 
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array) {
     Variable variable;
@@ -61,6 +75,7 @@ Variable createVariable (const char* name, const DataType type, void* valueptr, 
 
 Variable createNullTerminatedVariable () {
     Variable variable;
+    variable.type = D_NULL;
     variable.name = NULL;
     return variable;
 }
@@ -71,6 +86,47 @@ int getVariablesLength (const Variable* list) {
         length++;
     }
     return length;
+}
+
+void destroyVariable (Variable* variable) {
+    // if the variable is already destroyed, return
+    if (variable->name == NULL) {
+        return;
+    }
+    free(variable->name);
+    variable->name = NULL;
+
+    switch (variable->type) {
+        default:
+            free(variable->value);
+            break;
+    }
+}
+
+char* toString (Variable* variable) {
+    switch (variable->type) {
+        case TYPE_CHAR:
+            return (char*)variable->value;
+        case TYPE_STRING:
+            return (char*)variable->value;
+        case TYPE_BOOL:
+            return *(int*)variable->value ? "TRUE" : "FALSE";
+        case TYPE_BYTE:
+        case TYPE_SHORT:
+        case TYPE_INT:
+        case TYPE_LONG:
+            return itos(*(long long*)variable->value);
+        case TYPE_UBYTE:
+        case TYPE_USHORT:
+        case TYPE_UINT:
+        case TYPE_ULONG:
+            return uitos(*(unsigned long long*)variable->value);
+        case TYPE_FLOAT:
+        case TYPE_DOUBLE:
+            return ftos(*(double*)variable->value);
+        default:
+            return NULL;
+    }
 }
 
 #endif

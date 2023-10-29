@@ -41,104 +41,102 @@ char* getStringFromNode (const char* full_code, const Token* tokens, const Node*
 void printNode (const char* full_code, const Token* tokens, const Node* node, const int depth, int isRoot);
 
 char* getNodeTypeString(NodeType type) {
-    char* nodeTypeString = NULL;
 
     switch (type) {
         case NODE_NULL:
-            nodeTypeString = "NODE_NULL";
-            break;
+            return "NODE_NULL";
+            
         case NODE_PROGRAM:
-            nodeTypeString = "program";
-            break;
+            return "program";
+            
         case NODE_FUNCTION_CALL:
-            nodeTypeString = "function call";
-            break;
+            return "function call";
+            
         case NODE_MAKE_VAR:
-            nodeTypeString = "make_var";
-            break;
+            return "make_var";
+            
         case NODE_SET_VAR:
-            nodeTypeString = "set_var";
-            break;
+            return "set_var";
+            
         case NODE_FUNCTION_DECLARATION:
-            nodeTypeString = "function declaration";
-            break;
+            return "function declaration";
+            
         case NODE_FUNCTION_DECLARATION_ARGUMENTS:
-            nodeTypeString = "function_declaration_arguments";
-            break;
+            return "function_declaration_arguments";
+            
         case NODE_FUNCTION_DECLARATION_ARGUMENT:
-            nodeTypeString = "function_declaration_argument";
-            break;
+            return "function_declaration_argument";
+            
         case NODE_EXPRESSION:
-            nodeTypeString = "expression";
-            break;
+            return "expression";
+            
         case NODE_UNARY_EXPRESSION:
-            nodeTypeString = "unary_expression";
-            break;
+            return "unary_expression";
+            
         case NODE_STATEMENT:
-            nodeTypeString = "statement";
-            break;
+            return "statement";
+            
         case NODE_LITERAL:
-            nodeTypeString = "literal";
-            break;
+            return "literal";
+            
         case NODE_IDENTIFIER:   
-            nodeTypeString = "identifier";
-            break;
+            return "identifier";
+            
         case NODE_OPERATOR: 
-            nodeTypeString = "operator";
-            break;
+            return "operator";
+            
         case NODE_BLOCK:
-            nodeTypeString = "block";
-            break;
+            return "block";
+            
         case NODE_FUNCTION_IDENTIFIER:
-            nodeTypeString = "function_identifier";
-            break;
+            return "function_identifier";
+            
         case NODE_ARGUMENTS:    
-            nodeTypeString = "arguments";
-            break;
+            return "arguments";
+            
         case NODE_TYPE_IDENTIFIER:
-            nodeTypeString = "type_identifier";
-            break;
+            return "type_identifier";
+            
         case NODE_ARRAY_DECLARATION:
-            nodeTypeString = "array_declaration";
-            break;
+            return "array_declaration";
+            
         case NODE_ARRAY_EXPRESSION:
-            nodeTypeString = "array_expression";
-            break;
+            return "array_expression";
+            
         case NODE_WHEN:
-            nodeTypeString = "when";
-            break;
+            return "when";
+            
         case NODE_WHILE:
-            nodeTypeString = "while";
-            break;
+            return "while";
+            
         case NODE_ELSE:
-            nodeTypeString = "else";
-            break;
+            return "else";
+            
         case NODE_CATCH:    
-            nodeTypeString = "catch";
-            break;
+            return "catch";
+            
         case NODE_INTO:
-            nodeTypeString = "into";
-            break;
+            return "into";
+            
         case NODE_THEN:
-            nodeTypeString = "then";
-            break;
+            return "then";
+            
         case NODE_END:
-            nodeTypeString = "NODE_END";
-            break;
+            return "NODE_END";
+            
         default:
-            nodeTypeString = "Unknown"; // Return a default value for invalid types
-            break;
+            return "Unknown"; // Return a default value for invalid types
+            
     }
-
-    return nodeTypeString;
 }
  
 char* getStringFromNode (const char* full_code, const Token* tokens, const Node* node) {
     char* string = NULL;
     if (node->start > node->end) {
-        return "Error: start > end";
+        return "-invalid";
     }
-    string = (char*)malloc(sizeof(char) * (tokens[node->end].end - tokens[node->start].start + 1));
+    int string_length = tokens[node->end].end - tokens[node->start].start + 2;
+    string = malloc(sizeof(char) * string_length);
 
     int stringIndex = 0;
     for (int i = tokens[node->start].start; i <= tokens[node->end].end; i++) {
@@ -163,12 +161,7 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     for (int i = 0; i < depth+1; i++) {
         printf("  ");
     }
-    printf("\"start\": %i,\n", node->start);
-
-    for (int i = 0; i < depth+1; i++) {
-        printf("  ");
-    }
-    printf("\"end\": %i,\n", node->end);
+    printf("\"start, end\": [%i, %i],\n", node->start, node->end);
 
     // Print the node type
     for (int i = 0; i < depth+1; i++) {
@@ -180,12 +173,7 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     for (int i = 0; i < depth+1; i++) {
         printf("  ");
     }
-    char* stringFromNode = getStringFromNode(full_code, tokens, node);
-    printf("\"text\": \"%s\"", stringFromNode);
-    
-    // bandaid fix, free crashes the program randomly, so we just don't free it for now
-    // this does leak a few bytes of memory, but it's not a big deal because this is only used for debugging and only called once
-    free(stringFromNode);
+    printf("\"text\": \"%s\"", node->text);
 
     if (node->body != NULL) {
         printf(",\n");

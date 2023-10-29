@@ -80,9 +80,9 @@ int main (int argc, char* argv[])
     fseek(file, 0, SEEK_SET);
 
     // read the file into a string
-    char* contents = malloc(size);
-    contents[size] = '\0';
+    char* contents = malloc(size + 1);
     fread(contents, 1, size, file);
+    contents[size] = '\0';
 
     // close the file
     fclose(file);
@@ -101,18 +101,23 @@ int main (int argc, char* argv[])
 
         printf("\n\n\nAST:\n\n");
         printNode(main.code[0].full_code, main.code[0].tokens, &main.code[0].root, 1, 1);
-    }
 
+        printf("\n\nRUNNING PROGRAM:\n\n");
+    }
     int exit_code = runProcess(&main);
     /// CLEANUP ///
     destroyProcess(&main);
     free(contents);
 
     // flawless execution
+
     return QUIT(exit_code);
 }
 
 int QUIT (int code)
 {
+    if (debug) {
+        printf("\n\nFinished with exit code %i\n", code);
+    }
     return code;
 }

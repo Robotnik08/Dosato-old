@@ -22,6 +22,7 @@
 #include "variable.h"
 #include "log.h"
 #include "error.h"
+#include "expression.h"
 
 /**
  * @brief Run the interpreter, line by line
@@ -59,7 +60,7 @@ int setVariable (Process* process, Node* func);
 
 int next (Process* process) {
     if (process->running) {
-
+        
         Scope* scope = getLastScope(&(process->main_scope));
         if (scope->running_line >= getNodeBodyLength(scope->body->body)) {
             removeLastScope(&process->main_scope);
@@ -120,17 +121,20 @@ int functionCall (Process* process, Node* func) {
     }
     
     char* name = getNodeText(process, &func_node[0], 0);
-    Variable* args = malloc(sizeof(Variable) * getNodeBodyLength(func_node[1].body) + 1);
-    for (int i = 0; i < getNodeBodyLength(func_node[1].body); i++) {
-        char* txt = getNodeText(process, &func_node[1].body[i], 0);
-        char* value = malloc(sizeof(char) * strlen(name) + 1);
-        strcpy(value, txt);
-        free(txt);
-        args[i] = createVariable("-temp", TYPE_STRING, value, 0, 0);
+    int args_length = getNodeBodyLength(func_node[1].body);
+    Variable* args = malloc(sizeof(Variable) * (args_length + 1));
+    for (int i = 0; i < args_length; i++) {
+        args[i] = createNullTerminatedVariable();
+        int res = parseExpression(&args[i], process, &func_node[1].body[i]);
+        if (res) return res;
     }
-    args[getNodeBodyLength(func_node[1].body)] = createNullTerminatedVariable();
-    int code = callFunction(name, args, getVariablesLength(args), process);
+    args[args_length] = createNullTerminatedVariable();
+    int code = callFunction(name, args, args_length, process);
     free(name);
+    for (int i = 0; i < args_length; i++) {
+        destroyVariable(&args[i]);
+    }
+    free(args);
 
     if (code) {
         return error(process, process->error_ast_index, code, tokens[func_node[0].start].start);

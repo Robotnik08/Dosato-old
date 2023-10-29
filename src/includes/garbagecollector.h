@@ -27,11 +27,7 @@ void cleanScope (Scope* scope) {
     
     int length = getVariablesLength(scope->variables);
     for (int i = 0; i < length; i++) {
-        switch (scope->variables[i].type) {
-            case TYPE_STRING:
-                free(scope->variables[i].value);
-                break;
-        }
+        destroyVariable(&scope->variables[i]);
     }
     free (scope->variables);
 

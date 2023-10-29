@@ -120,7 +120,6 @@ int runProcess (Process* process) {
     while (process->running) {
 
         int code = next(process);
-
         if (code == -1) {
             // the process has finished running
             process->running = 0;
@@ -144,6 +143,9 @@ Token* getTokenList (Process* process, int ast_index) {
 }
 
 char* getNodeText (Process* process, Node* node, int ast_index) {
+    if (node->end < node->start) {
+        return "error, node end is before node start";
+    }
     Token* tokens = getTokenList(process, ast_index);
     int length = tokens[node->end].end - tokens[node->start].start + 1;
     char* str = malloc(sizeof(char) * (length + 1));
@@ -158,6 +160,9 @@ char* getNodeText (Process* process, Node* node, int ast_index) {
 
 int callFunction (char* name, Variable* args, int args_length, Process* process) {
     Function* function = getFunction(&process->main_scope, name);
+    if (function->std_function) {
+        return standard_call(process, name, args, args_length);
+    }
     if (function == NULL) {
         return ERROR_FUNCTION_NOT_FOUND;
     }
@@ -165,9 +170,6 @@ int callFunction (char* name, Variable* args, int args_length, Process* process)
     if (function->arguments_length != args_length) {
         return ERROR_FUNCTION_ARG_NOT_CORRECT_AMOUNT;
     }
-
-    standard_call(process, name, args);
-
     return 0;
 }
 

@@ -302,11 +302,10 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
             int start = i;
             int end = i;
-            int foundDecimal = 0;
 
             int invalid = 0;
             for (int j = i; j < code_length; j++) {
-                if (isAlphaNameric(full_code[j-1])) {
+                if (isAlphaNameric(full_code[j-1]) && !isFloateric(full_code[j])) {
                     invalid = 1;
                     for (int k = j; k < code_length && isFloateric(full_code[k]); k++) {
                         end = k;
@@ -315,10 +314,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
                 }
                 if (isFloateric(full_code[j])) {
                     end = j;
-                    if (full_code[j] == '.' && foundDecimal) break;
-                } else if (full_code[j] == '.' && !foundDecimal) {
-                    end = j;
-                    foundDecimal = 1;
+                    if (full_code[j] == 'F') break;
                 } else {
                     break;
                 }
