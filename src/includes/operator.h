@@ -153,8 +153,7 @@ int add (Variable* var, Process* process, Variable* left, Variable* right) {
             return ERROR_CANT_CONVERT_TO_STRING;
         }
         char* value = malloc(strlen(left_value) + strlen(right_value) + 1);
-        strcpy(value, left_value);
-        strcat(value, right_value);
+        sprintf(value, "%s%s", left_value, right_value);
         free(left_value);
         free(right_value);
         *var = createVariable("-lit", TYPE_STRING, value, 1, 0);

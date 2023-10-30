@@ -90,6 +90,7 @@ int getVariablesLength (const Variable* list) {
 
 void destroyVariable (Variable* variable) {
     // if the variable is already destroyed, return
+    printf("destroying variable %s\n", variable->name);
     if (variable->name == NULL) {
         return;
     }

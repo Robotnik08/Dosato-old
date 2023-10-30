@@ -104,6 +104,7 @@ int parseExpression (Variable* var, Process* process, Node* node) {
 
                 
             }
+            long long int pr = *(long long int*)(right->value);
             destroyVariable(left);
             destroyVariable(right);
             free (left);
