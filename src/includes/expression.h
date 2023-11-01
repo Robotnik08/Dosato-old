@@ -41,6 +41,10 @@ int parseLiteral (Variable* var, Process* process, Node* literal);
 
 int parseExpression (Variable* var, Process* process, Node* node) {
     if (node->text == "-invalid") return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
+    Variable* left;
+    Variable* right;
+    OperatorType operator;
+    int res = 0;
     switch (node->type)
     {
         default:
@@ -53,22 +57,23 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             // NOT IMPLEMENTED
             break;
         case NODE_EXPRESSION:
-            Variable* left = malloc(sizeof(Variable));
-            Variable* right = malloc(sizeof(Variable));
+            left = malloc(sizeof(Variable));
+            right = malloc(sizeof(Variable));
             *left = createNullTerminatedVariable();
             *right = createNullTerminatedVariable();
             if (parseExpression(left, process, &node->body[0])) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[0].start);
             if (parseExpression(right, process, &node->body[2])) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[2].start);
-            OperatorType operator = process->code->tokens[node->body[1].start].carry;
-            
+            operator = process->code->tokens[node->body[1].start].carry;
+
             if (left->type == D_NULL || right->type == D_NULL) {
                 return error (process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
             }
-            int res = 0;
             switch (operator) {
                 default:
                     return error(process, process->error_ast_index, ERROR_INVALID_OPERATOR, node->start);
                     break;
+
+                // arithmetic operators
                 case OPERATOR_ADD:
                     res = add(var, process, left, right);
                     if (res) return error(process, process->error_ast_index, res, node->start);
@@ -102,16 +107,78 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                     if (res) return error(process, process->error_ast_index, res, node->start);
                     break;
 
+                // logical operators
+                case OPERATOR_OR_OR:
+                    res = logic_or(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_AND_AND:
+                    res = logic_and(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
                 
+                // comparison operators
+                case OPERATOR_EQUAL:
+                    res = equal(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_NOT_EQUAL:
+                    res = not_equal(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_LESS:
+                    res = less_than(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_GREATER:
+                    res = greater_than(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_LESS_EQUAL:
+                    res = less_than_or_equal(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_GREATER_EQUAL:
+                    res = greater_than_or_equal(var, process, left, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
             }
-            long long int pr = *(long long int*)(right->value);
+            printf("left: %s\n", left->value);
             destroyVariable(left);
+            printf("right: %s\n", right->value);
             destroyVariable(right);
+            printf("freed\n");
             free (left);
             free (right);
             break;
         case NODE_UNARY_EXPRESSION:
-            // NOT IMPLEMENTED
+            right = malloc(sizeof(Variable));
+            *right = createNullTerminatedVariable();
+            if (parseExpression(right, process, &node->body[1])) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[1].start);
+            operator = process->code->tokens[node->body[0].start].carry;
+            if (right->type == D_NULL) {
+                return error (process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
+            }
+            switch (operator) {
+                default:
+                    return error(process, process->error_ast_index, ERROR_INVALID_OPERATOR, node->start);
+                    break;
+                case OPERATOR_NOT:
+                    res = not(var, process, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_NOT_BITWISE:
+                    res = not_bitwise(var, process, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+                case OPERATOR_SUBTRACT:
+                    res = negative(var, process, right);
+                    if (res) return error(process, process->error_ast_index, res, node->start);
+                    break;
+            }
+            
+            destroyVariable(right);
+            free (right);
             break;
     }
     return 0; // success
@@ -141,6 +208,7 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
         value = malloc(sizeof(char) * (strlen(str) + 1));
         strcpy(value, str);
         free(str);
+        str = NULL;
     } else {
         int dot = strchl(literal->text, '.');
         if (dot == 1) {

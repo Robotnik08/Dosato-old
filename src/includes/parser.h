@@ -305,7 +305,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     }
                     if (getBlock(tokens, start + o) != end - o) {
                         if (tokens[start + o].type == TOKEN_OPERATOR) {
-                            addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_UNARY_EXPRESSION));
+                            return parse(full_code, tokens, start + o, end - o, NODE_UNARY_EXPRESSION);
                         }
                         else {
                             if (end - o - start + o > 0) printError(full_code, tokens[start + o].start, ERROR_INVALID_EXPRESSION);

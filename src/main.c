@@ -26,6 +26,7 @@
 */
 int QUIT (int code);
 
+
 // global variables
 int debug = 0;
 

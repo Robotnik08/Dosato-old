@@ -6,8 +6,8 @@
  * @date 05-10-2023
 */
 
-#ifndef strtools_H
-#define strtools_H
+#ifndef STRTOOLS_H
+#define STRTOOLS_H
 
 #include <string.h>
 
@@ -137,6 +137,12 @@ char* uitos (unsigned long long int i) {
 char* ftos (double f) {
     char* str = malloc(sizeof(char) * 30);
     sprintf(str, "%lf", f);
+    // while (str[strlen(str)-1] == '0') {
+    //     str[strlen(str)-1] = '\0';
+    // }
+    // if (str[strlen(str)-1] == '.') {
+    //     str[strlen(str)-1] = '\0';
+    // }
     return str;
 }
 
@@ -181,7 +187,7 @@ void strrep(char *in, const char *selector, const char *replacement) {
     int in_len = strlen(in);
     int selector_len = strlen(selector);
 
-    char *result = (char *)malloc(in_len * 2);
+    char *result = (char *)malloc(in_len * 10);
 
     result[0] = '\0';
 

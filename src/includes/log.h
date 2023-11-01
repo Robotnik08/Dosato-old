@@ -65,6 +65,8 @@ typedef enum {
     ERROR_CANT_USE_TYPE_IN_DIVISION,
     ERROR_CANT_USE_TYPE_IN_MODULO,
     ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION,
+    ERROR_CANT_USE_TYPE_IN_NEGATION,
+    ERROR_CANT_USE_TYPE_IN_LOGICAL_EXPRESSION,
 
     ERROR_UNKNOWN
 
@@ -117,6 +119,8 @@ const char* ERROR_MESSAGES[] = {
     "The type can not be used in division",
     "The type can not be used in modulo",
     "The type can not be used in a bitwise expression",
+    "The type can not be negated",
+    "The type can not be used in a logical expression (&&, ||, !)",
 
     "Unknown Error"
 };

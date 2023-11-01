@@ -111,6 +111,7 @@ Function* getFunction (Scope* scope, char* name);
 void addScope (Scope** scope, Scope new_scope);
 
 void populateDefaultVariables (Scope* scope, int main, int depth) {
+    return;
     // define constants in the global scope
     // ALL pointers ownership is transferred to the variable, and must be freed in the variable's destroy function
 
@@ -120,7 +121,8 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
         // this variable is the only variable that can mutate it's type
         // despite it being constant, the return value of a function can modify it
         // it defaults to 0
-        int* return_value = 0;
+        int* return_value = malloc(sizeof(int));
+        *return_value = 0;
         addVariable(scope, createVariable("_", TYPE_INT, return_value, 1, 0));
 
         // BOOL constants

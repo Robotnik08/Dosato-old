@@ -13,15 +13,6 @@
 #include "scope.h"
 
 /**
- * @brief Add two variables
- * @param var The return variable
- * @param process The process to run
- * @param left The left variable
- * @param right The right variable
-*/
-int add (Variable* var, Process* process, Variable* left, Variable* right);
-
-/**
  * @brief Check if the type can be used in an addition
  * @param type The type to check
  * @return 1 if they can be added, 0 if not
@@ -50,7 +41,7 @@ int checkIfAddable (DataType type) {
     }
 }
 
-int checkIfAlpha (DataType type) {
+int checkIfNumber (DataType type) {
     switch (type)
     {
         case TYPE_INT:
@@ -105,8 +96,18 @@ int checkIfFloating (DataType type) {
             break;
     }
 }
+
 /**
- * @brief Subtract two variables
+ * @brief Add two variables +
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int add (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief Subtract two variables -
  * @param var The return variable
  * @param process The process to run
  * @param left The left variable
@@ -115,7 +116,7 @@ int checkIfFloating (DataType type) {
 int subtract (Variable* var, Process* process, Variable* left, Variable* right);
 
 /**
- * @brief Multiply two variables
+ * @brief Multiply two variables *
  * @param var The return variable
  * @param process The process to run
  * @param left The left variable
@@ -124,7 +125,7 @@ int subtract (Variable* var, Process* process, Variable* left, Variable* right);
 int multiply (Variable* var, Process* process, Variable* left, Variable* right);
 
 /**
- * @brief Divide two variables
+ * @brief Divide two variables /
  * @param var The return variable
  * @param process The process to run
  * @param left The left variable
@@ -132,13 +133,141 @@ int multiply (Variable* var, Process* process, Variable* left, Variable* right);
 */
 int divide (Variable* var, Process* process, Variable* left, Variable* right);
 
+/**
+ * @brief Modulo two variables %
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
 int modulo (Variable* var, Process* process, Variable* left, Variable* right);
 
+/**
+ * @brief XOR two variables ^ (bitwise)
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
 int xor (Variable* var, Process* process, Variable* left, Variable* right);
 
+/**
+ * @brief OR two variables | (bitwise)
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
 int or (Variable* var, Process* process, Variable* left, Variable* right);
 
+/**
+ * @brief AND two variables &
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
 int and (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief OR two variables || (logical)
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int logic_or (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief AND two variables && (logical)
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+
+int logic_and (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief EQUAL two variables ==
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int equal (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief NOT EQUAL two variables !=
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int not_equal (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief LESS THAN two variables <
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int less_than (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief GREATER THAN two variables >
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int greater_than (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief LESS THAN OR EQUAL two variables <=
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+
+int less_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right);
+
+/**
+ * @brief GREATER THAN OR EQUAL two variables >=
+ * @param var The return variable
+ * @param process The process to run
+ * @param left The left variable
+ * @param right The right variable
+*/
+int greater_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right);
+
+//    UNARY OPERATORS
+
+/**
+ * @brief NOT a variable !
+ * @param var The return variable
+ * @param process The process to run
+ * @param right The right variable
+*/
+int not (Variable* var, Process* process, Variable* right);
+
+/**
+ * @brief NOT a variable ~ (bitwise)
+ * @param var The return variable
+ * @param process The process to run
+ * @param right The right variable
+*/
+int not_bitwise (Variable* var, Process* process, Variable* right);
+
+/**
+ * @brief NEGATE a variable -
+ * @param var The return variable
+ * @param process The process to run
+ * @param right The right variable
+*/
+int negative (Variable* var, Process* process, Variable* right);
 
 int add (Variable* var, Process* process, Variable* left, Variable* right) {
     if (!checkIfAddable(left->type) && !checkIfAddable(right->type)) {
@@ -187,7 +316,7 @@ int add (Variable* var, Process* process, Variable* left, Variable* right) {
 }
 
 int subtract (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_TYPE_NOT_SUBTRACTABLE;
     }
     destroyVariable(var);
@@ -221,7 +350,7 @@ int subtract (Variable* var, Process* process, Variable* left, Variable* right) 
 }
 
 int multiply (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_MULTIPLICATION;
     }
     destroyVariable(var);
@@ -255,7 +384,7 @@ int multiply (Variable* var, Process* process, Variable* left, Variable* right) 
 }
 
 int divide (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_DIVISION;
     }
     destroyVariable(var);
@@ -289,7 +418,7 @@ int divide (Variable* var, Process* process, Variable* left, Variable* right) {
 }
 
 int modulo (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_MODULO;
     }
     destroyVariable(var);
@@ -307,7 +436,7 @@ int modulo (Variable* var, Process* process, Variable* left, Variable* right) {
 }
 
 int xor (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
     destroyVariable(var);
@@ -325,7 +454,7 @@ int xor (Variable* var, Process* process, Variable* left, Variable* right) {
 }
 
 int or (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
     destroyVariable(var);
@@ -343,7 +472,7 @@ int or (Variable* var, Process* process, Variable* left, Variable* right) {
 }
 
 int and (Variable* var, Process* process, Variable* left, Variable* right) {
-    if (!checkIfAlpha(left->type) && !checkIfAlpha(right->type)) {
+    if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
     destroyVariable(var);
@@ -357,6 +486,145 @@ int and (Variable* var, Process* process, Variable* left, Variable* right) {
     } else {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
+    return 0;
+}
+
+int not (Variable* var, Process* process, Variable* right) {
+    destroyVariable(var);
+
+    int* value = malloc(sizeof(int));
+    if (checkIfFloating(right->type)) {
+        double right_value;
+
+        right_value = *(double*)right->value;
+
+        *value = !right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    } else if (right->type == TYPE_STRING) {
+        char* right_value = (char*)right->value;
+        *value = !strlen(right_value);
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    } else {
+        long long int* right_value = (long long int*)right->value;
+        *value = !*right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
+    return 0;
+}
+
+int not_bitwise (Variable* var, Process* process, Variable* right) {
+    if (!checkIfNumber(right->type)) {
+        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+    }
+    destroyVariable(var);
+
+    if (!checkIfFloating(right->type)) {
+        long long int* right_value = (long long int*)right->value;
+        long long int* value = malloc(sizeof(long long int));
+        *value = ~*right_value;
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+    }
+    return 0;
+}
+
+int negative (Variable* var, Process* process, Variable* right) {
+    if (!checkIfNumber(right->type)) {
+        return ERROR_CANT_USE_TYPE_IN_NEGATION;
+    }
+    destroyVariable(var);
+
+    if (!checkIfFloating(right->type)) {
+        long long int* right_value = (long long int*)right->value;
+        long long int* value = malloc(sizeof(long long int));
+        *value = -*right_value;
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        double right_value = *(double*)right->value;
+        double* value = malloc(sizeof(double));
+
+        *value = -right_value;
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
+    }
+    return 0;
+}
+
+int logic_or (Variable* var, Process* process, Variable* left, Variable* right) {
+    // destroyVariable(var);
+
+    int left_value;
+    int right_value;
+
+    if (checkIfFloating(left->type)) {
+        left_value = *(double*)left->value;
+    } else if (left->type == TYPE_STRING) {
+        left_value = strlen((char*)left->value);
+    } else {
+        left_value = *(int*)left->value;
+    }
+    if (checkIfFloating(right->type)) {
+        right_value = *(double*)right->value;
+    } else if (right->type == TYPE_STRING) {
+        right_value = strlen((char*)right->value);
+    } else {
+        right_value = *(int*)right->value;
+    }
+
+    int* value = malloc(sizeof(int));
+    *value = left_value || right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    return 0;
+}
+
+int logic_and (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    int left_value = 0;
+    int right_value = 0;
+
+    if (checkIfFloating(left->type)) {
+        left_value = *(double*)left->value;
+    } else if (left->type == TYPE_STRING) {
+        left_value = strlen((char*)left->value);
+    } else {
+        left_value = *(int*)left->value;
+    }
+    if (checkIfFloating(right->type)) {
+        right_value = *(double*)right->value;
+    } else if (right->type == TYPE_STRING) {
+        right_value = strlen((char*)right->value);
+    } else {
+        right_value = *(int*)right->value;
+    }
+
+    int* value = malloc(sizeof(int));
+    *value = left_value && right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    return 0;
+}
+
+int equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    return 0;
+}
+
+int not_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    return 0;
+}
+
+int less_than (Variable* var, Process* process, Variable* left, Variable* right) {
+    return 0;
+}
+
+int greater_than (Variable* var, Process* process, Variable* left, Variable* right) {
+    return 0;
+}
+
+int less_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    return 0;
+}
+
+int greater_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 #endif

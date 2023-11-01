@@ -58,7 +58,7 @@ void destroyVariable (Variable* variable);
 /**
  * @brief Convert a variable to a string
  * @param variable The variable to convert
- * @return The string
+ * @return The string (must be freed after use)
 */
 char* toString (Variable* variable);
 
@@ -77,6 +77,8 @@ Variable createNullTerminatedVariable () {
     Variable variable;
     variable.type = D_NULL;
     variable.name = NULL;
+    variable.value = NULL;
+    variable.constant = 0;
     return variable;
 }
 
@@ -90,44 +92,64 @@ int getVariablesLength (const Variable* list) {
 
 void destroyVariable (Variable* variable) {
     // if the variable is already destroyed, return
-    printf("destroying variable %s\n", variable->name);
     if (variable->name == NULL) {
         return;
     }
-    free(variable->name);
+    // free(variable->name);
     variable->name = NULL;
 
     switch (variable->type) {
         default:
             free(variable->value);
+            variable->value = NULL;
             break;
     }
 }
 
 char* toString (Variable* variable) {
+    char* str = NULL;
+
+    char* res = NULL;
     switch (variable->type) {
         case TYPE_CHAR:
-            return (char*)variable->value;
+            str = malloc(sizeof(char) * 2);
+            strcpy(str, (char*)variable->value);
+            break;
         case TYPE_STRING:
-            return (char*)variable->value;
+            str = malloc(sizeof(char) * (strlen((char*)variable->value) + 1));
+            strcpy(str, (char*)variable->value);
+            break;
         case TYPE_BOOL:
-            return *(int*)variable->value ? "TRUE" : "FALSE";
+            str = malloc(sizeof(char) * 6);
+            strcpy(str, *(int*)variable->value ? "TRUE" : "FALSE");
+            break;
         case TYPE_BYTE:
         case TYPE_SHORT:
         case TYPE_INT:
         case TYPE_LONG:
-            return itos(*(long long*)variable->value);
+            res = itos(*(long long*)variable->value);
+            str = malloc(sizeof(char) * (strlen(res) + 1));
+            strcpy(str, res);
+            break;
         case TYPE_UBYTE:
         case TYPE_USHORT:
         case TYPE_UINT:
         case TYPE_ULONG:
-            return uitos(*(unsigned long long*)variable->value);
+            res = uitos(*(unsigned long long*)variable->value);
+            str = malloc(sizeof(char) * (strlen(res) + 1));
+            strcpy(str, res);
+            break;
         case TYPE_FLOAT:
         case TYPE_DOUBLE:
-            return ftos(*(double*)variable->value);
+            res = ftos(*(double*)variable->value);
+            str = malloc(sizeof(char) * (strlen(res) + 1));
+            strcpy(str, res);
+            break;
         default:
-            return NULL;
+            str = NULL;
+            break;
     }
+    return str;
 }
 
 #endif
