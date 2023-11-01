@@ -251,7 +251,7 @@ int getLineCol (const char* text, int pos) {
 }
 
 char* removeLastAndFirstChar (const char* str, int amount) {
-    char* new_str = malloc(sizeof(char) * (strlen(str) - amount*2));
+    char* new_str = malloc(sizeof(char) * (strlen(str) - amount*2 + 1));
     for (int i = 0; i < strlen(str) - amount*2; i++) {
         new_str[i] = str[i + amount];
     }

@@ -143,11 +143,8 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                     if (res) return error(process, process->error_ast_index, res, node->start);
                     break;
             }
-            printf("left: %s\n", left->value);
             destroyVariable(left);
-            printf("right: %s\n", right->value);
             destroyVariable(right);
-            printf("freed\n");
             free (left);
             free (right);
             break;
