@@ -228,7 +228,7 @@ void destroyScope (Scope* scope) {
 
 Scope* getLastScope (Scope* scope) {
     Scope* last_scope = scope;
-    while (last_scope->child != NULL) {
+    while (last_scope->child->running_line != -1) {
         last_scope = last_scope->child;
     }
     return last_scope;
@@ -273,7 +273,6 @@ Variable* getVariableFromList (Variable* list, char* name) {
 
 Variable* getVariable (Scope* scope, char* name) {
     Variable* ret = NULL;
-    printf("name: %s\n", name);
     while (scope->running_line != -1) {
         Variable* variable = getVariableFromList(scope->variables, name);
         if (variable != NULL) {
