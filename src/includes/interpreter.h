@@ -125,7 +125,7 @@ int functionCall (Process* process, Node* func) {
     Variable* args = malloc(sizeof(Variable) * (args_length + 1));
     for (int i = 0; i < args_length; i++) {
         args[i] = createNullTerminatedVariable();
-        int res = parseExpression(&args[i], process, &func_node[1].body[i]);
+        int res = parseExpression(&args[i], process, &func_node[1].body[i], 0);
         if (res) return res;
     }
     args[args_length] = createNullTerminatedVariable();

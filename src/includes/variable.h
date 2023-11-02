@@ -62,6 +62,13 @@ void destroyVariable (Variable* variable);
 */
 char* toString (Variable* variable);
 
+/**
+ * @brief Clone a variable
+ * @param variable The variable to clone
+ * @return The cloned variable
+*/
+Variable cloneVariable (Variable* variable);
+
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array) {
     Variable variable;
     variable.name = malloc(sizeof(char) * (strlen(name) + 1));
@@ -150,6 +157,48 @@ char* toString (Variable* variable) {
             break;
     }
     return str;
+}
+
+Variable cloneVariable (Variable* variable) {
+    Variable new_variable = createVariable("lit", variable->type, NULL, variable->constant, variable->is_array);
+
+    switch (variable->type) {
+        case TYPE_CHAR:
+            new_variable.value = malloc(sizeof(char));
+            *(char*)new_variable.value = *(char*)variable->value;
+            break;
+        case TYPE_STRING:
+            new_variable.value = malloc(sizeof(char) * (strlen((char*)variable->value) + 1));
+            strcpy((char*)new_variable.value, (char*)variable->value);
+            break;
+        case TYPE_BOOL:
+            new_variable.value = malloc(sizeof(int));
+            *(int*)new_variable.value = *(int*)variable->value;
+            break;
+        case TYPE_BYTE:
+        case TYPE_SHORT:
+        case TYPE_INT:
+        case TYPE_LONG:
+            new_variable.value = malloc(sizeof(long long int));
+            *(long long int*)new_variable.value = *(long long int*)variable->value;
+            break;
+        case TYPE_UBYTE:
+        case TYPE_USHORT:
+        case TYPE_UINT:
+        case TYPE_ULONG:
+            new_variable.value = malloc(sizeof(unsigned long long int));
+            *(unsigned long long int*)new_variable.value = *(unsigned long long int*)variable->value;
+            break;
+        case TYPE_FLOAT:
+        case TYPE_DOUBLE:
+            new_variable.value = malloc(sizeof(double));
+            *(double*)new_variable.value = *(double*)variable->value;
+            break;
+        default:
+            new_variable.value = NULL;
+            break;
+    }
+    return new_variable;
 }
 
 #endif

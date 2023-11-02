@@ -29,7 +29,7 @@
  * @param return_value The return value of the expression
  * @return The type of the return value (D_NULL means error)
 */
-int parseExpression (Variable* var, Process* process, Node* node);
+int parseExpression (Variable* var, Process* process, Node* node, int reference);
 
 /**
  * @brief Parse a literal
@@ -39,7 +39,7 @@ int parseExpression (Variable* var, Process* process, Node* node);
 int parseLiteral (Variable* var, Process* process, Node* literal);
 
 
-int parseExpression (Variable* var, Process* process, Node* node) {
+int parseExpression (Variable* var, Process* process, Node* node, int reference) {
     if (node->text == "-invalid") return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
     Variable* left;
     Variable* right;
@@ -54,15 +54,25 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             if (parseLiteral(var, process, node)) return error(process, node->start, ERROR_INVALID_EXPRESSION, node->start);
             break;
         case NODE_IDENTIFIER:
-            // NOT IMPLEMENTED
+            if (reference) {
+                destroyVariable(var);
+                free(var);
+                var = getVariable(&process->main_scope, node->text);
+                if (var == NULL) return error(process, node->start, ERROR_UNDEFINED_VARIABLE, node->start);
+            } else {
+                Variable* ref = getVariable(&process->main_scope, node->text);
+                if (ref == NULL) return error(process, node->start, ERROR_UNDEFINED_VARIABLE, node->start);
+                destroyVariable(var);
+                *var = cloneVariable(ref);
+            }
             break;
         case NODE_EXPRESSION:
             left = malloc(sizeof(Variable));
             right = malloc(sizeof(Variable));
             *left = createNullTerminatedVariable();
             *right = createNullTerminatedVariable();
-            if (parseExpression(left, process, &node->body[0])) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[0].start);
-            if (parseExpression(right, process, &node->body[2])) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[2].start);
+            if (parseExpression(left,  process, &node->body[0], reference)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[0].start);
+            if (parseExpression(right, process, &node->body[2], reference)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[2].start);
             operator = process->code->tokens[node->body[1].start].carry;
 
             if (left->type == D_NULL || right->type == D_NULL) {
@@ -143,15 +153,17 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                     if (res) return error(process, process->error_ast_index, res, node->start);
                     break;
             }
+            
             destroyVariable(left);
-            destroyVariable(right);
             free (left);
+            
+            destroyVariable(right);
             free (right);
             break;
         case NODE_UNARY_EXPRESSION:
             right = malloc(sizeof(Variable));
             *right = createNullTerminatedVariable();
-            if (parseExpression(right, process, &node->body[1])) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[1].start);
+            if (parseExpression(right, process, &node->body[1], reference)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[1].start);
             operator = process->code->tokens[node->body[0].start].carry;
             if (right->type == D_NULL) {
                 return error (process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);

@@ -67,6 +67,9 @@ typedef enum {
     ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION,
     ERROR_CANT_USE_TYPE_IN_NEGATION,
     ERROR_CANT_USE_TYPE_IN_LOGICAL_EXPRESSION,
+    ERROR_IDENTIFIER_NOT_FOUND,
+    ERROR_IDENTIFIER_INVALID,
+    ERROR_UNDEFINED_VARIABLE,
 
     ERROR_UNKNOWN
 
@@ -121,6 +124,9 @@ const char* ERROR_MESSAGES[] = {
     "The type can not be used in a bitwise expression",
     "The type can not be negated",
     "The type can not be used in a logical expression (&&, ||, !)",
+    "The identifier was not found",
+    "The identifier is invalid",
+    "The variable is undefined",
 
     "Unknown Error"
 };

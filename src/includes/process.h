@@ -85,6 +85,7 @@ char* getNodeText (Process* process, Node* node, int ast_index);
 */
 int callFunction (char* name, Variable* args, int args_length, Process* process);
 
+
 // include these after the struct definition to prevent circular dependencies
 #include "interpreter.h"
 

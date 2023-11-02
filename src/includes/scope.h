@@ -28,6 +28,7 @@ struct Scope {
 
 #include "garbagecollector.h"
 
+
 /**
  * @brief Populate the default variables in a scope
  * @param scope The scope to add the variables to
@@ -197,7 +198,9 @@ Scope createScope (Node* body, int ast_index, int main, int depth) {
     scope.functions[0] = createNullTerminatedFunction();
     addSystemFunctions(&scope, main, depth);
 
-    scope.child = NULL;
+    Scope* child = malloc(sizeof(Scope));
+    *child = createNullTerminatedScope();
+    scope.child = child;
     return scope;
 }
 
@@ -269,14 +272,16 @@ Variable* getVariableFromList (Variable* list, char* name) {
 }
 
 Variable* getVariable (Scope* scope, char* name) {
+    Variable* ret = NULL;
+    printf("name: %s\n", name);
     while (scope->running_line != -1) {
         Variable* variable = getVariableFromList(scope->variables, name);
         if (variable != NULL) {
-            return variable;
+            ret = variable;
         }
         scope = scope->child;
     }
-    return NULL;
+    return ret;
 }
 
 Function* getFunction (Scope* scope, char* name) {
