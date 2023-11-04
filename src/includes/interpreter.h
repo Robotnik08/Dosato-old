@@ -58,6 +58,13 @@ int makeVariable (Process* process, Node* func);
 */
 int setVariable (Process* process, Node* func);
 
+/**
+ * @brief Interpret a function creation
+ * @param process The process to run
+ * @param func The function to create
+*/
+int makeFunction (Process* process, Node* func);
+
 int next (Process* process) {
     if (process->running) {
         
@@ -99,7 +106,7 @@ int interpretCommand (Process* process, Node* command) {
             return makeVariable(process, command);
             break;
         case NODE_FUNCTION_DECLARATION:
-            return 0;
+            return makeFunction(process, command);
             break;
         case NODE_SET_VAR:
             return setVariable(process, command);
@@ -165,6 +172,11 @@ int makeVariable (Process* process, Node* line) {
 
 int setVariable (Process* process, Node* line) {
     printf("set var\n");
+    return 0;
+}
+
+int makeFunction (Process* process, Node* line) {
+    printf("make function\n");
     return 0;
 }
 

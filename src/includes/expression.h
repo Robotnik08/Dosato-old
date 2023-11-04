@@ -51,7 +51,8 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
             return error(process, node->start, ERROR_INVALID_EXPRESSION, node->start);
             break;
         case NODE_LITERAL:
-            if (parseLiteral(var, process, node)) return error(process, node->start, ERROR_INVALID_EXPRESSION, node->start);
+            int lit = parseLiteral(var, process, node);
+            if (lit) return lit;
             break;
         case NODE_IDENTIFIER:
             if (reference) {
@@ -67,6 +68,11 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
             }
             break;
         case NODE_EXPRESSION:
+            if (node->body[0].type == NODE_EXPRESSION) {
+                if (parseExpression(var, process, &node->body[0], reference)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[0].start);
+                return 0;
+            }
+
             left = malloc(sizeof(Variable));
             right = malloc(sizeof(Variable));
             *left = createNullTerminatedVariable();
@@ -167,28 +173,47 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
         case NODE_UNARY_EXPRESSION:
             right = malloc(sizeof(Variable));
             *right = createNullTerminatedVariable();
-            if (parseExpression(right, process, &node->body[1], reference)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[1].start);
-            operator = process->code->tokens[node->body[0].start].carry;
-            if (right->type == D_NULL) {
-                return error (process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
+
+            if (node->body[0].type == NODE_OPERATOR) {
+                if (parseExpression(right, process, &node->body[1], reference)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[1].start);
+                if (right->type == D_NULL) {
+                    return error (process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
+                }
+
+                operator = process->code->tokens[node->body[0].start].carry;
+                switch (operator) {
+                    default:
+                        return error(process, process->error_ast_index, ERROR_INVALID_OPERATOR, node->start);
+                        break;
+                    case OPERATOR_NOT:
+                        res = not(var, process, right);
+                        if (res) return error(process, process->error_ast_index, res, node->start);
+                        break;
+                    case OPERATOR_NOT_BITWISE:
+                        res = not_bitwise(var, process, right);
+                        if (res) return error(process, process->error_ast_index, res, node->start);
+                        break;
+                    case OPERATOR_SUBTRACT:
+                        res = negative(var, process, right);
+                        if (res) return error(process, process->error_ast_index, res, node->start);
+                        break;
+                }
             }
-            switch (operator) {
-                default:
-                    return error(process, process->error_ast_index, ERROR_INVALID_OPERATOR, node->start);
-                    break;
-                case OPERATOR_NOT:
-                    res = not(var, process, right);
-                    if (res) return error(process, process->error_ast_index, res, node->start);
-                    break;
-                case OPERATOR_NOT_BITWISE:
-                    res = not_bitwise(var, process, right);
-                    if (res) return error(process, process->error_ast_index, res, node->start);
-                    break;
-                case OPERATOR_SUBTRACT:
-                    res = negative(var, process, right);
-                    if (res) return error(process, process->error_ast_index, res, node->start);
-                    break;
+            else if (node->body[0].type == NODE_OPERATOR_CAST) {
+                // this is never a reference, since it is a cast
+                if (parseExpression(right, process, &node->body[1], 0)) return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->body[1].start);
+                if (right->type == D_NULL) {
+                    return error (process, process->error_ast_index, ERROR_INVALID_EXPRESSION, node->start);
+                }
+
+                DataType castType = process->code->tokens[node->body[0].start + 1].carry;
+                res = castValue(right, castType);
+                if (res) return error(process, process->error_ast_index, res, node->start);
+
+                destroyVariable(var);
+                *var = cloneVariable(right);
             }
+            
             if (right->name == "-lit") {
                 destroyVariable(right);
                 free (right);
@@ -202,7 +227,7 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
 int parseLiteral (Variable* var, Process* process, Node* literal) {
     DataType type = D_NULL;
     void* value = NULL;
-    if (strsur(literal->text, '\'') || strsur(literal->text, '"')) {
+    if (strsur(literal->text, '"')) {
         type = TYPE_STRING;
         char* str = removeLastAndFirstChar(literal->text, 1);
 
@@ -223,6 +248,30 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
         strcpy(value, str);
         free(str);
         str = NULL;
+    } else if (strsur(literal->text, '\'')) {
+        type = TYPE_CHAR;
+        char* str = removeLastAndFirstChar(literal->text, 1);
+
+        // parse escape sequences
+        strrep(str, "\\n", "\n");
+        strrep(str, "\\t", "\t");
+        strrep(str, "\\r", "\r");
+        strrep(str, "\\0", "\0");
+        strrep(str, "\\\\", "\\");
+        strrep(str, "\\\"", "\"");
+        strrep(str, "\\'", "\'");
+        strrep(str, "\\a", "\a");
+        strrep(str, "\\b", "\b");
+        strrep(str, "\\f", "\f");
+        strrep(str, "\\v", "\v");
+
+        if (strlen(str) != 1) {
+            return error(process, process->error_ast_index, ERROR_INVALID_CHAR, literal->start);
+        }
+        value = malloc(sizeof(char));
+        *(char*)value = str[0];
+        free(str);
+        str = NULL;
     } else {
         int dot = strchl(literal->text, '.');
         if (dot == 1) {
@@ -235,7 +284,7 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
             *(double*)value = atof(literal->text);
         } else if (!dot) {
             if (literal->text[strlen(literal->text)-1] == 'F') {
-                return error(process, process->error_ast_index, ERROR_INVALID_LITERAL, literal->start);
+                return error(process, process->error_ast_index, ERROR_INVALID_NUMBER, literal->start);
             }
             type = TYPE_ULONG;
             value = malloc(sizeof(unsigned long long));

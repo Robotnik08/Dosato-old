@@ -76,6 +76,7 @@ int checkIfUnsigned (DataType type) {
         case TYPE_UBYTE:
         case TYPE_ULONG:
         case TYPE_BOOL: // bool is just an unsigned int
+        case TYPE_CHAR: // char is just an unsigned byte
             return 1;
             break;
         default:
@@ -288,26 +289,16 @@ int add (Variable* var, Process* process, Variable* left, Variable* right) {
         *var = createVariable("-lit", TYPE_STRING, value, 1, 0);
     }
     else if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value + *right_value;
+        *value = left_value + right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
-        double left_value;
-        double right_value;
-        double* value = malloc(sizeof(double));
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
 
-        if (checkIfFloating(left->type)) {
-            left_value = *(double*)left->value;
-        } else {
-            left_value = *(long long int*)left->value;
-        }
-        if (checkIfFloating(right->type)) {
-            right_value = *(double*)right->value;
-        } else {
-            right_value = *(long long int*)right->value;
-        }
+        double* value = malloc(sizeof(double));
 
         *value = left_value + right_value;
         *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
@@ -322,26 +313,16 @@ int subtract (Variable* var, Process* process, Variable* left, Variable* right) 
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value - *right_value;
+        *value = left_value - right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
-        double left_value;
-        double right_value;
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
         double* value = malloc(sizeof(double));
-
-        if (checkIfFloating(left->type)) {
-            left_value = *(double*)left->value;
-        } else {
-            left_value = *(long long int*)left->value;
-        }
-        if (checkIfFloating(right->type)) {
-            right_value = *(double*)right->value;
-        } else {
-            right_value = *(long long int*)right->value;
-        }
 
         *value = left_value - right_value;
         *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
@@ -356,26 +337,16 @@ int multiply (Variable* var, Process* process, Variable* left, Variable* right) 
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value * *right_value;
+        *value = left_value * right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
-        double left_value;
-        double right_value;
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
         double* value = malloc(sizeof(double));
-
-        if (checkIfFloating(left->type)) {
-            left_value = *(double*)left->value;
-        } else {
-            left_value = *(long long int*)left->value;
-        }
-        if (checkIfFloating(right->type)) {
-            right_value = *(double*)right->value;
-        } else {
-            right_value = *(long long int*)right->value;
-        }
 
         *value = left_value * right_value;
         *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
@@ -390,26 +361,16 @@ int divide (Variable* var, Process* process, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value / *right_value;
+        *value = left_value / right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
-        double left_value;
-        double right_value;
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
         double* value = malloc(sizeof(double));
-
-        if (checkIfFloating(left->type)) {
-            left_value = *(double*)left->value;
-        } else {
-            left_value = *(long long int*)left->value;
-        }
-        if (checkIfFloating(right->type)) {
-            right_value = *(double*)right->value;
-        } else {
-            right_value = *(long long int*)right->value;
-        }
 
         *value = left_value / right_value;
         *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
@@ -424,10 +385,10 @@ int modulo (Variable* var, Process* process, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value % *right_value;
+        *value = left_value % right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         return ERROR_CANT_USE_TYPE_IN_MODULO;
@@ -442,10 +403,10 @@ int xor (Variable* var, Process* process, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value ^ *right_value;
+        *value = left_value ^ right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
@@ -460,10 +421,10 @@ int or (Variable* var, Process* process, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value | *right_value;
+        *value = left_value | right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
@@ -478,10 +439,10 @@ int and (Variable* var, Process* process, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
-        long long int* left_value = (long long int*)left->value;
-        long long int* right_value = (long long int*)right->value;
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = *left_value & *right_value;
+        *value = left_value & right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
@@ -493,22 +454,12 @@ int not (Variable* var, Process* process, Variable* right) {
     destroyVariable(var);
 
     int* value = malloc(sizeof(int));
+    double right_value = getSignedNumber(right);
     if (checkIfFloating(right->type)) {
-        double right_value;
-
-        right_value = *(double*)right->value;
-
-        *value = !right_value;
-        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
-    } else if (right->type == TYPE_STRING) {
-        char* right_value = (char*)right->value;
-        *value = !strlen(right_value);
-        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
-    } else {
-        long long int* right_value = (long long int*)right->value;
-        *value = !*right_value;
-        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        right_value = getFloatNumber(right);
     }
+    *value = !right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     return 0;
 }
 
@@ -519,9 +470,9 @@ int not_bitwise (Variable* var, Process* process, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(right->type)) {
-        long long int* right_value = (long long int*)right->value;
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = ~*right_value;
+        *value = ~right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
@@ -536,12 +487,13 @@ int negative (Variable* var, Process* process, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(right->type)) {
-        long long int* right_value = (long long int*)right->value;
+        long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = -*right_value;
+        *value = -right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
-        double right_value = *(double*)right->value;
+        double right_value = getFloatNumber(right);
+        
         double* value = malloc(sizeof(double));
 
         *value = -right_value;
@@ -551,24 +503,20 @@ int negative (Variable* var, Process* process, Variable* right) {
 }
 
 int logic_or (Variable* var, Process* process, Variable* left, Variable* right) {
-    // destroyVariable(var);
+    destroyVariable(var);
 
-    int left_value;
-    int right_value;
+    long long int left_value;
+    long long int right_value;
 
     if (checkIfFloating(left->type)) {
-        left_value = *(double*)left->value;
-    } else if (left->type == TYPE_STRING) {
-        left_value = strlen((char*)left->value);
+        left_value = (int)getFloatNumber(left);
     } else {
-        left_value = *(int*)left->value;
+        left_value = getSignedNumber(left);
     }
     if (checkIfFloating(right->type)) {
-        right_value = *(double*)right->value;
-    } else if (right->type == TYPE_STRING) {
-        right_value = strlen((char*)right->value);
+        right_value = (int)getFloatNumber(right);
     } else {
-        right_value = *(int*)right->value;
+        right_value = getSignedNumber(right);
     }
 
     int* value = malloc(sizeof(int));
@@ -580,22 +528,18 @@ int logic_or (Variable* var, Process* process, Variable* left, Variable* right) 
 int logic_and (Variable* var, Process* process, Variable* left, Variable* right) {
     destroyVariable(var);
 
-    int left_value = 0;
-    int right_value = 0;
+    long long int left_value;
+    long long int right_value;
 
     if (checkIfFloating(left->type)) {
-        left_value = *(double*)left->value;
-    } else if (left->type == TYPE_STRING) {
-        left_value = strlen((char*)left->value);
+        left_value = (int)getFloatNumber(left);
     } else {
-        left_value = *(int*)left->value;
+        left_value = getSignedNumber(left);
     }
     if (checkIfFloating(right->type)) {
-        right_value = *(double*)right->value;
-    } else if (right->type == TYPE_STRING) {
-        right_value = strlen((char*)right->value);
+        right_value = (int)getFloatNumber(right);
     } else {
-        right_value = *(int*)right->value;
+        right_value = getSignedNumber(right);
     }
 
     int* value = malloc(sizeof(int));

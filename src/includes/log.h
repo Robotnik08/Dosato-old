@@ -71,6 +71,10 @@ typedef enum {
     ERROR_IDENTIFIER_INVALID,
     ERROR_UNDEFINED_VARIABLE,
     ERROR_TOO_MANY_ARGUMENTS,
+    ERROR_INVALID_CHAR,
+    ERROR_INVALID_NUMBER,
+    ERROR_CAST_ERROR,
+
 
     ERROR_UNKNOWN
 
@@ -129,6 +133,10 @@ const char* ERROR_MESSAGES[] = {
     "The identifier is invalid",
     "The variable is undefined",
     "Too many arguments in function call",
+    "Invalid character literal",
+    "Invalid number literal",
+    "Casting is not possible with the given types",
+    
 
     "Unknown Error"
 };

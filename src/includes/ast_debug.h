@@ -103,6 +103,9 @@ char* getNodeTypeString(NodeType type) {
         case NODE_ARRAY_EXPRESSION:
             return "array_expression";
             
+        case NODE_OPERATOR_CAST:
+            return "operator_cast";
+            
         case NODE_WHEN:
             return "when";
             

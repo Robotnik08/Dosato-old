@@ -120,7 +120,8 @@ char* toString (Variable* variable) {
     switch (variable->type) {
         case TYPE_CHAR:
             str = malloc(sizeof(char) * 2);
-            strcpy(str, (char*)variable->value);
+            str[0] = ((char*)variable->value)[0];
+            str[1] = '\0';
             break;
         case TYPE_STRING:
             str = malloc(sizeof(char) * (strlen((char*)variable->value) + 1));
@@ -216,7 +217,10 @@ int getIfCastable (DataType a, DataType b) {
         case TYPE_ULONG:
         case TYPE_FLOAT:
         case TYPE_DOUBLE:
-            if (b == TYPE_BYTE || b == TYPE_SHORT || b == TYPE_LONG || b == TYPE_INT || b == TYPE_UBYTE || b == TYPE_USHORT || b == TYPE_ULONG || b == TYPE_UINT || b == TYPE_FLOAT || b == TYPE_DOUBLE) {
+        case TYPE_STRING:
+        case TYPE_CHAR:
+        case TYPE_BOOL:
+            if (b == TYPE_BYTE || b == TYPE_SHORT || b == TYPE_LONG || b == TYPE_INT || b == TYPE_UBYTE || b == TYPE_USHORT || b == TYPE_ULONG || b == TYPE_UINT || b == TYPE_FLOAT || b == TYPE_DOUBLE || b == TYPE_STRING || b == TYPE_CHAR || b == TYPE_BOOL) {
                 return 1;
             }
             break;
@@ -229,8 +233,11 @@ int getIfCastable (DataType a, DataType b) {
 
 long long int getSignedNumber (Variable* variable) {
     switch (variable->type) {
+        case TYPE_BOOL:
+            return *(int*)variable->value != 0;
         case TYPE_BYTE:
         case TYPE_UBYTE:
+        case TYPE_CHAR:
             return *(char*)variable->value;
         case TYPE_SHORT:
         case TYPE_USHORT:
@@ -245,12 +252,16 @@ long long int getSignedNumber (Variable* variable) {
             return (long long int)(*(float*)variable->value);
         case TYPE_DOUBLE:
             return (long long int)*(double*)variable->value;
+        case TYPE_STRING:
+            return strlen((char*)variable->value);
         default:
             return 0;
     }
 }
 unsigned long long int getUnsignedNumber (Variable* variable) {
     switch (variable->type) {
+        case TYPE_BOOL:
+            return *(int*)variable->value != 0;
         case TYPE_BYTE:
         case TYPE_UBYTE:
             return *(unsigned char*)variable->value;
@@ -267,16 +278,34 @@ unsigned long long int getUnsignedNumber (Variable* variable) {
             return (long long int)(*(float*)variable->value); // casting into a signed int, it'll be casted back to unsigned in the return
         case TYPE_DOUBLE:
             return (long long int)(*(double*)variable->value); // casting into a signed int, it'll be casted back to unsigned in the return
+        case TYPE_STRING:
+            return strlen((char*)variable->value);
         default:
             return 0;
     }
 }
 double getFloatNumber (Variable* variable) {
     switch (variable->type) {
+        case TYPE_BOOL:
+            return (double)(*(int*)variable->value != 0);
+        case TYPE_BYTE:
+        case TYPE_UBYTE:
+            return (double)(*(unsigned char*)variable->value);
+        case TYPE_SHORT:
+        case TYPE_USHORT:
+            return (double)(*(unsigned short*)variable->value);
+        case TYPE_INT:
+        case TYPE_UINT:
+            return (double)(*(unsigned int*)variable->value);
+        case TYPE_LONG:
+        case TYPE_ULONG:
+            return (double)(*(unsigned long long*)variable->value);
         case TYPE_FLOAT:
-            return *(float*)variable->value;
+            return *(float*)variable->value; // casting into a signed int, it'll be casted back to unsigned in the return
         case TYPE_DOUBLE:
-            return *(double*)variable->value;
+            return *(double*)variable->value; // casting into a signed int, it'll be casted back to unsigned in the return
+        case TYPE_STRING:
+            return (double)strlen((char*)variable->value);
         default:
             return 0;
     }
@@ -287,7 +316,7 @@ int castValue (Variable* variable, DataType type) {
         return 0;
     }
     if (!getIfCastable(variable->type, type)) {
-        return 1;
+        return ERROR_CAST_ERROR;
     }
     
 
@@ -313,10 +342,11 @@ int castValue (Variable* variable, DataType type) {
             *(long long int*)new_value = getSignedNumber(variable);
             variable->type = TYPE_LONG;
             break;
+        case TYPE_CHAR:
         case TYPE_UBYTE:
             new_value = malloc(sizeof(unsigned char));
             *(unsigned char*)new_value = getUnsignedNumber(variable);
-            variable->type = TYPE_UBYTE;
+            variable->type = type;
             break;
         case TYPE_USHORT:
             new_value = malloc(sizeof(unsigned short));
@@ -343,6 +373,13 @@ int castValue (Variable* variable, DataType type) {
             *(double*)new_value = getFloatNumber(variable);
             variable->type = TYPE_DOUBLE;
             break;
+        case TYPE_BOOL:
+            new_value = malloc(sizeof(int));
+            *(int*)new_value = getSignedNumber(variable) != 0;
+            variable->type = TYPE_BOOL;
+            break;
+        case TYPE_STRING:
+            return ERROR_CAST_ERROR; // casting into a string is not fine, but casting from a string is fine
     }
     free(variable->value);
     variable->value = new_value;
