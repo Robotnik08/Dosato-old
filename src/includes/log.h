@@ -70,6 +70,7 @@ typedef enum {
     ERROR_IDENTIFIER_NOT_FOUND,
     ERROR_IDENTIFIER_INVALID,
     ERROR_UNDEFINED_VARIABLE,
+    ERROR_TOO_MANY_ARGUMENTS,
 
     ERROR_UNKNOWN
 
@@ -127,6 +128,7 @@ const char* ERROR_MESSAGES[] = {
     "The identifier was not found",
     "The identifier is invalid",
     "The variable is undefined",
+    "Too many arguments in function call",
 
     "Unknown Error"
 };

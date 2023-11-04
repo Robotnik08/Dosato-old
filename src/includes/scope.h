@@ -112,7 +112,6 @@ Function* getFunction (Scope* scope, char* name);
 void addScope (Scope** scope, Scope new_scope);
 
 void populateDefaultVariables (Scope* scope, int main, int depth) {
-    return;
     // define constants in the global scope
     // ALL pointers ownership is transferred to the variable, and must be freed in the variable's destroy function
 
@@ -152,34 +151,10 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
 void addSystemFunctions (Scope* scope, int main, int depth) {
     if (main) {
         // SAY function
-        Argument* args = malloc(sizeof(Argument) * 1);
-        args[0] = (Argument){"MESSAGE", TYPE_STRING };
-        addFunction(scope, createFunction("SAY", NULL, args, 1, TYPE_VOID, 1));
+        addFunction(scope, createFunction("SAY", NULL, NULL, 0, TYPE_VOID, 1));
 
-        return; // for now we only test the SAY function
-
-        // LISTEN function
-        addFunction(scope, createFunction("LISTEN", NULL, NULL, 0, TYPE_STRING, 1));
-
-        // STOD function
-        args = malloc(sizeof(Argument) * 1);
-        args[0] = (Argument){"STRING", TYPE_STRING };
-        addFunction(scope, createFunction("STOD", NULL, args, 1, TYPE_DOUBLE, 1));
-
-        // STOI function
-        args = malloc(sizeof(Argument) * 1);
-        args[0] = (Argument){"STRING", TYPE_STRING };
-        addFunction(scope, createFunction("STOI", NULL, args, 1, TYPE_INT, 1));
-
-        // DTOS function
-        args = malloc(sizeof(Argument) * 1);
-        args[0] = (Argument){"DOUBLE", TYPE_DOUBLE };
-        addFunction(scope, createFunction("DTOS", NULL, args, 1, TYPE_STRING, 1));
-
-        // STRLEN function
-        args = malloc(sizeof(Argument) * 1);
-        args[0] = (Argument){"STRING", TYPE_STRING };
-        addFunction(scope, createFunction("STRLEN", NULL, args, 1, TYPE_INT, 1));
+        // END function
+        addFunction(scope, createFunction("END", NULL, NULL, 0, TYPE_VOID, 1));
 
     }
 }
@@ -284,7 +259,7 @@ Variable* getVariable (Scope* scope, char* name) {
 }
 
 Function* getFunction (Scope* scope, char* name) {
-    while (scope != NULL) {
+    while (scope->running_line != -1) {
         int length = getFunctionsLength(scope->functions);
         for (int i = 0; i < length; i++) {
             if (!strcmp(scope->functions[i].name, name)) {

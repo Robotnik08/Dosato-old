@@ -120,7 +120,6 @@ int functionCall (Process* process, Node* func) {
         return error(process, process->error_ast_index, ERROR_EXPECTED_ARGUMENTS, tokens[func_node[1].start].start);
     }
     
-    char* name = getNodeText(process, &func_node[0], 0);
     int args_length = getNodeBodyLength(func_node[1].body);
     Variable* args = malloc(sizeof(Variable) * (args_length + 1));
     for (int i = 0; i < args_length; i++) {
@@ -129,8 +128,8 @@ int functionCall (Process* process, Node* func) {
         if (res) return res;
     }
     args[args_length] = createNullTerminatedVariable();
-    int code = callFunction(name, args, args_length, process);
-    free(name);
+    int code = callFunction(func_node[0].text, args, args_length, process);
+
     for (int i = 0; i < args_length; i++) {
         destroyVariable(&args[i]);
     }
@@ -144,7 +143,23 @@ int functionCall (Process* process, Node* func) {
 }
 
 int makeVariable (Process* process, Node* line) {
-    printf("make var\n");
+    Token* tokens = getTokenList(process, 0);
+    if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
+        return error(process, process->error_ast_index, ERROR_EXPECTED_TYPE, tokens[line->body[0].start].start);
+    }
+    if (line->body[1].type != NODE_IDENTIFIER) {
+        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, tokens[line->body[1].start].start);
+    }
+    Variable var = createNullTerminatedVariable();
+    int dataRes = parseExpression(&var, process, &line->body[2], 0);
+    if (dataRes) return dataRes;
+    var.name = malloc(sizeof(char) * (strlen(line->body[1].text) + 1));
+    strcpy(var.name, line->body[1].text);
+    var.constant = 0;
+    var.is_array = 0;
+    int castRes = castValue(&var, tokens[line->body[0].start].carry);
+    if (castRes) return ERROR_TYPE_MISMATCH;
+    addVariable(getLastScope(&process->main_scope), var);
     return 0;
 }
 

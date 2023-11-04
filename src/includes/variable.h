@@ -201,4 +201,152 @@ Variable cloneVariable (Variable* variable) {
     return new_variable;
 }
 
+int getIfCastable (DataType a, DataType b) {
+    if (a == b) {
+        return 1;
+    }
+    switch (a) {
+        case TYPE_INT:
+        case TYPE_BYTE:
+        case TYPE_SHORT:
+        case TYPE_LONG:
+        case TYPE_UINT:
+        case TYPE_UBYTE:
+        case TYPE_USHORT:
+        case TYPE_ULONG:
+        case TYPE_FLOAT:
+        case TYPE_DOUBLE:
+            if (b == TYPE_BYTE || b == TYPE_SHORT || b == TYPE_LONG || b == TYPE_INT || b == TYPE_UBYTE || b == TYPE_USHORT || b == TYPE_ULONG || b == TYPE_UINT || b == TYPE_FLOAT || b == TYPE_DOUBLE) {
+                return 1;
+            }
+            break;
+        default:
+            break;
+        
+    }
+    return 0;
+}
+
+long long int getSignedNumber (Variable* variable) {
+    switch (variable->type) {
+        case TYPE_BYTE:
+        case TYPE_UBYTE:
+            return *(char*)variable->value;
+        case TYPE_SHORT:
+        case TYPE_USHORT:
+            return *(short*)variable->value;
+        case TYPE_INT:
+        case TYPE_UINT:
+            return *(int*)variable->value;
+        case TYPE_LONG:
+        case TYPE_ULONG:
+            return *(long long*)variable->value;
+        case TYPE_FLOAT:
+            return (long long int)(*(float*)variable->value);
+        case TYPE_DOUBLE:
+            return (long long int)*(double*)variable->value;
+        default:
+            return 0;
+    }
+}
+unsigned long long int getUnsignedNumber (Variable* variable) {
+    switch (variable->type) {
+        case TYPE_BYTE:
+        case TYPE_UBYTE:
+            return *(unsigned char*)variable->value;
+        case TYPE_SHORT:
+        case TYPE_USHORT:
+            return *(unsigned short*)variable->value;
+        case TYPE_INT:
+        case TYPE_UINT:
+            return *(unsigned int*)variable->value;
+        case TYPE_LONG:
+        case TYPE_ULONG:
+            return *(unsigned long long*)variable->value;
+        case TYPE_FLOAT:
+            return (long long int)(*(float*)variable->value); // casting into a signed int, it'll be casted back to unsigned in the return
+        case TYPE_DOUBLE:
+            return (long long int)(*(double*)variable->value); // casting into a signed int, it'll be casted back to unsigned in the return
+        default:
+            return 0;
+    }
+}
+double getFloatNumber (Variable* variable) {
+    switch (variable->type) {
+        case TYPE_FLOAT:
+            return *(float*)variable->value;
+        case TYPE_DOUBLE:
+            return *(double*)variable->value;
+        default:
+            return 0;
+    }
+}
+
+int castValue (Variable* variable, DataType type) {
+    if (variable->type == type) {
+        return 0;
+    }
+    if (!getIfCastable(variable->type, type)) {
+        return 1;
+    }
+    
+
+    void* new_value = NULL;
+    switch (type) {
+        case TYPE_BYTE:
+            new_value = malloc(sizeof(char));
+            *(signed char*)new_value = getSignedNumber(variable);
+            variable->type = TYPE_BYTE;
+            break;
+        case TYPE_SHORT:
+            new_value = malloc(sizeof(short));
+            *(short*)new_value = getSignedNumber(variable);
+            variable->type = TYPE_SHORT;
+            break;
+        case TYPE_INT:
+            new_value = malloc(sizeof(int));
+            *(int*)new_value = getSignedNumber(variable);
+            variable->type = TYPE_INT;
+            break;
+        case TYPE_LONG:
+            new_value = malloc(sizeof(long long int));
+            *(long long int*)new_value = getSignedNumber(variable);
+            variable->type = TYPE_LONG;
+            break;
+        case TYPE_UBYTE:
+            new_value = malloc(sizeof(unsigned char));
+            *(unsigned char*)new_value = getUnsignedNumber(variable);
+            variable->type = TYPE_UBYTE;
+            break;
+        case TYPE_USHORT:
+            new_value = malloc(sizeof(unsigned short));
+            *(unsigned short*)new_value = getUnsignedNumber(variable);
+            variable->type = TYPE_USHORT;
+            break;
+        case TYPE_UINT:
+            new_value = malloc(sizeof(unsigned int));
+            *(unsigned int*)new_value = getUnsignedNumber(variable);
+            variable->type = TYPE_UINT;
+            break;
+        case TYPE_ULONG:
+            new_value = malloc(sizeof(unsigned long long int));
+            *(unsigned long long int*)new_value = getUnsignedNumber(variable);
+            variable->type = TYPE_ULONG;
+            break;
+        case TYPE_FLOAT:
+            new_value = malloc(sizeof(float));
+            *(float*)new_value = getFloatNumber(variable);
+            variable->type = TYPE_FLOAT;
+            break;
+        case TYPE_DOUBLE:
+            new_value = malloc(sizeof(double));
+            *(double*)new_value = getFloatNumber(variable);
+            variable->type = TYPE_DOUBLE;
+            break;
+    }
+    free(variable->value);
+    variable->value = new_value;
+    return 0;
+}
+
 #endif

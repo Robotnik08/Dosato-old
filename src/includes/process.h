@@ -161,11 +161,12 @@ char* getNodeText (Process* process, Node* node, int ast_index) {
 
 int callFunction (char* name, Variable* args, int args_length, Process* process) {
     Function* function = getFunction(&process->main_scope, name);
-    if (function->std_function) {
-        return standard_call(process, name, args, args_length);
-    }
     if (function == NULL) {
         return ERROR_FUNCTION_NOT_FOUND;
+    }
+    
+    if (function->std_function) {
+        return standard_call(process, name, args, args_length);
     }
 
     if (function->arguments_length != args_length) {

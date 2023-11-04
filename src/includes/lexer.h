@@ -313,8 +313,14 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
                     break;
                 }
                 if (isFloateric(full_code[j])) {
+                    if (full_code[j] == 'F') {
+                        if (isNumeric(full_code[j-1])) {
+                            end = j;
+                            break;
+                        }
+                        continue;
+                    }
                     end = j;
-                    if (full_code[j] == 'F') break;
                 } else {
                     break;
                 }

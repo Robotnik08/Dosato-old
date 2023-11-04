@@ -57,9 +57,10 @@ char** strspl(const char* input, const char* separator);
 */
 void strrep(char *in, const char *selector, const char *replacement);
 /**
- * @brief Get the Next Word in a String, make sure to free the result
+ * @brief Get the Next Word in a String
  * @param text The text to get the word from
  * @param start The index to start at
+ * @return The next word in the string (don't forget to free it)
 */
 char* getWord (const char* text, int start);
 /**

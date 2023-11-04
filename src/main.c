@@ -19,6 +19,10 @@
 #include "includes/ast.h"
 #include "includes/process.h"
 
+#define VERSION "0.0.3"
+#define PROGRAM_NAME "Dosato"
+#define AUTHOR "Sebastiaan Heins"
+
 // forward declarations
 /**
  * @brief Quit the program with a code
@@ -106,10 +110,10 @@ int main (int argc, char* argv[])
         printf("\n\nRUNNING PROGRAM:\n\n");
     }
     int exit_code = runProcess(&main);
+
     /// CLEANUP ///
     destroyProcess(&main);
     free(contents);
-
     // flawless execution
 
     return QUIT(exit_code);

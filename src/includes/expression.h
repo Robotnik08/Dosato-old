@@ -154,11 +154,15 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
                     break;
             }
             
-            destroyVariable(left);
-            free (left);
+            if (left->name == "-lit") {
+                destroyVariable(left);
+                free (left);
+            }
             
-            destroyVariable(right);
-            free (right);
+            if (right->name == "-lit") {
+                destroyVariable(right);
+                free (right);
+            }
             break;
         case NODE_UNARY_EXPRESSION:
             right = malloc(sizeof(Variable));
@@ -185,9 +189,10 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
                     if (res) return error(process, process->error_ast_index, res, node->start);
                     break;
             }
-            
-            destroyVariable(right);
-            free (right);
+            if (right->name == "-lit") {
+                destroyVariable(right);
+                free (right);
+            }
             break;
     }
     return 0; // success
