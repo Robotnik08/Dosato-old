@@ -56,7 +56,7 @@ int makeVariable (Process* process, Node* func);
  * @param process The process to run
  * @param func The variable to set
 */
-int setVariable (Process* process, Node* func);
+long long int setVariable (Process* process, Node* func);
 
 /**
  * @brief Interpret a function creation
@@ -169,8 +169,29 @@ int makeVariable (Process* process, Node* line) {
     return 0;
 }
 
-int setVariable (Process* process, Node* line) {
-    printf("set var\n");
+long long int setVariable (Process* process, Node* line) {
+    
+    OperatorType operator = getTokenAtPosition(process, line->body[1].start).carry;
+    if (!isAssignmentOperator(operator) || line->body[1].type != NODE_OPERATOR) {
+        return error(process, process->error_ast_index, ERROR_EXPECTED_ASSIGN_OPERATOR, getTokenStart(process, line->body[1].start));
+    }
+    
+    Variable* left = malloc(sizeof(Variable));
+    *left = createNullTerminatedVariable();
+    left = (Variable*)parseExpression(left, process, &line->body[0], 1); // we need to retrieve the refrerence, so we overwrite the variable
+    if ((long long int)left < ERROR_AMOUNT) return (long long int)left ? (long long int)left : ERROR_EXPECTED_REFRENCE;
+    if (left->constant) {
+        return error(process, process->error_ast_index, ERROR_CANNOT_MODIFY_CONSTANT, getTokenStart(process, line->body[0].start));
+    }
+    Variable* right = malloc(sizeof(Variable)); // right does need to be freed, it's a value type
+    *right = createNullTerminatedVariable();
+    int rightRes = parseExpression(right, process, &line->body[2], 0); // we need to retrieve the value
+    if (rightRes) return rightRes;
+    
+    int setRest = setVariableValue(left, right, operator);
+    if (setRest) return error(process, process->error_ast_index, setRest, getTokenStart(process, line->body[2].start));
+    destroyVariable(right);
+    free(right);
     return 0;
 }
 

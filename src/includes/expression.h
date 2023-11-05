@@ -24,22 +24,25 @@
 
 /**
  * @brief Parse an expression
+ * @param var The variable to set the return value to
  * @param process The process to run
  * @param node The node to parse
  * @param return_value The return value of the expression
- * @return The type of the return value (D_NULL means error)
+ * @return The status, or when it's a refrence, the pointer to the variable
+ * @note This function is recursive
 */
-int parseExpression (Variable* var, Process* process, Node* node, int reference);
+long long int parseExpression (Variable* var, Process* process, Node* node, int reference);
 
 /**
  * @brief Parse a literal
+ * @param var The variable to set the return value to (make sure to free it, the old value is destroyed)
+ * @param process The process to run
  * @param literal The literal to parse
  * @return The variable
 */
 int parseLiteral (Variable* var, Process* process, Node* literal);
 
-
-int parseExpression (Variable* var, Process* process, Node* node, int reference) {
+long long int parseExpression (Variable* var, Process* process, Node* node, int reference) {
     if (node->text == "-invalid") return error(process, process->error_ast_index, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
     Variable* left;
     Variable* right;
@@ -57,9 +60,10 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
         case NODE_IDENTIFIER:
             if (reference) {
                 destroyVariable(var);
-                free(var);
+                free(var); // get rid of the old variable
                 var = getVariable(&process->main_scope, node->text);
                 if (var == NULL) return error(process, node->start, ERROR_UNDEFINED_VARIABLE, getTokenStart(process, node->start));
+                return (long long int)var; // return the pointer to the variable as a long long int, to make sure the bytes of the pointer are the same
             } else {
                 Variable* ref = getVariable(&process->main_scope, node->text);
                 if (ref == NULL) return error(process, node->start, ERROR_UNDEFINED_VARIABLE, getTokenStart(process, node->start));
@@ -91,81 +95,81 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
 
                 // arithmetic operators
                 case OPERATOR_ADD:
-                    res = add(var, process, left, right);
+                    res = add(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_SUBTRACT:
-                    res = subtract(var, process, left, right);
+                    res = subtract(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_MULTIPLY:
-                    res = multiply(var, process, left, right);
+                    res = multiply(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_DIVIDE:
-                    res = divide(var, process, left, right);
+                    res = divide(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_MODULO:
-                    res = modulo(var, process, left, right);
+                    res = modulo(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_XOR:
-                    res = xor(var, process, left, right);
+                    res = xor(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_AND:
-                    res = and(var, process, left, right);
+                    res = and(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_OR:
-                    res = or(var, process, left, right);
+                    res = or(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
 
                 // logical operators
                 case OPERATOR_OR_OR:
-                    res = logic_or(var, process, left, right);
+                    res = logic_or(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_AND_AND:
-                    res = logic_and(var, process, left, right);
+                    res = logic_and(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 
                 // comparison operators
                 case OPERATOR_EQUAL:
-                    res = equal(var, process, left, right);
+                    res = equal(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_NOT_EQUAL:
-                    res = not_equal(var, process, left, right);
+                    res = not_equal(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_LESS:
-                    res = less_than(var, process, left, right);
+                    res = less_than(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_GREATER:
-                    res = greater_than(var, process, left, right);
+                    res = greater_than(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_LESS_EQUAL:
-                    res = less_than_or_equal(var, process, left, right);
+                    res = less_than_or_equal(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_GREATER_EQUAL:
-                    res = greater_than_or_equal(var, process, left, right);
+                    res = greater_than_or_equal(var, left, right);
                     if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                     break;
             }
             
-            if (left->name == "-lit") {
+            if (!strcmp(left->name, "-lit")) {
                 destroyVariable(left);
                 free (left);
             }
             
-            if (right->name == "-lit") {
+            if (!strcmp(right->name, "-lit")) {
                 destroyVariable(right);
                 free (right);
             }
@@ -186,15 +190,15 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
                         return error(process, process->error_ast_index, ERROR_INVALID_OPERATOR, getTokenStart(process, node->start));
                         break;
                     case OPERATOR_NOT:
-                        res = not(var, process, right);
+                        res = not(var, right);
                         if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                         break;
                     case OPERATOR_NOT_BITWISE:
-                        res = not_bitwise(var, process, right);
+                        res = not_bitwise(var, right);
                         if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                         break;
                     case OPERATOR_SUBTRACT:
-                        res = negative(var, process, right);
+                        res = negative(var, right);
                         if (res) return error(process, process->error_ast_index, res, getTokenStart(process, node->start));
                         break;
                 }
@@ -214,7 +218,7 @@ int parseExpression (Variable* var, Process* process, Node* node, int reference)
                 *var = cloneVariable(right);
             }
             
-            if (right->name == "-lit") {
+            if (!strcmp(right->name, "-lit")) {
                 destroyVariable(right);
                 free (right);
             }
@@ -285,13 +289,19 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
     } else {
         int dot = strchl(literal->text, '.');
         if (dot == 1) {
+            char* num = malloc(sizeof(char) * (strlen(literal->text) + 1));
+            strcpy(num, literal->text);
             if (literal->text[strlen(literal->text)-1] == 'F') {
+                num[strlen(num)-1] = '\0'; // remove the F
                 type = TYPE_FLOAT;
+                value = malloc(sizeof(float));
+                *(float*)value = atof(num);
+                free(num);
             } else {
                 type = TYPE_DOUBLE;
+                value = malloc(sizeof(double));
+                *(double*)value = atof(num);    
             }
-            value = malloc(sizeof(double));
-            *(double*)value = atof(literal->text);
         } else if (!dot) {
             if (literal->text[strlen(literal->text)-1] == 'F') {
                 return error(process, process->error_ast_index, ERROR_INVALID_NUMBER, getTokenStart(process, literal->start));
@@ -308,4 +318,57 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
     *var = createVariable("-lit", type, value, 1, 0); // set the new value
     return 0;
 }
+
+
+int setVariableValue (Variable* left, Variable* right, OperatorType op) {
+    if (left->type != right->type) {
+        int castRes = castValue(right, left->type);
+        if (castRes) return ERROR_TYPE_MISMATCH;
+    }
+
+    switch (op) {
+        case OPERATOR_ASSIGN:
+            int res = assign(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_ADD_ASSIGN:
+            res = assign_add(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_SUBTRACT_ASSIGN:
+            res = assign_subtract(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_MULTIPLY_ASSIGN:
+            res = assign_multiply(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_DIVIDE_ASSIGN:
+            res = assign_divide(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_MODULO_ASSIGN:
+            res = assign_modulo(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_AND_ASSIGN:
+            res = assign_and(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_OR_ASSIGN:
+            res = assign_or(left, right);
+            if (res) return res;
+            break;
+        case OPERATOR_XOR_ASSIGN:
+            res = assign_xor(left, right);
+            if (res) return res;
+            break;
+        default:
+            return ERROR_INVALID_OPERATOR;
+            break;
+    }
+    return 0;
+}
+
+
 #endif

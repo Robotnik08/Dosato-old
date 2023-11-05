@@ -74,9 +74,12 @@ typedef enum {
     ERROR_INVALID_CHAR,
     ERROR_INVALID_NUMBER,
     ERROR_CAST_ERROR,
+    ERROR_CANNOT_MODIFY_CONSTANT,
+    ERROR_CANNOT_MODIFY_LITERAL,
+    ERROR_EXPECTED_REFRENCE,
 
-
-    ERROR_UNKNOWN
+    ERROR_UNKNOWN,
+    ERROR_AMOUNT
 
 } ErrorType;
 
@@ -136,9 +139,12 @@ const char* ERROR_MESSAGES[] = {
     "Invalid character literal",
     "Invalid number literal",
     "Casting is not possible with the given types",
-    
+    "Cannot modify a constant",
+    "Cannot modify a literal",
+    "Expected a refrence to a variable, not a value/literal",
 
-    "Unknown Error"
+    "Unknown Error",
+    "This error is not meant to be displayed, say hello to the error!"
 };
 
 /**

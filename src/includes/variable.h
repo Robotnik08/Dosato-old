@@ -69,6 +69,43 @@ char* toString (Variable* variable);
 */
 Variable cloneVariable (Variable* variable);
 
+/**
+ * @brief Get whether or not a variable can be casted to another type
+ * @param a The type of the variable
+ * @param b The type to cast to
+ * @return Whether or not the variable can be casted to the other type
+*/
+int getIfCastable (DataType a, DataType b);
+
+/**
+ * @brief Get the signed number of a variable
+ * @param variable The variable to get the number of
+ * @return The signed number
+*/
+long long int getSignedNumber (Variable* variable);
+
+/**
+ * @brief Get the unsigned number of a variable
+ * @param variable The variable to get the number of
+ * @return The unsigned number
+*/
+unsigned long long int getUnsignedNumber (Variable* variable);
+
+/**
+ * @brief Get the float number of a variable
+ * @param variable The variable to get the number of
+ * @return The float number
+*/
+double getFloatNumber (Variable* variable);
+
+/**
+ * @brief Cast a variable to a type
+ * @param variable The variable to cast
+ * @param type The type to cast to
+ * @return The error code
+*/
+int castValue (Variable* variable, DataType type);
+
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array) {
     Variable variable;
     variable.name = malloc(sizeof(char) * (strlen(name) + 1));
@@ -161,7 +198,7 @@ char* toString (Variable* variable) {
 }
 
 Variable cloneVariable (Variable* variable) {
-    Variable new_variable = createVariable("lit", variable->type, NULL, variable->constant, variable->is_array);
+    Variable new_variable = createVariable("-lit", variable->type, NULL, variable->constant, variable->is_array);
 
     switch (variable->type) {
         case TYPE_CHAR:

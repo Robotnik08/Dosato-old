@@ -89,6 +89,7 @@ char* removeLastAndFirstChar(const char* str, int amount);
  * @brief Check if a string starts and ends with a character
  * @param str The string to check
  * @param character The character to check
+ * @warning The buffer is 1024 x the size of the string, so don't use this for large strings or large replacements
 */
 int strsur (const char* str, const char character);
 
@@ -191,7 +192,7 @@ int strrep(char *in, const char *selector, const char *replacement) {
 
     int amount = 0;
 
-    char *result = (char *)malloc(in_len * strlen(replacement) + 1);
+    char *result = (char *)malloc(in_len * 1024);
 
     result[0] = '\0';
 

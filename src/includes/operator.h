@@ -101,176 +101,157 @@ int checkIfFloating (DataType type) {
 /**
  * @brief Add two variables +
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int add (Variable* var, Process* process, Variable* left, Variable* right);
+int add (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief Subtract two variables -
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int subtract (Variable* var, Process* process, Variable* left, Variable* right);
+int subtract (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief Multiply two variables *
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int multiply (Variable* var, Process* process, Variable* left, Variable* right);
+int multiply (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief Divide two variables /
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int divide (Variable* var, Process* process, Variable* left, Variable* right);
+int divide (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief Modulo two variables %
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int modulo (Variable* var, Process* process, Variable* left, Variable* right);
+int modulo (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief XOR two variables ^ (bitwise)
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int xor (Variable* var, Process* process, Variable* left, Variable* right);
+int xor (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief OR two variables | (bitwise)
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int or (Variable* var, Process* process, Variable* left, Variable* right);
+int or (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief AND two variables &
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int and (Variable* var, Process* process, Variable* left, Variable* right);
+int and (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief OR two variables || (logical)
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int logic_or (Variable* var, Process* process, Variable* left, Variable* right);
+int logic_or (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief AND two variables && (logical)
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
 
-int logic_and (Variable* var, Process* process, Variable* left, Variable* right);
+int logic_and (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief EQUAL two variables ==
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int equal (Variable* var, Process* process, Variable* left, Variable* right);
+int equal (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief NOT EQUAL two variables !=
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int not_equal (Variable* var, Process* process, Variable* left, Variable* right);
+int not_equal (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief LESS THAN two variables <
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int less_than (Variable* var, Process* process, Variable* left, Variable* right);
+int less_than (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief GREATER THAN two variables >
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int greater_than (Variable* var, Process* process, Variable* left, Variable* right);
+int greater_than (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief LESS THAN OR EQUAL two variables <=
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
 
-int less_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right);
+int less_than_or_equal (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief GREATER THAN OR EQUAL two variables >=
  * @param var The return variable
- * @param process The process to run
  * @param left The left variable
  * @param right The right variable
 */
-int greater_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right);
+int greater_than_or_equal (Variable* var, Variable* left, Variable* right);
 
 //    UNARY OPERATORS
 
 /**
  * @brief NOT a variable !
  * @param var The return variable
- * @param process The process to run
  * @param right The right variable
 */
-int not (Variable* var, Process* process, Variable* right);
+int not (Variable* var, Variable* right);
 
 /**
  * @brief NOT a variable ~ (bitwise)
  * @param var The return variable
- * @param process The process to run
  * @param right The right variable
 */
-int not_bitwise (Variable* var, Process* process, Variable* right);
+int not_bitwise (Variable* var, Variable* right);
 
 /**
  * @brief NEGATE a variable -
  * @param var The return variable
- * @param process The process to run
  * @param right The right variable
 */
-int negative (Variable* var, Process* process, Variable* right);
+int negative (Variable* var, Variable* right);
 
-int add (Variable* var, Process* process, Variable* left, Variable* right) {
+int add (Variable* var, Variable* left, Variable* right) {
     if (!checkIfAddable(left->type) && !checkIfAddable(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_ADDITION;
     }
@@ -306,7 +287,7 @@ int add (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int subtract (Variable* var, Process* process, Variable* left, Variable* right) {
+int subtract (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_TYPE_NOT_SUBTRACTABLE;
     }
@@ -330,7 +311,7 @@ int subtract (Variable* var, Process* process, Variable* left, Variable* right) 
     return 0;
 }
 
-int multiply (Variable* var, Process* process, Variable* left, Variable* right) {
+int multiply (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_MULTIPLICATION;
     }
@@ -354,7 +335,7 @@ int multiply (Variable* var, Process* process, Variable* left, Variable* right) 
     return 0;
 }
 
-int divide (Variable* var, Process* process, Variable* left, Variable* right) {
+int divide (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_DIVISION;
     }
@@ -378,7 +359,7 @@ int divide (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int modulo (Variable* var, Process* process, Variable* left, Variable* right) {
+int modulo (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_MODULO;
     }
@@ -396,7 +377,7 @@ int modulo (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int xor (Variable* var, Process* process, Variable* left, Variable* right) {
+int xor (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
@@ -414,7 +395,7 @@ int xor (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int or (Variable* var, Process* process, Variable* left, Variable* right) {
+int or (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
@@ -432,7 +413,7 @@ int or (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int and (Variable* var, Process* process, Variable* left, Variable* right) {
+int and (Variable* var, Variable* left, Variable* right) {
     if (!checkIfNumber(left->type) && !checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
@@ -450,7 +431,7 @@ int and (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int not (Variable* var, Process* process, Variable* right) {
+int not (Variable* var, Variable* right) {
     destroyVariable(var);
 
     int* value = malloc(sizeof(int));
@@ -463,7 +444,7 @@ int not (Variable* var, Process* process, Variable* right) {
     return 0;
 }
 
-int not_bitwise (Variable* var, Process* process, Variable* right) {
+int not_bitwise (Variable* var, Variable* right) {
     if (!checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
     }
@@ -480,7 +461,7 @@ int not_bitwise (Variable* var, Process* process, Variable* right) {
     return 0;
 }
 
-int negative (Variable* var, Process* process, Variable* right) {
+int negative (Variable* var, Variable* right) {
     if (!checkIfNumber(right->type)) {
         return ERROR_CANT_USE_TYPE_IN_NEGATION;
     }
@@ -502,7 +483,7 @@ int negative (Variable* var, Process* process, Variable* right) {
     return 0;
 }
 
-int logic_or (Variable* var, Process* process, Variable* left, Variable* right) {
+int logic_or (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     long long int left_value;
@@ -525,7 +506,7 @@ int logic_or (Variable* var, Process* process, Variable* left, Variable* right) 
     return 0;
 }
 
-int logic_and (Variable* var, Process* process, Variable* left, Variable* right) {
+int logic_and (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     long long int left_value;
@@ -548,7 +529,7 @@ int logic_and (Variable* var, Process* process, Variable* left, Variable* right)
     return 0;
 }
 
-int equal (Variable* var, Process* process, Variable* left, Variable* right) {
+int equal (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (left->type == TYPE_STRING || right->type == TYPE_STRING) {
@@ -587,7 +568,7 @@ int equal (Variable* var, Process* process, Variable* left, Variable* right) {
     return 0;
 }
 
-int not_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+int not_equal (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     if (left->type == TYPE_STRING || right->type == TYPE_STRING) {
@@ -626,7 +607,7 @@ int not_equal (Variable* var, Process* process, Variable* left, Variable* right)
     return 0;
 }
 
-int less_than (Variable* var, Process* process, Variable* left, Variable* right) {
+int less_than (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     long long int left_value;
@@ -649,7 +630,7 @@ int less_than (Variable* var, Process* process, Variable* left, Variable* right)
     return 0;
 }
 
-int greater_than (Variable* var, Process* process, Variable* left, Variable* right) {
+int greater_than (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     long long int left_value;
@@ -672,7 +653,7 @@ int greater_than (Variable* var, Process* process, Variable* left, Variable* rig
     return 0;
 }
 
-int less_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+int less_than_or_equal (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     long long int left_value;
@@ -695,7 +676,7 @@ int less_than_or_equal (Variable* var, Process* process, Variable* left, Variabl
     return 0;
 }
 
-int greater_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+int greater_than_or_equal (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
     long long int left_value;
@@ -715,6 +696,354 @@ int greater_than_or_equal (Variable* var, Process* process, Variable* left, Vari
     int* value = malloc(sizeof(int));
     *value = left_value >= right_value;
     *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    return 0;
+}
+
+
+
+int assign (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_STRING:
+            free(left->value);
+            left->value = malloc(sizeof(char) * (strlen((char*)right->value) + 1));
+            strcpy((char*)left->value, (char*)right->value);
+            break;
+        case TYPE_BOOL:
+            *(int*)left->value = *(int*)right->value;
+            break;
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value = *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value = *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value = *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value = *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value = *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value = *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value = *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value = *(unsigned long long int*)right->value;
+            break;
+        case TYPE_FLOAT:
+            *(float*)left->value = *(float*)right->value;
+            break;
+        case TYPE_DOUBLE:
+            *(double*)left->value = *(double*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_add (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_STRING:
+            char* left_value = toString(left);
+            char* right_value = toString(right);
+            free(left->value);
+            left->value = malloc(sizeof(char) * (strlen(left_value) + strlen(right_value) + 1));
+            strcpy((char*)left->value, left_value);
+            strcat((char*)left->value, right_value);
+
+            free (left_value);
+            free (right_value);
+            break;
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value += *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value += *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value += *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value += *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value += *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value += *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value += *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value += *(unsigned long long int*)right->value;
+            break;
+        case TYPE_FLOAT:
+            *(float*)left->value += *(float*)right->value;
+            break;
+        case TYPE_DOUBLE:
+            *(double*)left->value += *(double*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_subtract (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value -= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value -= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value -= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value -= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value -= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value -= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value -= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value -= *(unsigned long long int*)right->value;
+            break;
+        case TYPE_FLOAT:
+            *(float*)left->value -= *(float*)right->value;
+            break;
+        case TYPE_DOUBLE:
+            *(double*)left->value -= *(double*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_multiply (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value *= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value *= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value *= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value *= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value *= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value *= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value *= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value *= *(unsigned long long int*)right->value;
+            break;
+        case TYPE_FLOAT:
+            *(float*)left->value *= *(float*)right->value;
+            break;
+        case TYPE_DOUBLE:
+            *(double*)left->value *= *(double*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_divide (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value /= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value /= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value /= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value /= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value /= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value /= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value /= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value /= *(unsigned long long int*)right->value;
+            break;
+        case TYPE_FLOAT:
+            *(float*)left->value /= *(float*)right->value;
+            break;
+        case TYPE_DOUBLE:
+            *(double*)left->value /= *(double*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_modulo (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value %= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value %= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value %= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value %= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value %= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value %= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value %= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value %= *(unsigned long long int*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_xor (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value ^= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value ^= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value ^= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value ^= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value ^= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value ^= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value ^= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value ^= *(unsigned long long int*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_or (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value |= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value |= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value |= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value |= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value |= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value |= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value |= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value |= *(unsigned long long int*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
+    return 0;
+}
+
+int assign_and (Variable* left, Variable* right) {
+    switch (left->type) {
+        case TYPE_CHAR:
+        case TYPE_BYTE:
+            *(char*)left->value &= *(char*)right->value;
+            break;
+        case TYPE_SHORT:
+            *(short*)left->value &= *(short*)right->value;
+            break;
+        case TYPE_INT:
+            *(int*)left->value &= *(int*)right->value;
+            break;
+        case TYPE_LONG:
+            *(long long int*)left->value &= *(long long int*)right->value;
+            break;
+        case TYPE_UBYTE:
+            *(unsigned char*)left->value &= *(unsigned char*)right->value;
+            break;
+        case TYPE_USHORT:
+            *(unsigned short*)left->value &= *(unsigned short*)right->value;
+            break;
+        case TYPE_UINT:
+            *(unsigned int*)left->value &= *(unsigned int*)right->value;
+            break;
+        case TYPE_ULONG:
+            *(unsigned long long int*)left->value &= *(unsigned long long int*)right->value;
+            break;
+        default:
+            return ERROR_TYPE_MISMATCH;
+    }
     return 0;
 }
 #endif
