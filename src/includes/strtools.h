@@ -54,8 +54,9 @@ char** strspl(const char* input, const char* separator);
  * @param in The string to replace in
  * @param selector The string to replace
  * @param replacement The string to replace with
+ * @return The amount of times the string was replaced
 */
-void strrep(char *in, const char *selector, const char *replacement);
+int strrep(char *in, const char *selector, const char *replacement);
 /**
  * @brief Get the Next Word in a String
  * @param text The text to get the word from
@@ -184,11 +185,13 @@ char** strspl(const char* input, const char* separator) {
     return substrings;
 }
 
-void strrep(char *in, const char *selector, const char *replacement) {
+int strrep(char *in, const char *selector, const char *replacement) {
     int in_len = strlen(in);
     int selector_len = strlen(selector);
 
-    char *result = (char *)malloc(in_len * 10);
+    int amount = 0;
+
+    char *result = (char *)malloc(in_len * strlen(replacement) + 1);
 
     result[0] = '\0';
 
@@ -196,6 +199,7 @@ void strrep(char *in, const char *selector, const char *replacement) {
         if (strncmp(in + i, selector, selector_len) == 0) {
             strcat(result, replacement);
             i += selector_len;
+            amount++;
         } else {
             strncat(result, in + i, 1);
             i++;
@@ -205,6 +209,8 @@ void strrep(char *in, const char *selector, const char *replacement) {
     strcpy(in, result);
 
     free(result);
+
+    return amount;
 }
 
 char* getWord(const char* text, int start) {

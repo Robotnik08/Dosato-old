@@ -85,6 +85,29 @@ char* getNodeText (Process* process, Node* node, int ast_index);
 */
 int callFunction (char* name, Variable* args, int args_length, Process* process);
 
+/**
+ * @brief Get the position in the full code of a tokens start
+ * @param process The process to get the token from
+ * @param token The index of the token
+ * @return The position in the full code of the tokens start
+*/
+int getTokenStart (Process* process, int token);
+
+/**
+ * @brief Get the position in the full code of a tokens end
+ * @param process The process to get the token from
+ * @param token The index of the token
+ * @return The position in the full code of the tokens end
+*/
+int getTokenEnd (Process* process, int token);
+
+/**
+ * @brief Get the token at a position in the current running AST
+ * @param process The process to get the token from
+ * @param position The position in the full code
+ * @return The token at the position
+*/
+Token getTokenAtPosition (Process* process, int position);
 
 // include these after the struct definition to prevent circular dependencies
 #include "interpreter.h"
@@ -155,6 +178,18 @@ char* getNodeText (Process* process, Node* node, int ast_index) {
     }
     str[length] = '\0';
     return str;
+}
+
+int getTokenStart (Process* process, int token) {
+    return process->code[getLastScope(&process->main_scope)->running_ast].tokens[token].start;
+}
+
+int getTokenEnd (Process* process, int token) {
+    return process->code[getLastScope(&process->main_scope)->running_ast].tokens[token].end;
+}
+
+Token getTokenAtPosition (Process* process, int position) {
+    return process->code[getLastScope(&process->main_scope)->running_ast].tokens[position];
 }
 
 #include "standard-library/dosato-std.h" // include the dosato standard library, after all the other definitions

@@ -18,7 +18,7 @@
  * @param process The process to set the error code for
  * @param ast_index The index of the AST node that caused the error
  * @param error_code The error code to set
- * @param location The location of the error (token index)
+ * @param location The location of the error (character index)
 */
 int error (Process* process, int ast_index, int error_code, int location) {
     process->error_code = error_code;

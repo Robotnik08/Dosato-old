@@ -97,7 +97,7 @@ int interpretCommand (Process* process, Node* command) {
     Scope* l_scope = getLastScope(&process->main_scope);
     switch (command->type) {
         default:
-            return error(process, process->error_ast_index, ERROR_INTERPRETER_INVALID_COMMAND, getTokenList(process, 0)[command->start].start);
+            return error(process, process->error_ast_index, ERROR_INTERPRETER_INVALID_COMMAND, getTokenStart(process, command->start));
             break;
         case NODE_FUNCTION_CALL:
             return functionCall(process, command);
@@ -115,16 +115,15 @@ int interpretCommand (Process* process, Node* command) {
 }
 
 int functionCall (Process* process, Node* func) {
-    Token* tokens = getTokenList(process, 0);
     if (func->body[0].type != NODE_FUNCTION_IDENTIFIER) {
-        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, tokens[func->start].start);
+        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
     }
     Node* func_node = func->body[0].body;
     if (func_node[0].type != NODE_IDENTIFIER) {
-        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, tokens[func_node[0].start].start);
+        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func_node[0].start));
     }
     if (func_node[1].type != NODE_ARGUMENTS) {
-        return error(process, process->error_ast_index, ERROR_EXPECTED_ARGUMENTS, tokens[func_node[1].start].start);
+        return error(process, process->error_ast_index, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, func_node[1].start));
     }
     
     int args_length = getNodeBodyLength(func_node[1].body);
@@ -143,7 +142,7 @@ int functionCall (Process* process, Node* func) {
     free(args);
 
     if (code) {
-        return error(process, process->error_ast_index, code, tokens[func_node[0].start].start);
+        return error(process, process->error_ast_index, code, getTokenStart(process, func_node[0].start));
     }
     
     return code;
@@ -152,10 +151,10 @@ int functionCall (Process* process, Node* func) {
 int makeVariable (Process* process, Node* line) {
     Token* tokens = getTokenList(process, 0);
     if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
-        return error(process, process->error_ast_index, ERROR_EXPECTED_TYPE, tokens[line->body[0].start].start);
+        return error(process, process->error_ast_index, ERROR_EXPECTED_TYPE, getTokenStart(process, line->body[0].start));
     }
     if (line->body[1].type != NODE_IDENTIFIER) {
-        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, tokens[line->body[1].start].start);
+        return error(process, process->error_ast_index, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
     }
     Variable var = createNullTerminatedVariable();
     int dataRes = parseExpression(&var, process, &line->body[2], 0);
@@ -164,7 +163,7 @@ int makeVariable (Process* process, Node* line) {
     strcpy(var.name, line->body[1].text);
     var.constant = 0;
     var.is_array = 0;
-    int castRes = castValue(&var, tokens[line->body[0].start].carry);
+    int castRes = castValue(&var, getTokenAtPosition(process, line->body[0].start).carry);
     if (castRes) return ERROR_TYPE_MISMATCH;
     addVariable(getLastScope(&process->main_scope), var);
     return 0;

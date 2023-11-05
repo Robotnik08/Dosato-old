@@ -549,26 +549,172 @@ int logic_and (Variable* var, Process* process, Variable* left, Variable* right)
 }
 
 int equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    if (left->type == TYPE_STRING || right->type == TYPE_STRING) {
+        if (left->type != right->type) {
+            int* value = malloc(sizeof(int));
+            *value = 0;
+            *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        } else {
+            char* left_value = toString(left);
+            char* right_value = toString(right);
+            if (left_value == NULL || right_value == NULL) {
+                return ERROR_CANT_CONVERT_TO_STRING;
+            }
+            int* value = malloc(sizeof(int));
+            *value = strcmp(left_value, right_value) == 0;
+            *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+            free(left_value);
+            free(right_value);
+        }
+    }
+    else if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        int* value = malloc(sizeof(int));
+        *value = left_value == right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    } else {
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        int* value = malloc(sizeof(int));
+
+        *value = left_value == right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
     return 0;
 }
 
 int not_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    if (left->type == TYPE_STRING || right->type == TYPE_STRING) {
+        if (left->type != right->type) {
+            int* value = malloc(sizeof(int));
+            *value = 0;
+            *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        } else {
+            char* left_value = toString(left);
+            char* right_value = toString(right);
+            if (left_value == NULL || right_value == NULL) {
+                return ERROR_CANT_CONVERT_TO_STRING;
+            }
+            int* value = malloc(sizeof(int));
+            *value = strcmp(left_value, right_value) != 0;
+            *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+            free(left_value);
+            free(right_value);
+        }
+    }
+    else if (!checkIfFloating(left->type) && !checkIfFloating(right->type)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        int* value = malloc(sizeof(int));
+        *value = left_value != right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    } else {
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        int* value = malloc(sizeof(int));
+
+        *value = left_value != right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
     return 0;
 }
 
 int less_than (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    long long int left_value;
+    long long int right_value;
+
+    if (checkIfFloating(left->type)) {
+        left_value = (int)getFloatNumber(left);
+    } else {
+        left_value = getSignedNumber(left);
+    }
+    if (checkIfFloating(right->type)) {
+        right_value = (int)getFloatNumber(right);
+    } else {
+        right_value = getSignedNumber(right);
+    }
+
+    int* value = malloc(sizeof(int));
+    *value = left_value < right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     return 0;
 }
 
 int greater_than (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    long long int left_value;
+    long long int right_value;
+
+    if (checkIfFloating(left->type)) {
+        left_value = (int)getFloatNumber(left);
+    } else {
+        left_value = getSignedNumber(left);
+    }
+    if (checkIfFloating(right->type)) {
+        right_value = (int)getFloatNumber(right);
+    } else {
+        right_value = getSignedNumber(right);
+    }
+
+    int* value = malloc(sizeof(int));
+    *value = left_value > right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     return 0;
 }
 
 int less_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    long long int left_value;
+    long long int right_value;
+
+    if (checkIfFloating(left->type)) {
+        left_value = (int)getFloatNumber(left);
+    } else {
+        left_value = getSignedNumber(left);
+    }
+    if (checkIfFloating(right->type)) {
+        right_value = (int)getFloatNumber(right);
+    } else {
+        right_value = getSignedNumber(right);
+    }
+
+    int* value = malloc(sizeof(int));
+    *value = left_value <= right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     return 0;
 }
 
 int greater_than_or_equal (Variable* var, Process* process, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    long long int left_value;
+    long long int right_value;
+
+    if (checkIfFloating(left->type)) {
+        left_value = (int)getFloatNumber(left);
+    } else {
+        left_value = getSignedNumber(left);
+    }
+    if (checkIfFloating(right->type)) {
+        right_value = (int)getFloatNumber(right);
+    } else {
+        right_value = getSignedNumber(right);
+    }
+
+    int* value = malloc(sizeof(int));
+    *value = left_value >= right_value;
+    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     return 0;
 }
 #endif
