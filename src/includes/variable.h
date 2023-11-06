@@ -139,7 +139,7 @@ void destroyVariable (Variable* variable) {
     if (variable->name == NULL) {
         return;
     }
-    // free(variable->name);
+    free(variable->name);
     variable->name = NULL;
 
     switch (variable->type) {
