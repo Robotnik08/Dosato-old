@@ -1046,4 +1046,48 @@ int assign_and (Variable* left, Variable* right) {
     }
     return 0;
 }
+
+int hash_refrence (Variable** var, Variable* arr, Variable* right) {
+
+    if (!arr->is_array) {
+        return ERROR_TYPE_MISMATCH;
+    }
+
+    int arr_length = getVariablesLength(arr->value);
+
+    int index = getSignedNumber(right);
+    if (index < 0 || index >= arr_length) {
+        return ERROR_ARRAY_OUT_OF_BOUNDS;
+    }
+
+    *var = &((Variable*)arr->value)[index];
+    
+    return 0;
+}
+
+int hash (Variable* var, Variable* arr, Variable* right) {
+    destroyVariable(var);
+    if (!arr->is_array && arr->type != TYPE_STRING) {
+        return ERROR_TYPE_MISMATCH;
+    }
+    int index = getSignedNumber(right);
+    if (arr->is_array) {
+        int arr_length = getVariablesLength(arr->value);
+        if (index < 0 || index >= arr_length) {
+            return ERROR_ARRAY_OUT_OF_BOUNDS;
+        }
+
+        *var = cloneVariable(&((Variable*)arr->value)[index]);
+    } else {
+        int str_length = strlen((char*)arr->value);
+        if (index < 0 || index >= str_length) {
+            return ERROR_ARRAY_OUT_OF_BOUNDS;
+        }
+        char* value = malloc(sizeof(char) * 2);
+        value[0] = ((char*)arr->value)[index];
+        value[1] = '\0';
+        *var = createVariable("-lit", TYPE_STRING, value, 1, 0);
+    }
+    return 0;
+}
 #endif

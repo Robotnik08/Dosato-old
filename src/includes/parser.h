@@ -223,6 +223,10 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             if (start == end-1) break; // if there are no arguments, don't parse anything
             int arg_start = start + 1;
             for (int i = start + 1; i < end - 1; i++) {
+                if (getBlock(tokens, i) != i) {
+                    i = getBlock(tokens, i);
+                    continue;
+                }
                 if (tokens[i].type == TOKEN_OPERATOR && tokens[i].carry == OPERATOR_COMMA) {
                     addToBody(&root.body, parse(full_code, tokens, arg_start, i-1, NODE_EXPRESSION));
                     arg_start = i + 1;

@@ -77,6 +77,10 @@ typedef enum {
     ERROR_CANNOT_MODIFY_CONSTANT,
     ERROR_CANNOT_MODIFY_LITERAL,
     ERROR_EXPECTED_REFRENCE,
+    ERROR_INVALID_REFRENCE_EXPRESSION,
+    ERROR_ARRAY_OUT_OF_BOUNDS,
+    ERROR_EXPECTED_ARRAY,
+    ERROR_INCORRECT_ARRAY_DEPTH,
 
     ERROR_UNKNOWN,
     ERROR_AMOUNT
@@ -142,6 +146,10 @@ const char* ERROR_MESSAGES[] = {
     "Cannot modify a constant",
     "Cannot modify a literal",
     "Expected a refrence to a variable, not a value/literal",
+    "Invalid refrence expression, expected a variable refrence",
+    "Array index out of bounds",
+    "Expected an array",
+    "Incorrect array dimension, expected a different dimension",
 
     "Unknown Error",
     "This error is not meant to be displayed, say hello to the error!"

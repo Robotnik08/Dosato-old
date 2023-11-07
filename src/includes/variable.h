@@ -106,6 +106,22 @@ double getFloatNumber (Variable* variable);
 */
 int castValue (Variable* variable, DataType type);
 
+/**
+ * @brief Cast an array to a type
+ * @param variable The variable to cast
+ * @param type The type to cast to
+ * @return The error code
+*/
+int castArray (Variable* variable, DataType type);
+
+/**
+ * @brief Compare the type of two variables (including arrays)
+ * @param left The left variable
+ * @param right The right variable
+ * @return Whether or not the types are equal
+*/
+int compareType (Variable* left, Variable* right);
+
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array) {
     Variable variable;
     variable.name = malloc(sizeof(char) * (strlen(name) + 1));
@@ -128,7 +144,7 @@ Variable createNullTerminatedVariable () {
 
 int getVariablesLength (const Variable* list) {
     int length = 0;
-    while (list[length].name != NULL) {
+    while (list[length].type != D_NULL) {
         length++;
     }
     return length;
@@ -142,12 +158,28 @@ void destroyVariable (Variable* variable) {
     free(variable->name);
     variable->name = NULL;
 
+    if (variable->is_array) {
+        Variable* array = (Variable*)variable->value;
+        int array_length = getVariablesLength(array);
+        for (int i = 0; i < array_length; i++) {
+            destroyVariable(&array[i]);
+        }
+    }
+
     switch (variable->type) {
         default:
             free(variable->value);
             variable->value = NULL;
             break;
     }
+}
+
+void destroyVariableRef (Variable* variable) {
+    if (variable->name == NULL) {
+        return;
+    }
+    free(variable->name);
+    variable->name = NULL;
 }
 
 char* toString (Variable* variable) {
@@ -233,7 +265,11 @@ Variable cloneVariable (Variable* variable) {
             *(double*)new_variable.value = *(double*)variable->value;
             break;
         default:
-            new_variable.value = NULL;
+            new_variable.value = variable->value;
+            free(new_variable.name); // the value will be the exact same memory, it cannot be freed
+            new_variable.name = malloc(sizeof(char) * (strlen("-lit") + strlen("del") + 1));
+            strcpy(new_variable.name, "-lit");
+            strcat(new_variable.name, "del");
             break;
     }
     return new_variable;
@@ -349,6 +385,9 @@ double getFloatNumber (Variable* variable) {
 }
 
 int castValue (Variable* variable, DataType type) {
+    if (variable->is_array) {
+        return castArray(variable, type);
+    }
     if (variable->type == type) {
         return 0;
     }
@@ -421,6 +460,25 @@ int castValue (Variable* variable, DataType type) {
     free(variable->value);
     variable->value = new_value;
     return 0;
+}
+
+int castArray (Variable* variable, DataType type) {
+    int array_length = getVariablesLength((Variable*)variable->value);
+    int array_depth = variable->is_array;
+
+    Variable* array = (Variable*)variable->value;
+    for (int i = 0; i < array_length; i++) {
+        if (array[i].is_array + 1 != array_depth) {
+            return ERROR_INCORRECT_ARRAY_DEPTH; // if the depth of the array is not equal to the depth of the variable, return an error, because of multidimensional arrays
+        }
+        int cRes = castValue(&array[i], type);
+        if (cRes) return cRes;
+    }
+    return 0;
+}
+
+int compareType (Variable* left, Variable* right) {
+    return left->type != right->type || left->is_array != right->is_array;
 }
 
 #endif
