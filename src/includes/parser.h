@@ -289,7 +289,9 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
                             if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
                                 i = getBlockReverse(tokens, i);
-                                if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) exit_loop = 1; // exit the loops
+                                if (p == 1) {
+                                    if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) exit_loop = 1; // exit the loops
+                                }
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
                                 if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || full_code[tokens[i-1].start] == ')' || full_code[tokens[i-1].start] == ']')) {
@@ -311,7 +313,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         return root;
                     }
                     if (getBlock(tokens, start + o) != end - o) {
-                        if (tokens[start + o].type == TOKEN_OPERATOR || (getBlock(tokens, start + o) != start + o && tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_ROUND)) {
+                        if (tokens[start + o].type == TOKEN_OPERATOR || (getBlock(tokens, start + o) != start + o && tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, start + o, getBlock(tokens, start + o)))) {
                             return parse(full_code, tokens, start + o, end - o, NODE_UNARY_EXPRESSION);
                         }
                         else {

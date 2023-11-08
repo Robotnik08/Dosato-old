@@ -212,7 +212,10 @@ int isAssignmentOperator (OperatorType operator) {
 }
 
 int checkIfOnly (Token* tokens, TokenType type, int start, int end) {
-    for (int i = start; i <= end; i++) {
+    if (start + 1 - end + 1 < 0) {
+        return 0;
+    }
+    for (int i = start + 1; i < end; i++) {
         if (tokens[i].type != type) {
             return 0;
         }
