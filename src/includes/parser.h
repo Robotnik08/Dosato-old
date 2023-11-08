@@ -289,10 +289,10 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
                             if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
                                 i = getBlockReverse(tokens, i);
-                                if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, i-1, getBlockReverse(tokens, i-1))) exit_loop = 1; // exit the loops
+                                if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) exit_loop = 1; // exit the loops
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
-                                if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & (BRACKET_ROUND | BRACKET_SQUARE)))) {
+                                if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || full_code[tokens[i-1].start] == ')' || full_code[tokens[i-1].start] == ']')) {
                                     exit_loop = 1; // exit the loops
                                     continue;
                                 }
