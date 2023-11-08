@@ -211,4 +211,15 @@ int isAssignmentOperator (OperatorType operator) {
     return 0;
 }
 
+int checkIfOnly (Token* tokens, TokenType type, int start, int end) {
+    int i = 0;
+    while (tokens[i].type != TOKEN_END) {
+        if (tokens[i].type != type) {
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
+
 #endif
