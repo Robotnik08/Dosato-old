@@ -250,13 +250,15 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                 if (tRes) return error(process, getLastScope(&process->main_scope)->running_ast, tRes, getTokenStart(process, node->start));
                 res = castValue(right, castType);
                 if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
-
                 destroyVariable(var);
                 *var = cloneVariable(right);
             }
             
             if (!strcmp(right->name, "-lit")) {
                 destroyVariable(right);
+                free (right);
+            } else if (!strcmp(right->name, "-litdel")) {
+                destroyVariableRef(right);
                 free (right);
             }
             break;
@@ -468,19 +470,28 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
 int parseArrayExpression (Variable* var, Process* process, Node* node) {
     int elements_length = getNodeBodyLength(node->body);
     Variable* elements = malloc(sizeof(Variable) * (elements_length + 1));
-    DataType arrayType = TYPE_ARRAY; // the array is in a typeless state until the type is determined by casting
+    Type arrayType = (Type){D_NULL, 0}; // the array is in a typeless state until the type is determined by casting
+
     for (int i = 0; i < elements_length; i++) {
         elements[i] = createNullTerminatedVariable();
         int res = parseExpression(&elements[i], process, &node->body[i]);
         if (res) return res;
         char* indexString = malloc(sizeof(char) * 21);
-        sprintf(indexString, "#%d", i);
+        sprintf(indexString, "%d", i);
         free(elements[i].name);
         elements[i].name = indexString;
+        if (i == 0) {
+            arrayType = elements[i].type;
+        } else if (!compareType(arrayType, elements[i].type)) {
+            int cRes = castValue(&elements[i], arrayType);
+            if (cRes) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, cRes, getTokenStart(process, node->body[i].start));
+            }
+        }
     }
     elements[elements_length] = createNullTerminatedVariable();
     destroyVariable(var);
-    *var = createVariable("-lit", arrayType, elements, 1, 1);
+    *var = createVariable("-lit", arrayType.dataType, elements, 1, arrayType.array + 1);
     return 0;
 }
 

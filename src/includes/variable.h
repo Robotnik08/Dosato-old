@@ -235,45 +235,52 @@ char* toString (Variable* variable) {
 Variable cloneVariable (Variable* variable) {
     Variable new_variable = createVariable("-lit", variable->type.dataType, NULL, variable->constant, variable->type.array);
 
-    switch (variable->type.dataType) {
-        case TYPE_CHAR:
-            new_variable.value = malloc(sizeof(char));
-            *(char*)new_variable.value = *(char*)variable->value;
-            break;
-        case TYPE_STRING:
-            new_variable.value = malloc(sizeof(char) * (strlen((char*)variable->value) + 1));
-            strcpy((char*)new_variable.value, (char*)variable->value);
-            break;
-        case TYPE_BOOL:
-            new_variable.value = malloc(sizeof(int));
-            *(int*)new_variable.value = *(int*)variable->value;
-            break;
-        case TYPE_BYTE:
-        case TYPE_SHORT:
-        case TYPE_INT:
-        case TYPE_LONG:
-            new_variable.value = malloc(sizeof(long long int));
-            *(long long int*)new_variable.value = *(long long int*)variable->value;
-            break;
-        case TYPE_UBYTE:
-        case TYPE_USHORT:
-        case TYPE_UINT:
-        case TYPE_ULONG:
-            new_variable.value = malloc(sizeof(unsigned long long int));
-            *(unsigned long long int*)new_variable.value = *(unsigned long long int*)variable->value;
-            break;
-        case TYPE_FLOAT:
-        case TYPE_DOUBLE:
-            new_variable.value = malloc(sizeof(double));
-            *(double*)new_variable.value = *(double*)variable->value;
-            break;
-        default:
-            new_variable.value = variable->value;
-            free(new_variable.name); // the value will be the exact same memory, it cannot be freed
-            new_variable.name = malloc(sizeof(char) * (strlen("-lit") + strlen("del") + 1));
-            strcpy(new_variable.name, "-lit");
-            strcat(new_variable.name, "del");
-            break;
+    if (!variable->type.array) {
+        switch (variable->type.dataType) {
+            case TYPE_CHAR:
+                new_variable.value = malloc(sizeof(char));
+                *(char*)new_variable.value = *(char*)variable->value;
+                break;
+            case TYPE_STRING:
+                new_variable.value = malloc(sizeof(char) * (strlen((char*)variable->value) + 1));
+                strcpy((char*)new_variable.value, (char*)variable->value);
+                break;
+            case TYPE_BOOL:
+                new_variable.value = malloc(sizeof(int));
+                *(int*)new_variable.value = *(int*)variable->value;
+                break;
+            case TYPE_BYTE:
+            case TYPE_SHORT:
+            case TYPE_INT:
+            case TYPE_LONG:
+                new_variable.value = malloc(sizeof(long long int));
+                *(long long int*)new_variable.value = *(long long int*)variable->value;
+                break;
+            case TYPE_UBYTE:
+            case TYPE_USHORT:
+            case TYPE_UINT:
+            case TYPE_ULONG:
+                new_variable.value = malloc(sizeof(unsigned long long int));
+                *(unsigned long long int*)new_variable.value = *(unsigned long long int*)variable->value;
+                break;
+            case TYPE_FLOAT:
+            case TYPE_DOUBLE:
+                new_variable.value = malloc(sizeof(double));
+                *(double*)new_variable.value = *(double*)variable->value;
+                break;
+            default:
+                // for now, nothing happens
+                break;
+        }
+    } else {
+        Variable* array = (Variable*)variable->value;
+        int array_length = getVariablesLength(array);
+        Variable* new_array = malloc(sizeof(Variable) * (array_length + 1));
+        for (int i = 0; i < array_length; i++) {
+            new_array[i] = cloneVariable(&array[i]);
+        }
+        new_array[array_length] = createNullTerminatedVariable();
+        new_variable.value = new_array;
     }
     return new_variable;
 }
@@ -388,7 +395,7 @@ double getFloatNumber (Variable* variable) {
 }
 
 int castValue (Variable* variable, Type type) {
-    if (variable->type.array) {
+    if (variable->type.array || type.array) {
         if (variable->type.array && type.array) {
             return castArray(variable, type);
         }

@@ -220,6 +220,7 @@ int makeArray (Process* process, Node* line) {
         t.array++;
         end_node = &end_node->body[1];
     }
+    if (t.array == 0) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARRAY, getTokenStart(process, line->body[0].start));
     t.dataType = getTokenAtPosition(process, end_node->body[0].start).carry;
 
     Variable var = createNullTerminatedVariable();
