@@ -246,7 +246,7 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                 }
 
                 DataType castType = process->code->tokens[node->body[0].start + 1].carry;
-                res = 0; //  castValue(right, castType);
+                res = castValue(right, castType);
                 if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
 
                 destroyVariable(var);

@@ -81,6 +81,7 @@ typedef enum {
     ERROR_ARRAY_OUT_OF_BOUNDS,
     ERROR_EXPECTED_ARRAY,
     ERROR_INCORRECT_ARRAY_DEPTH,
+    ERROR_INVALID_CAST,
 
     ERROR_UNKNOWN,
     ERROR_AMOUNT
@@ -150,6 +151,7 @@ const char* ERROR_MESSAGES[] = {
     "Array index out of bounds",
     "Expected an array",
     "Incorrect array dimension, expected a different dimension",
+    "The provided cast is invalid",
 
     "Unknown Error",
     "This error is not meant to be displayed, say hello to the error!"

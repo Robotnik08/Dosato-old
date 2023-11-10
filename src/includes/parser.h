@@ -289,8 +289,11 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
                             if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
                                 i = getBlockReverse(tokens, i);
-                                if (p == 1) {
-                                    if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) exit_loop = 1; // exit the loops
+                                if (p == 1) { // if the precedence is 1 (it first checked all the other operators), check if the expression is unary with a type cast
+                                    if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) {
+                                        exit_loop = 1;
+                                        break;
+                                    }
                                 }
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
@@ -345,7 +348,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         // Unary expressions are expressions that start with an operator (e.g. -1, !true, ~0b1010)
         case NODE_UNARY_EXPRESSION:
             if ((tokens[start].type != TOKEN_OPERATOR || (tokens[start].carry != OPERATOR_SUBTRACT && tokens[start].carry != OPERATOR_NOT_BITWISE && tokens[start].carry != OPERATOR_NOT)) && !(getBlock(tokens, start) - start > 1)) {
-                // printError(full_code, tokens[start].start, ERROR_OPERATOR_NOT_UNARY);
+                printError(full_code, tokens[start].start, ERROR_OPERATOR_NOT_UNARY);
             }
             if (getBlock(tokens, start) - start > 1) {
                 addToBody(&root.body, parse(full_code, tokens, start, getBlock(tokens, start), NODE_OPERATOR_CAST));
@@ -358,6 +361,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         case NODE_IDENTIFIER:
         case NODE_LITERAL:
         case NODE_OPERATOR:
+        case NODE_OPERATOR_CAST:
         
             // these are base nodes and therefore don't need to be parsed
             break;

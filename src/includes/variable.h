@@ -476,14 +476,11 @@ int castArray (Variable* variable, DataType type) {
     int array_depth = variable->type.isArray;
 
     Variable* array = (Variable*)variable->value;
-    printf ("array length %d\n", array_length);
     for (int i = 0; i < array_length; i++) {
-        printf("BEFORE: name %s, array %d, type %d\n", array[i].name, array[i].type.isArray, array[i].type);
         if (array[i].type.isArray + 1 != array_depth) {
             return ERROR_INCORRECT_ARRAY_DEPTH; // if the depth of the array is not equal to the depth of the variable, return an error, because of multidimensional arrays
         }
         int cRes = castValue(&array[i], type);
-        printf("AFTER: name %s, array %d, type %d\n", array[i].name, array[i].type.isArray, array[i].type);
 
         if (cRes) return cRes;
     }
@@ -492,6 +489,26 @@ int castArray (Variable* variable, DataType type) {
 
 int compareType (Variable* left, Variable* right) {
     return left->type.dataType != right->type.dataType || left->type.isArray != right->type.isArray;
+}
+
+int getTypeFromCastNode (Type* t, Node* cast) {
+    if (cast->type != NODE_OPERATOR_CAST) return ERROR_INVALID_CAST;
+    if (cast->start + 1 >= cast->end) return ERROR_INVALID_CAST;
+    
+    for (int i = cast->start + 1; i < cast->end-1; i++) {
+        if (getTokenAtPosition(NULL, i).carry == TYPE_ARRAY) {
+            t->isArray++;
+        } else {
+            return ERROR_INVALID_CAST;
+        }
+    }
+    if (getTokenAtPosition(NULL, cast->end-1).carry == TYPE_ARRAY) {
+        return ERROR_INVALID_CAST;
+    } else {
+        t->dataType = getTokenAtPosition(NULL, cast->end-1).carry;
+    }
+    
+    return 0;
 }
 
 #endif

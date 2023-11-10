@@ -212,7 +212,8 @@ int isAssignmentOperator (OperatorType operator) {
 }
 
 int checkIfOnly (Token* tokens, TokenType type, int start, int end) {
-    if (start + 1 - end + 1 < 0) {
+    printf("check if only %d\n",end - start);
+    if (end - start < 2) {
         return 0;
     }
     for (int i = start + 1; i < end; i++) {
