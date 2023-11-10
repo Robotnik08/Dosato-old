@@ -171,8 +171,10 @@ int makeVariable (Process* process, Node* line) {
     var.name = malloc(sizeof(char) * (strlen(line->body[1].text) + 1));
     strcpy(var.name, line->body[1].text);
     var.constant = 0;
-    var.type.isArray = 0;
-    int castRes = castValue(&var, getTokenAtPosition(process, line->body[0].start).carry);
+    Type t;
+    t.dataType = getTokenAtPosition(process, line->body[0].start).carry;
+    t.array = 0;
+    int castRes = castValue(&var, t);
     if (castRes) return ERROR_TYPE_MISMATCH;
     addVariable(getLastScope(&process->main_scope), var);
     return 0;
@@ -211,21 +213,20 @@ int makeFunction (Process* process, Node* line) {
 }
 
 int makeArray (Process* process, Node* line) {
+    Type t = (Type){D_NULL,0};
     int array_depth = 0;
     Node* end_node = line;
     while (getTokenAtPosition(process, end_node->body[0].start).carry == TYPE_ARRAY) {
-        array_depth++;
+        t.array++;
         end_node = &end_node->body[1];
     }
+    t.dataType = getTokenAtPosition(process, end_node->body[0].start).carry;
 
     Variable var = createNullTerminatedVariable();
     int dataRes = parseExpression(&var, process, &end_node->body[2]);
     if (dataRes) return dataRes;
-    if (var.type.isArray != array_depth) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARRAY, getTokenStart(process, end_node->start));
-    }
-    if (var.type.dataType != getTokenAtPosition(process, end_node->body[0].start).carry) {
-        int cRes = castValue(&var, getTokenAtPosition(process, end_node->body[0].start).carry);
+    if (!compareType(var.type, t)) {
+        int cRes = castValue(&var, t);
         if (cRes) return error(process, getLastScope(&process->main_scope)->running_ast, cRes, getTokenStart(process, end_node->body[0].start));
     }
     var.name = malloc(sizeof(char) * (strlen(end_node->body[1].text) + 1));

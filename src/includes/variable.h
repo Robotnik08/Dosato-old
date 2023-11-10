@@ -18,7 +18,7 @@
 
 typedef struct {
     DataType dataType;
-    int isArray;
+    int array;
 } Type;
 
 typedef struct {
@@ -108,7 +108,7 @@ double getFloatNumber (Variable* variable);
  * @param type The type to cast to
  * @return The error code
 */
-int castValue (Variable* variable, DataType type);
+int castValue (Variable* variable, Type type);
 
 /**
  * @brief Cast an array to a type
@@ -116,7 +116,7 @@ int castValue (Variable* variable, DataType type);
  * @param type The type to cast to
  * @return The error code
 */
-int castArray (Variable* variable, DataType type);
+int castArray (Variable* variable, Type type);
 
 /**
  * @brief Compare the type of two variables (including arrays)
@@ -124,7 +124,7 @@ int castArray (Variable* variable, DataType type);
  * @param right The right variable
  * @return Whether or not the types are equal
 */
-int compareType (Variable* left, Variable* right);
+int compareType (Type left, Type right);
 
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array) {
     Variable variable;
@@ -161,7 +161,7 @@ void destroyVariable (Variable* variable) {
     free(variable->name);
     variable->name = NULL;
 
-    if (variable->type.isArray) {
+    if (variable->type.array) {
         Variable* array = (Variable*)variable->value;
         int array_length = getVariablesLength(array);
         for (int i = 0; i < array_length; i++) {
@@ -233,7 +233,7 @@ char* toString (Variable* variable) {
 }
 
 Variable cloneVariable (Variable* variable) {
-    Variable new_variable = createVariable("-lit", variable->type.dataType, NULL, variable->constant, variable->type.isArray);
+    Variable new_variable = createVariable("-lit", variable->type.dataType, NULL, variable->constant, variable->type.array);
 
     switch (variable->type.dataType) {
         case TYPE_CHAR:
@@ -387,20 +387,23 @@ double getFloatNumber (Variable* variable) {
     }
 }
 
-int castValue (Variable* variable, DataType type) {
-    if (variable->type.isArray) {
-        return castArray(variable, type);
+int castValue (Variable* variable, Type type) {
+    if (variable->type.array) {
+        if (variable->type.array && type.array) {
+            return castArray(variable, type);
+        }
+        return ERROR_ARRAY_CAST_ERROR;
     }
-    if (variable->type.dataType == type) {
+    if (variable->type.dataType == type.dataType) {
         return 0;
     }
-    if (!getIfCastable(variable->type.dataType, type)) {
+    if (!getIfCastable(variable->type.dataType, type.dataType)) {
         return ERROR_CAST_ERROR;
     }
     
 
     void* new_value = NULL;
-    switch (type) {
+    switch (type.dataType) {
         case TYPE_BYTE:
             new_value = malloc(sizeof(char));
             *(signed char*)new_value = getSignedNumber(variable);
@@ -425,7 +428,7 @@ int castValue (Variable* variable, DataType type) {
         case TYPE_UBYTE:
             new_value = malloc(sizeof(unsigned char));
             *(unsigned char*)new_value = getUnsignedNumber(variable);
-            variable->type.dataType = type;
+            variable->type.dataType = type.dataType;
             break;
         case TYPE_USHORT:
             new_value = malloc(sizeof(unsigned short));
@@ -465,19 +468,19 @@ int castValue (Variable* variable, DataType type) {
     return 0;
 }
 
-int castArray (Variable* variable, DataType type) {
-    if (variable->type.dataType == type) {
+int castArray (Variable* variable, Type type) {
+    if (variable->type.dataType == type.dataType) {
         return 0;
     }
-    if (!getIfCastable(variable->type.dataType, type) && variable->type.dataType != TYPE_ARRAY) {
+    if (!getIfCastable(variable->type.dataType, type.dataType) && variable->type.dataType != TYPE_ARRAY) {
         return ERROR_CAST_ERROR;
     }
     int array_length = getVariablesLength((Variable*)variable->value);
-    int array_depth = variable->type.isArray;
+    int array_depth = variable->type.array;
 
     Variable* array = (Variable*)variable->value;
     for (int i = 0; i < array_length; i++) {
-        if (array[i].type.isArray + 1 != array_depth) {
+        if (array[i].type.array + 1 != array_depth) {
             return ERROR_INCORRECT_ARRAY_DEPTH; // if the depth of the array is not equal to the depth of the variable, return an error, because of multidimensional arrays
         }
         int cRes = castValue(&array[i], type);
@@ -487,8 +490,8 @@ int castArray (Variable* variable, DataType type) {
     return 0;
 }
 
-int compareType (Variable* left, Variable* right) {
-    return left->type.dataType != right->type.dataType || left->type.isArray != right->type.isArray;
+int compareType (Type left, Type right) {
+    return left.dataType == right.dataType && left.array == right.array;
 }
 
 #endif

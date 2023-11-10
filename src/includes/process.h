@@ -109,6 +109,14 @@ int getTokenEnd (Process* process, int token);
 */
 Token getTokenAtPosition (Process* process, int position);
 
+/**
+ * @brief Get the type from a cast node
+ * @param t The type to fill
+ * @param cast The cast node
+ * @return The error code
+*/
+int getTypeFromCastNode (Process* process, Type* t, Node* cast);
+
 // include these after the struct definition to prevent circular dependencies
 #include "interpreter.h"
 
@@ -192,21 +200,22 @@ Token getTokenAtPosition (Process* process, int position) {
     return process->code[getLastScope(&process->main_scope)->running_ast].tokens[position];
 }
 
-int getTypeFromCastNode (Type* t, Node* cast) {
+int getTypeFromCastNode (Process* process, Type* t, Node* cast) {
     if (cast->type != NODE_OPERATOR_CAST) return ERROR_INVALID_CAST;
     if (cast->start + 1 >= cast->end) return ERROR_INVALID_CAST;
-    
+
     for (int i = cast->start + 1; i < cast->end-1; i++) {
-        if (getTokenAtPosition(NULL, i).carry == TYPE_ARRAY) {
-            t->isArray++;
+        if (getTokenAtPosition(process, i).carry == TYPE_ARRAY) {
+            t->array++;
         } else {
             return ERROR_INVALID_CAST;
         }
     }
-    if (getTokenAtPosition(NULL, cast->end-1).carry == TYPE_ARRAY) {
+
+    if (getTokenAtPosition(process, cast->end-1).carry == TYPE_ARRAY) {
         return ERROR_INVALID_CAST;
     } else {
-        t->dataType = getTokenAtPosition(NULL, cast->end-1).carry;
+        t->dataType = getTokenAtPosition(process, cast->end-1).carry;
     }
     
     return 0;

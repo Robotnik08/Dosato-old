@@ -245,7 +245,9 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
                 }
 
-                DataType castType = process->code->tokens[node->body[0].start + 1].carry;
+                Type castType = (Type){.dataType = D_NULL, .array = 0};
+                int tRes = getTypeFromCastNode(process, &castType, &node->body[0]);
+                if (tRes) return error(process, getLastScope(&process->main_scope)->running_ast, tRes, getTokenStart(process, node->start));
                 res = castValue(right, castType);
                 if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
 
@@ -415,7 +417,7 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
 
 int setVariableValue (Variable* left, Variable* right, OperatorType op) {
     if (left->type.dataType != right->type.dataType) {
-        int castRes = castValue(right, left->type.dataType);
+        int castRes = castValue(right, left->type);
         if (castRes) return ERROR_TYPE_MISMATCH;
     }
 

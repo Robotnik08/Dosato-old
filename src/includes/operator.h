@@ -1049,7 +1049,7 @@ int assign_and (Variable* left, Variable* right) {
 
 int hash_refrence (Variable** var, Variable* arr, Variable* right) {
 
-    if (!arr->type.isArray) {
+    if (!arr->type.array) {
         return ERROR_TYPE_MISMATCH;
     }
 
@@ -1067,11 +1067,11 @@ int hash_refrence (Variable** var, Variable* arr, Variable* right) {
 
 int hash (Variable* var, Variable* arr, Variable* right) {
     destroyVariable(var);
-    if (!arr->type.isArray && arr->type.dataType != TYPE_STRING) {
+    if (!arr->type.array && arr->type.dataType != TYPE_STRING) {
         return ERROR_TYPE_MISMATCH;
     }
     int index = getSignedNumber(right);
-    if (arr->type.isArray) {
+    if (arr->type.array) {
         int arr_length = getVariablesLength(arr->value);
         if (index < 0 || index >= arr_length) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
