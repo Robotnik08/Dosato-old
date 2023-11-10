@@ -82,6 +82,7 @@ typedef enum {
     ERROR_EXPECTED_ARRAY,
     ERROR_INCORRECT_ARRAY_DEPTH,
     ERROR_INVALID_CAST,
+    ERROR_ARRAY_CAST_ERROR,
 
     ERROR_UNKNOWN,
     ERROR_AMOUNT
@@ -152,6 +153,7 @@ const char* ERROR_MESSAGES[] = {
     "Expected an array",
     "Incorrect array dimension, expected a different dimension",
     "The provided cast is invalid",
+    "There was an error casting to an array or from an array",
 
     "Unknown Error",
     "This error is not meant to be displayed, say hello to the error!"
@@ -188,7 +190,7 @@ void logText (const LogType type, const char* contents) {
 }
 void printError (const char* full_code, const int pos, const ErrorType type) {
     printf("ERROR:\n");
-    printf("E%i: %s\n", type, ERROR_MESSAGES[type]);
+    printf("E%i: %s\n", type, ERROR_MESSAGES[type < ERROR_AMOUNT && ERROR_AMOUNT > 0 ? type : ERROR_UNKNOWN]);
     printf("At line %i:%i\n", getLine(full_code, pos), getLineCol(full_code, pos));
     exit(type);
 }
