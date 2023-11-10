@@ -491,24 +491,4 @@ int compareType (Variable* left, Variable* right) {
     return left->type.dataType != right->type.dataType || left->type.isArray != right->type.isArray;
 }
 
-int getTypeFromCastNode (Type* t, Node* cast) {
-    if (cast->type != NODE_OPERATOR_CAST) return ERROR_INVALID_CAST;
-    if (cast->start + 1 >= cast->end) return ERROR_INVALID_CAST;
-    
-    for (int i = cast->start + 1; i < cast->end-1; i++) {
-        if (getTokenAtPosition(NULL, i).carry == TYPE_ARRAY) {
-            t->isArray++;
-        } else {
-            return ERROR_INVALID_CAST;
-        }
-    }
-    if (getTokenAtPosition(NULL, cast->end-1).carry == TYPE_ARRAY) {
-        return ERROR_INVALID_CAST;
-    } else {
-        t->dataType = getTokenAtPosition(NULL, cast->end-1).carry;
-    }
-    
-    return 0;
-}
-
 #endif
