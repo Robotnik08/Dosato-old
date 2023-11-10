@@ -108,7 +108,7 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             if (right_parse) return right_parse;
             operator = process->code->tokens[node->body[1].start].carry;
 
-            if (left->type == D_NULL || right->type == D_NULL) {
+            if (left->type.dataType == D_NULL || right->type.dataType == D_NULL) {
                 return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
             }
             switch (operator) {
@@ -215,7 +215,7 @@ int parseExpression (Variable* var, Process* process, Node* node) {
 
             if (node->body[0].type == NODE_OPERATOR) {
                 if (parseExpression(right, process, &node->body[1])) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->body[1].start));
-                if (right->type == D_NULL) {
+                if (right->type.dataType == D_NULL) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
                 }
 
@@ -241,12 +241,12 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             else if (node->body[0].type == NODE_OPERATOR_CAST) {
                 // this is never a reference, since it is a cast
                 if (parseExpression(right, process, &node->body[1])) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->body[1].start));
-                if (right->type == D_NULL) {
+                if (right->type.dataType == D_NULL) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
                 }
 
                 DataType castType = process->code->tokens[node->body[0].start + 1].carry;
-                res = castValue(right, castType);
+                res = 0; //  castValue(right, castType);
                 if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
 
                 destroyVariable(var);
@@ -297,7 +297,7 @@ int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
             if (right_parse) return right_parse;
             operator = process->code->tokens[node->body[1].start].carry;
 
-            if (left->type == D_NULL || right->type == D_NULL) {
+            if (left->type.dataType == D_NULL || right->type.dataType == D_NULL) {
                 return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_REFRENCE_EXPRESSION, getTokenStart(process, node->start));
             }
             switch (operator) {
@@ -414,8 +414,8 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
 
 
 int setVariableValue (Variable* left, Variable* right, OperatorType op) {
-    if (left->type != right->type) {
-        int castRes = castValue(right, left->type);
+    if (left->type.dataType != right->type.dataType) {
+        int castRes = castValue(right, left->type.dataType);
         if (castRes) return ERROR_TYPE_MISMATCH;
     }
 

@@ -21,7 +21,7 @@ int say (Process* process, const Variable* args, int argc);
 int say (Process* process, const Variable* args, int argc) {
     int code = 0;
     for (int i = 0; i < argc; i++) {
-        switch (args[i].type)
+        switch (args[i].type.dataType)
         {
             default:
                 return ERROR_TYPE_MISMATCH;

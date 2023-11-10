@@ -171,7 +171,7 @@ int makeVariable (Process* process, Node* line) {
     var.name = malloc(sizeof(char) * (strlen(line->body[1].text) + 1));
     strcpy(var.name, line->body[1].text);
     var.constant = 0;
-    var.is_array = 0;
+    var.type.isArray = 0;
     int castRes = castValue(&var, getTokenAtPosition(process, line->body[0].start).carry);
     if (castRes) return ERROR_TYPE_MISMATCH;
     addVariable(getLastScope(&process->main_scope), var);
@@ -221,10 +221,10 @@ int makeArray (Process* process, Node* line) {
     Variable var = createNullTerminatedVariable();
     int dataRes = parseExpression(&var, process, &end_node->body[2]);
     if (dataRes) return dataRes;
-    if (var.is_array != array_depth) {
+    if (var.type.isArray != array_depth) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARRAY, getTokenStart(process, end_node->start));
     }
-    if (var.type != getTokenAtPosition(process, end_node->body[0].start).carry) {
+    if (var.type.dataType != getTokenAtPosition(process, end_node->body[0].start).carry) {
         int cRes = castValue(&var, getTokenAtPosition(process, end_node->body[0].start).carry);
         if (cRes) return error(process, getLastScope(&process->main_scope)->running_ast, cRes, getTokenStart(process, end_node->body[0].start));
     }

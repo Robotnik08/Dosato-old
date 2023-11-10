@@ -17,9 +17,13 @@
 #include "strtools.h"
 
 typedef struct {
+    DataType dataType;
+    int isArray;
+} Type;
+
+typedef struct {
     char* name;
-    DataType type;
-    int is_array;
+    Type type;
     void* value;
     int constant;
 } Variable;
@@ -126,8 +130,7 @@ Variable createVariable (const char* name, const DataType type, void* valueptr, 
     Variable variable;
     variable.name = malloc(sizeof(char) * (strlen(name) + 1));
     strcpy(variable.name, name);
-    variable.type = type;
-    variable.is_array = array;
+    variable.type = (Type){type, array};
     variable.value = valueptr;
     variable.constant = constant;
     return variable;
@@ -135,7 +138,7 @@ Variable createVariable (const char* name, const DataType type, void* valueptr, 
 
 Variable createNullTerminatedVariable () {
     Variable variable;
-    variable.type = D_NULL;
+    variable.type = (Type){D_NULL, 0};
     variable.name = NULL;
     variable.value = NULL;
     variable.constant = 0;
@@ -144,7 +147,7 @@ Variable createNullTerminatedVariable () {
 
 int getVariablesLength (const Variable* list) {
     int length = 0;
-    while (list[length].type != D_NULL) {
+    while (list[length].type.dataType != D_NULL) {
         length++;
     }
     return length;
@@ -158,7 +161,7 @@ void destroyVariable (Variable* variable) {
     free(variable->name);
     variable->name = NULL;
 
-    if (variable->is_array) {
+    if (variable->type.isArray) {
         Variable* array = (Variable*)variable->value;
         int array_length = getVariablesLength(array);
         for (int i = 0; i < array_length; i++) {
@@ -166,7 +169,7 @@ void destroyVariable (Variable* variable) {
         }
     }
 
-    switch (variable->type) {
+    switch (variable->type.dataType) {
         default:
             free(variable->value);
             variable->value = NULL;
@@ -186,7 +189,7 @@ char* toString (Variable* variable) {
     char* str = NULL;
 
     char* res = NULL;
-    switch (variable->type) {
+    switch (variable->type.dataType) {
         case TYPE_CHAR:
             str = malloc(sizeof(char) * 2);
             str[0] = ((char*)variable->value)[0];
@@ -230,9 +233,9 @@ char* toString (Variable* variable) {
 }
 
 Variable cloneVariable (Variable* variable) {
-    Variable new_variable = createVariable("-lit", variable->type, NULL, variable->constant, variable->is_array);
+    Variable new_variable = createVariable("-lit", variable->type.dataType, NULL, variable->constant, variable->type.isArray);
 
-    switch (variable->type) {
+    switch (variable->type.dataType) {
         case TYPE_CHAR:
             new_variable.value = malloc(sizeof(char));
             *(char*)new_variable.value = *(char*)variable->value;
@@ -305,7 +308,7 @@ int getIfCastable (DataType a, DataType b) {
 }
 
 long long int getSignedNumber (Variable* variable) {
-    switch (variable->type) {
+    switch (variable->type.dataType) {
         case TYPE_BOOL:
             return *(int*)variable->value != 0;
         case TYPE_BYTE:
@@ -332,7 +335,7 @@ long long int getSignedNumber (Variable* variable) {
     }
 }
 unsigned long long int getUnsignedNumber (Variable* variable) {
-    switch (variable->type) {
+    switch (variable->type.dataType) {
         case TYPE_BOOL:
             return *(int*)variable->value != 0;
         case TYPE_BYTE:
@@ -358,7 +361,7 @@ unsigned long long int getUnsignedNumber (Variable* variable) {
     }
 }
 double getFloatNumber (Variable* variable) {
-    switch (variable->type) {
+    switch (variable->type.dataType) {
         case TYPE_BOOL:
             return (double)(*(int*)variable->value != 0);
         case TYPE_BYTE:
@@ -385,13 +388,13 @@ double getFloatNumber (Variable* variable) {
 }
 
 int castValue (Variable* variable, DataType type) {
-    if (variable->is_array) {
+    if (variable->type.isArray) {
         return castArray(variable, type);
     }
-    if (variable->type == type) {
+    if (variable->type.dataType == type) {
         return 0;
     }
-    if (!getIfCastable(variable->type, type)) {
+    if (!getIfCastable(variable->type.dataType, type)) {
         return ERROR_CAST_ERROR;
     }
     
@@ -401,58 +404,58 @@ int castValue (Variable* variable, DataType type) {
         case TYPE_BYTE:
             new_value = malloc(sizeof(char));
             *(signed char*)new_value = getSignedNumber(variable);
-            variable->type = TYPE_BYTE;
+            variable->type.dataType = TYPE_BYTE;
             break;
         case TYPE_SHORT:
             new_value = malloc(sizeof(short));
             *(short*)new_value = getSignedNumber(variable);
-            variable->type = TYPE_SHORT;
+            variable->type.dataType = TYPE_SHORT;
             break;
         case TYPE_INT:
             new_value = malloc(sizeof(int));
             *(int*)new_value = getSignedNumber(variable);
-            variable->type = TYPE_INT;
+            variable->type.dataType = TYPE_INT;
             break;
         case TYPE_LONG:
             new_value = malloc(sizeof(long long int));
             *(long long int*)new_value = getSignedNumber(variable);
-            variable->type = TYPE_LONG;
+            variable->type.dataType = TYPE_LONG;
             break;
         case TYPE_CHAR:
         case TYPE_UBYTE:
             new_value = malloc(sizeof(unsigned char));
             *(unsigned char*)new_value = getUnsignedNumber(variable);
-            variable->type = type;
+            variable->type.dataType = type;
             break;
         case TYPE_USHORT:
             new_value = malloc(sizeof(unsigned short));
             *(unsigned short*)new_value = getUnsignedNumber(variable);
-            variable->type = TYPE_USHORT;
+            variable->type.dataType = TYPE_USHORT;
             break;
         case TYPE_UINT:
             new_value = malloc(sizeof(unsigned int));
             *(unsigned int*)new_value = getUnsignedNumber(variable);
-            variable->type = TYPE_UINT;
+            variable->type.dataType = TYPE_UINT;
             break;
         case TYPE_ULONG:
             new_value = malloc(sizeof(unsigned long long int));
             *(unsigned long long int*)new_value = getUnsignedNumber(variable);
-            variable->type = TYPE_ULONG;
+            variable->type.dataType = TYPE_ULONG;
             break;
         case TYPE_FLOAT:
             new_value = malloc(sizeof(float));
             *(float*)new_value = getFloatNumber(variable);
-            variable->type = TYPE_FLOAT;
+            variable->type.dataType = TYPE_FLOAT;
             break;
         case TYPE_DOUBLE:
             new_value = malloc(sizeof(double));
             *(double*)new_value = getFloatNumber(variable);
-            variable->type = TYPE_DOUBLE;
+            variable->type.dataType = TYPE_DOUBLE;
             break;
         case TYPE_BOOL:
             new_value = malloc(sizeof(int));
             *(int*)new_value = getSignedNumber(variable) != 0;
-            variable->type = TYPE_BOOL;
+            variable->type.dataType = TYPE_BOOL;
             break;
         case TYPE_STRING:
             return ERROR_CAST_ERROR; // casting into a string is not fine, but casting from a string is fine
@@ -463,22 +466,32 @@ int castValue (Variable* variable, DataType type) {
 }
 
 int castArray (Variable* variable, DataType type) {
+    if (variable->type.dataType == type) {
+        return 0;
+    }
+    if (!getIfCastable(variable->type.dataType, type) && variable->type.dataType != TYPE_ARRAY) {
+        return ERROR_CAST_ERROR;
+    }
     int array_length = getVariablesLength((Variable*)variable->value);
-    int array_depth = variable->is_array;
+    int array_depth = variable->type.isArray;
 
     Variable* array = (Variable*)variable->value;
+    printf ("array length %d\n", array_length);
     for (int i = 0; i < array_length; i++) {
-        if (array[i].is_array + 1 != array_depth) {
+        printf("BEFORE: name %s, array %d, type %d\n", array[i].name, array[i].type.isArray, array[i].type);
+        if (array[i].type.isArray + 1 != array_depth) {
             return ERROR_INCORRECT_ARRAY_DEPTH; // if the depth of the array is not equal to the depth of the variable, return an error, because of multidimensional arrays
         }
         int cRes = castValue(&array[i], type);
+        printf("AFTER: name %s, array %d, type %d\n", array[i].name, array[i].type.isArray, array[i].type);
+
         if (cRes) return cRes;
     }
     return 0;
 }
 
 int compareType (Variable* left, Variable* right) {
-    return left->type != right->type || left->is_array != right->is_array;
+    return left->type.dataType != right->type.dataType || left->type.isArray != right->type.isArray;
 }
 
 #endif
