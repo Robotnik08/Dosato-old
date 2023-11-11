@@ -490,7 +490,7 @@ int castArray (Variable* variable, Type type) {
         if (array[i].type.array + 1 != array_depth) {
             return ERROR_INCORRECT_ARRAY_DEPTH; // if the depth of the array is not equal to the depth of the variable, return an error, because of multidimensional arrays
         }
-        int cRes = castValue(&array[i], type);
+        int cRes = castValue(&array[i], (Type){type.dataType, type.array - 1});
 
         if (cRes) return cRes;
     }
@@ -499,6 +499,10 @@ int castArray (Variable* variable, Type type) {
 
 int compareType (Type left, Type right) {
     return left.dataType == right.dataType && left.array == right.array;
+}
+
+int printType (Type t) {
+    return printf("Type: DataType %d, ArrayDepth %d\n", t.dataType, t.array);
 }
 
 #endif
