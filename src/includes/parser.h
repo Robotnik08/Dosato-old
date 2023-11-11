@@ -222,7 +222,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         case NODE_ARGUMENTS:
             if (start == end-1) break; // if there are no arguments, don't parse anything
             int arg_start = start + 1;
-            for (int i = start + 1; i < end - 1; i++) {
+            for (int i = start + 1; i < end; i++) {
                 if (getBlock(tokens, i) != i) {
                     i = getBlock(tokens, i);
                     continue;
@@ -233,6 +233,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 }
             }
             if (arg_start > end-1) printError(full_code, tokens[arg_start].start, ERROR_EXPECTED_ARGUMENT);
+            printf("%d %d\n", arg_start, end-1);
             addToBody(&root.body, parse(full_code, tokens, arg_start, end-1, NODE_EXPRESSION));
             break;
         // if the node is a function declaration, check if the arguments are valid, this is done by checking if a type and identifier are present
