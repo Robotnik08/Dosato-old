@@ -233,7 +233,6 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 }
             }
             if (arg_start > end-1) printError(full_code, tokens[arg_start].start, ERROR_EXPECTED_ARGUMENT);
-            printf("%d %d\n", arg_start, end-1);
             addToBody(&root.body, parse(full_code, tokens, arg_start, end-1, NODE_EXPRESSION));
             break;
         // if the node is a function declaration, check if the arguments are valid, this is done by checking if a type and identifier are present
