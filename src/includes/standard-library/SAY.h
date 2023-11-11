@@ -89,11 +89,11 @@ int printVar (const Variable* var) {
             break;
         case TYPE_FLOAT:
             float* fvalue = (float*)var->value;
-            code |= printf("%f", *fvalue) < 0 ? ERROR_SAY_ERROR : 0;
+            code |= printf("%.9g", *fvalue) < 0 ? ERROR_SAY_ERROR : 0;
             break;
         case TYPE_DOUBLE:
             double* dvalue = (double*)var->value;
-            code |= printf("%lf", *dvalue) < 0 ? ERROR_SAY_ERROR : 0;
+            code |= printf("%.17g", *dvalue) < 0 ? ERROR_SAY_ERROR : 0;
             break;
         case TYPE_BOOL:
             int* bvalue = (int*)var->value;

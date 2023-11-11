@@ -431,6 +431,43 @@ int and (Variable* var, Variable* left, Variable* right) {
     return 0;
 }
 
+int bitshift_left (Variable* var, Variable* left, Variable* right) {
+    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
+        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+    }
+    destroyVariable(var);
+
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        long long int* value = malloc(sizeof(long long int));
+        *value = left_value << right_value;
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+    }
+    return 0;
+}
+
+int bitshift_right (Variable* var, Variable* left, Variable* right) {
+    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
+        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+    }
+    destroyVariable(var);
+
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        long long int* value = malloc(sizeof(long long int));
+        *value = left_value >> right_value;
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+    }
+    return 0;
+}
+
+
 int not (Variable* var, Variable* right) {
     destroyVariable(var);
 

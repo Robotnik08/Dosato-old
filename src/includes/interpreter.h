@@ -125,6 +125,9 @@ int interpretCommand (Process* process, Node* command) {
 }
 
 int functionCall (Process* process, Node* func) {
+    if (func->body == NULL) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
+    }
     if (func->body[0].type != NODE_FUNCTION_IDENTIFIER) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
     }
@@ -165,6 +168,12 @@ int makeVariable (Process* process, Node* line) {
     if (line->body[1].type != NODE_IDENTIFIER) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
     }
+
+    // check if variable already exists
+    if (getVariable(getLastScope(&process->main_scope), line->body[1].text) != NULL) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_VARIABLE_ALREADY_EXISTS, getTokenStart(process, line->body[1].start));
+    }
+
     Variable var = createNullTerminatedVariable();
     int dataRes = parseExpression(&var, process, &line->body[2]);
     if (dataRes) return dataRes;

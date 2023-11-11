@@ -20,7 +20,7 @@ int standard_call (Process* process, const char* name, const Variable* args, int
 int standard_call (Process* process, const char* name, const Variable* args, int argc) {
     if (!strcmp(name, "SAY")) {
         return say(process, args, argc, 0);
-    } else if (!strcmp(name, "SAYL")) {
+    } else if (!strcmp(name, "SAYLN")) {
         return say(process, args, argc, 1);
     } else if (!strcmp(name, "END")) {
         return end(process, args, argc);

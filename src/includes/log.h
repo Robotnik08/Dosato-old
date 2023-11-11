@@ -83,6 +83,7 @@ typedef enum {
     ERROR_INCORRECT_ARRAY_DEPTH,
     ERROR_INVALID_CAST,
     ERROR_ARRAY_CAST_ERROR,
+    ERROR_VARIABLE_ALREADY_EXISTS,
 
     ERROR_UNKNOWN,
     ERROR_AMOUNT
@@ -154,6 +155,7 @@ const char* ERROR_MESSAGES[] = {
     "Incorrect array dimension, expected a different dimension",
     "The provided cast is invalid",
     "There was an error casting to an array or from an array",
+    "The variable already exists",
 
     "Unknown Error",
     "This error is not meant to be displayed, say hello to the error!"

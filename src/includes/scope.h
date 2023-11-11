@@ -153,6 +153,9 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
         // SAY function
         addFunction(scope, createFunction("SAY", NULL, NULL, 0, TYPE_VOID, 1));
 
+        // SAYLN function
+        addFunction(scope, createFunction("SAYLN", NULL, NULL, 0, TYPE_VOID, 1));
+
         // END function
         addFunction(scope, createFunction("END", NULL, NULL, 0, TYPE_VOID, 1));
 

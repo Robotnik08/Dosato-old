@@ -149,6 +149,14 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                     res = or(var, left, right);
                     if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
                     break;
+                case OPERATOR_SHIFT_LEFT:
+                    res = bitshift_left(var, left, right);
+                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start)); 
+                    break;
+                case OPERATOR_SHIFT_RIGHT:
+                    res = bitshift_right(var, left, right);
+                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start)); 
+                    break;
 
                 // logical operators
                 case OPERATOR_OR_OR:
@@ -403,17 +411,86 @@ int parseLiteral (Variable* var, Process* process, Node* literal) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_LITERAL, getTokenStart(process, literal->start));
     }
     destroyVariable(var); // free the memory of the variable
-    *var = createVariable("-lit", type, value, 1, 0); // set the new value
+    *var = createVariable("-lit", type, value, 0, 0); // set the new value
     return 0;
 }
 
 
 int setVariableValue (Variable* left, Variable* right, OperatorType op) {
-    if (left->type.dataType != right->type.dataType) {
+
+    // setting an array
+    if (left->type.array) {
+        if (op == OPERATOR_ASSIGN) {
+            if (!compareType(left->type, right->type)) {
+                int castRes = castValue(right, left->type);
+                if (castRes) return ERROR_TYPE_MISMATCH;
+            }
+            // destroy the old array and it's contents
+            int len = getVariablesLength(left->value);
+            for (int i = 0; i < len; i++) {
+                destroyVariable(&((Variable*)left->value)[i]);
+            }
+            free (left->value); // free the array
+
+            // copy the new array
+            left->value = malloc(sizeof(Variable) * (getVariablesLength(right->value) + 1));
+            for (int i = 0; i < getVariablesLength(right->value); i++) {
+                ((Variable*)left->value)[i] = cloneVariable(&((Variable*)right->value)[i]);
+            }
+            ((Variable*)left->value)[getVariablesLength(right->value)] = createNullTerminatedVariable();
+            return 0; 
+        } else {
+            int len = getVariablesLength(left->value);
+            Variable* newArray = NULL;
+            if (op == OPERATOR_ADD_ASSIGN) {
+                if (!compareType(left->type, right->type)) {
+                    int castRes = castValue(right, left->type);
+                    if (castRes) return ERROR_TYPE_MISMATCH;
+                }
+                // allocate new memory for the array
+                newArray = malloc(sizeof(Variable) * (len + getVariablesLength(right->value) + 1));
+                for (int i = 0; i < len; i++) {
+                    newArray[i] = cloneVariable(&((Variable*)left->value)[i]);
+                }
+                for (int i = 0; i < getVariablesLength(right->value); i++) {
+                    newArray[len + i] = cloneVariable(&((Variable*)right->value)[i]);
+                }
+                newArray[len + getVariablesLength(right->value)] = createNullTerminatedVariable();
+                
+            } else if (op == OPERATOR_SUBTRACT_ASSIGN) {
+                if (!compareType((Type){.dataType = TYPE_LONG, .array = 0}, right->type)) {
+                    int castRes = castValue(right, (Type){.dataType = TYPE_LONG, .array = 0});
+                    if (castRes) return ERROR_TYPE_MISMATCH;
+                }
+
+                // check if the array is long enough
+                if (*(long*)right->value > len || *(long*)right->value < 0) {
+                    return ERROR_ARRAY_OUT_OF_BOUNDS;
+                }
+
+                // allocate new memory for the array
+                newArray = malloc(sizeof(Variable) * (len - *(long*)right->value + 1));
+                for (int i = 0; i < len - *(long*)right->value; i++) {
+                    newArray[i] = cloneVariable(&((Variable*)left->value)[i]);
+                }
+                newArray[len - *(long*)right->value] = createNullTerminatedVariable();
+            }
+            // free the old values
+            for (int i = 0; i < len; i++) {
+                destroyVariable(&((Variable*)left->value)[i]);
+            }
+            free(left->value);
+            left->value = newArray;
+            return 0;
+        }
+        return ERROR_INVALID_OPERATOR;  
+    }
+
+    // setting a regular variable
+    if (!compareType(left->type, right->type)) {
         int castRes = castValue(right, left->type);
         if (castRes) return ERROR_TYPE_MISMATCH;
     }
-
     switch (op) {
         case OPERATOR_ASSIGN:
             int res = assign(left, right);
@@ -482,7 +559,7 @@ int parseArrayExpression (Variable* var, Process* process, Node* node) {
     }
     elements[elements_length] = createNullTerminatedVariable();
     destroyVariable(var);
-    *var = createVariable("-lit", arrayType.dataType, elements, 1, arrayType.array + 1);
+    *var = createVariable("-lit", arrayType.dataType, elements, 0, arrayType.array + 1);
     return 0;
 }
 

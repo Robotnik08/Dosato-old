@@ -468,7 +468,11 @@ int castValue (Variable* variable, Type type) {
             variable->type.dataType = TYPE_BOOL;
             break;
         case TYPE_STRING:
-            return ERROR_CAST_ERROR; // casting into a string is not fine, but casting from a string is fine
+            char* res = toString(variable);
+            new_value = malloc(sizeof(char) * (strlen(res) + 1));
+            strcpy((char*)new_value, res);
+            variable->type.dataType = TYPE_STRING;
+            break;
     }
     free(variable->value);
     variable->value = new_value;
@@ -494,6 +498,7 @@ int castArray (Variable* variable, Type type) {
 
         if (cRes) return cRes;
     }
+    variable->type = type;
     return 0;
 }
 

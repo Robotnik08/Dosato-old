@@ -139,13 +139,7 @@ char* uitos (unsigned long long int i) {
 
 char* ftos (double f) {
     char* str = malloc(sizeof(char) * 30);
-    sprintf(str, "%lf", f);
-    while (str[strlen(str)-1] == '0') {
-        str[strlen(str)-1] = '\0';
-    }
-    if (str[strlen(str)-1] == '.') {
-        str[strlen(str)-1] = '\0';
-    }
+    sprintf(str, "%.17g", f);
     return str;
 }
 
