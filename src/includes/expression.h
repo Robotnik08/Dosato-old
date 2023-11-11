@@ -196,16 +196,10 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             if (!strcmp(left->name, "-lit")) {
                 destroyVariable(left);
                 free (left);
-            } else if (!strcmp(left->name, "-litdel")) {
-                destroyVariableRef(left);
-                free (left);
             }
             
             if (!strcmp(right->name, "-lit")) {
                 destroyVariable(right);
-                free (right);
-            } else if (!strcmp(right->name, "-litdel")) {
-                destroyVariableRef(right);
                 free (right);
             }
             break;
@@ -256,9 +250,6 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             
             if (!strcmp(right->name, "-lit")) {
                 destroyVariable(right);
-                free (right);
-            } else if (!strcmp(right->name, "-litdel")) {
-                destroyVariableRef(right);
                 free (right);
             }
             break;
@@ -470,7 +461,7 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
 int parseArrayExpression (Variable* var, Process* process, Node* node) {
     int elements_length = getNodeBodyLength(node->body);
     Variable* elements = malloc(sizeof(Variable) * (elements_length + 1));
-    Type arrayType = (Type){D_NULL, 0}; // the array is in a typeless state until the type is determined by casting
+    Type arrayType = (Type){TYPE_ARRAY, 0}; // the array is in a typeless state until the type is determined by casting
 
     for (int i = 0; i < elements_length; i++) {
         elements[i] = createNullTerminatedVariable();
