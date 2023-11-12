@@ -59,6 +59,13 @@ void destroyProcess (Process* process);
 int runProcess (Process* process);
 
 /**
+ * @brief Set the return value of a process
+ * @param process The process to set the return value of
+ * @param var The variable to set the return value to
+*/
+void setReturnValue (Process* process, Variable* var);
+
+/**
  * @brief Get the token list of an AST
  * @param process The process to get the token list from
  * @param ast_index The index of the AST to get the token list from
@@ -168,6 +175,15 @@ int runProcess (Process* process) {
     }
 
     return process->exit_code;
+}
+
+void setReturnValue (Process* process, Variable* var) {
+    Variable* returnVariable = getVariable(&process->main_scope, "_");
+
+    *returnVariable = cloneVariable(var);
+    returnVariable->name = "_";
+    returnVariable->type = var->type;
+    returnVariable->constant = 1;
 }
 
 Token* getTokenList (Process* process, int ast_index) {

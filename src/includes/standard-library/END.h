@@ -19,6 +19,7 @@ int end (Process* process, const Variable* args, int argc);
 
 int end (Process* process, const Variable* args, int argc) {
     if (argc == 0) {
+        process->exit_code = 0;
         process->running = 0;
     } else if (argc == 1) {
         if (checkIfNumber(args[0].type.dataType)) {

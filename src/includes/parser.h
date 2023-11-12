@@ -65,6 +65,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                     int t_end = end;
                     const ExtensionKeywordType types[] = EXTENSION_ACCEPTS;
                     Node ext_root;
+                    Node ext_body;
                     // check if the provided tokens match the extension
                     switch (types[tokens[i].carry])
                     {
@@ -74,7 +75,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                 if (tokens[i+2].type == TOKEN_PARENTHESIS && tokens[i+2].carry & BRACKET_ROUND) {
                                     t_end = getBlock(tokens, i+2);
                                     ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
-                                    addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_FUNCTION_IDENTIFIER));
+                                    ext_body = parse(full_code, tokens, i+1, t_end, NODE_FUNCTION_IDENTIFIER);
                                     break;
                                 }
                                 printError(full_code, tokens[i+2].start, ERROR_EXPECTED_ARGUMENTS);
@@ -84,7 +85,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             if (tokens[i+1].type == TOKEN_PARENTHESIS && tokens[i+1].carry & BRACKET_CURLY) {
                                 t_end = getBlock(tokens, i+1);
                                 ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
-                                addToBody (&ext_root.body, parse(full_code, tokens, i+2, t_end-1, NODE_BLOCK));
+                                ext_body = parse(full_code, tokens, i+2, t_end-1, NODE_BLOCK);
                             } else {
                                 printError(full_code, tokens[i+1].start, ERROR_EXPECTED_BLOCK);
                             }
@@ -94,12 +95,13 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             t_end = getExpression(tokens, i+1);
                             if (t_end != -1) {
                                 ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
-                                addToBody(&ext_root.body, parse(full_code, tokens, i+1, t_end, NODE_EXPRESSION));
+                                ext_body = parse(full_code, tokens, i+1, t_end, NODE_EXPRESSION);
                                 break;
                             }
                             printError(full_code, tokens[i+1].start, ERROR_EXPECTED_EXPRESSION);
                     }
-                    addToBody(&root.body, ext_root);
+                    addToBody(&root.body, ext_root); // first add the extension root to the body
+                    addToBody(&root.body, ext_body); // then add the extension body to the body
                     i = t_end;
                     got_identifier = 0;
                 } else if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & BRACKET_CURLY) {
@@ -297,7 +299,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                 }
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
-                                if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || full_code[tokens[i-1].start] == ')' || full_code[tokens[i-1].start] == ']')) {
+                                if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || (full_code[tokens[i-1].start] == ')' && !checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) || full_code[tokens[i-1].start] == ']')) {
                                     exit_loop = 1; // exit the loops
                                     continue;
                                 }

@@ -84,7 +84,11 @@ typedef enum {
     ERROR_INVALID_CAST,
     ERROR_ARRAY_CAST_ERROR,
     ERROR_VARIABLE_ALREADY_EXISTS,
-
+    ERROR_WHILE_NOT_LAST,
+    ERROR_EXPECTED_ELSE,
+    ERROR_EXTENSION_NOT_FINAL,
+    
+    ERROR_INTERNAL,
     ERROR_UNKNOWN,
     ERROR_AMOUNT
 
@@ -156,7 +160,11 @@ const char* ERROR_MESSAGES[] = {
     "The provided cast is invalid",
     "There was an error casting to an array or from an array",
     "The variable already exists",
+    "The while statement is not the last statement in the DO command",
+    "Expected an else statement",
+    "Extension is not at the end of the statement",
 
+    "Internal Error, please report this to the developer",
     "Unknown Error",
     "This error is not meant to be displayed, say hello to the error!"
 };

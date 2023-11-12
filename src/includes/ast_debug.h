@@ -164,7 +164,7 @@ void printNode (const char* full_code, const Token* tokens, const Node* node, in
     for (int i = 0; i < depth+1; i++) {
         printf("  ");
     }
-    printf("\"start, end\": [%i, %i],\n", node->start, node->end);
+    printf("\"bounds\": [%i, %i],\n", node->start, node->end);
 
     // Print the node type
     for (int i = 0; i < depth+1; i++) {
