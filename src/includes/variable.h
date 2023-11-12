@@ -196,11 +196,12 @@ char* toString (Variable* variable) {
         strcpy(str, "[");
         for (int i = 0; i < array_length; i++) {
             char* res = toString(&((Variable*)variable->value)[i]);
-            str = realloc(str, sizeof(char) * (strlen(str) + strlen(res) + 3));
+            str = realloc(str, sizeof(char) * (strlen(str) + strlen(res) + 3)); // 3 for the ", " and the "]"
             strcat(str, res);
             if (i < array_length - 1) strcat(str, ", ");
             free(res);
         }
+
         strcat(str, "]");
         return str;
     }
