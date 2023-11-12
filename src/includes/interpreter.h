@@ -128,9 +128,21 @@ int functionCall (Process* process, Node* func) {
     if (func->body == NULL) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
     }
-    if (func->body[0].type != NODE_FUNCTION_IDENTIFIER) {
+    if (func->body[0].type != NODE_FUNCTION_IDENTIFIER && func->body[0].type != NODE_BLOCK) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
     }
+
+    // parse block as inline function
+    if (func->body[0].type == NODE_BLOCK) {
+        // create a new scope to run the function in
+        Scope scope = createScope(&func->body[0], getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope));
+        *getLastScope(&process->main_scope)->child = scope;
+
+
+        return 0;
+    }
+
+    // parse function call to existing function
     Node* func_node = func->body[0].body;
     if (func_node[0].type != NODE_IDENTIFIER) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func_node[0].start));
