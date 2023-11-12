@@ -77,8 +77,9 @@ int next (Process* process) {
         
         Scope* scope = getLastScope(&(process->main_scope));
         if (scope->running_line >= getNodeBodyLength(scope->body->body)) {
+            int isMain = scope == &process->main_scope;
             removeLastScope(&process->main_scope);
-            return -1; // the block has finished running
+            return -isMain; // the block has finished running
         }
 
         int code = interpretCommand(process, &scope->body->body[scope->running_line]);

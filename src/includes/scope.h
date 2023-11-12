@@ -224,19 +224,16 @@ Scope* getLastScope (Scope* scope) {
 
 void removeLastScope (Scope* scope) {
     Scope* last_scope = scope;
-    Scope* parent_scope = scope;
     if (getLastScope(scope) == scope) {
         // there is only one scope, this scope cannot be removed
         return;
     }
 
     while (last_scope->child->child != NULL) {
-        parent_scope = last_scope;
         last_scope = last_scope->child;
     }
     destroyScope(last_scope);
-    free(last_scope);
-    parent_scope->child = NULL;
+    *last_scope = createNullTerminatedScope();
 }
 
 void addVariable (Scope* scope, Variable variable) {
