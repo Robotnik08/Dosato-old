@@ -131,16 +131,25 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 if (tokens[start + 1].type != TOKEN_VAR_TYPE) {
                     printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_TYPE);
                 }
-                addToBody(&root.body, parse(full_code, tokens, start + 1, start + 1, NODE_TYPE_IDENTIFIER));
-                if (tokens[start + 2].type != TOKEN_IDENTIFIER) {
+                int type_end = 0;
+                for (int i = start + 1; i < end; i++) {
+                    if (tokens[i].type != TOKEN_VAR_TYPE) {
+                        break;
+                    }
+                    type_end++;
+                }
+
+                
+                addToBody(&root.body, parse(full_code, tokens, start + 1, start + type_end, NODE_TYPE_IDENTIFIER));
+                if (tokens[start + type_end + 1].type != TOKEN_IDENTIFIER) {
                     printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_IDENTIFIER);
                 }
                 // if theres no argument brackets, throw an error
-                if (tokens[start + 3].type != TOKEN_PARENTHESIS || !(tokens[start + 3].carry & BRACKET_ROUND)) {
+                if (tokens[start + type_end + 2].type != TOKEN_PARENTHESIS || !(tokens[start + type_end + 2].carry & BRACKET_ROUND)) {
                     printError(full_code, tokens[start + 3].start, ERROR_EXPECTED_ARGUMENTS);
                 }
-                int args_end = getBlock(tokens, start + 3);
-                addToBody(&root.body, parse(full_code, tokens, start + 3, args_end, NODE_FUNCTION_DECLARATION_ARGUMENTS));
+                int args_end = getBlock(tokens, start + type_end + 2);
+                addToBody(&root.body, parse(full_code, tokens, start + type_end + 2, args_end, NODE_FUNCTION_DECLARATION_ARGUMENTS));
 
                 // if theres no block, throw an error
                 if (tokens[args_end + 1].type != TOKEN_PARENTHESIS || !(tokens[args_end + 1].carry & BRACKET_CURLY)) {
