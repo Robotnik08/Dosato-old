@@ -168,7 +168,6 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // PAUSE function
         addFunction(scope, createFunction("PAUSE", NULL, NULL, 0, TYPE_VOID, 1));
-        
     }
 }
 

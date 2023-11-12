@@ -351,7 +351,6 @@ int makeVariable (Process* process, Node* line) {
 }
 
 int setVariable (Process* process, Node* line) {
-    
     OperatorType operator = getTokenAtPosition(process, line->body[1].start).carry;
     if (!isAssignmentOperator(operator) || line->body[1].type != NODE_OPERATOR) {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ASSIGN_OPERATOR, getTokenStart(process, line->body[1].start));
