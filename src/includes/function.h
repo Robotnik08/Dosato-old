@@ -18,7 +18,7 @@ typedef struct Argument Argument;
 
 struct Argument {
     char* name;
-    DataType type;
+    Type type;
 };
 
 struct Function {
@@ -28,10 +28,18 @@ struct Function {
     int arguments_length;
     Argument* arguments;
 
-    DataType return_type;
+    Type return_type;
     
     int std_function;
 };
+
+/**
+ * @brief Create an argument
+ * @param name The name of the argument
+ * @param type The type of the argument
+ * @return The argument
+ */
+Argument createArgument (char* name, Type type);
 
 /**
  * @brief Create a function
@@ -43,7 +51,7 @@ struct Function {
  * @param std Whether or not the function is a standard function
  * @return The function
  */
-Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length, DataType return_type, int std);
+Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length, Type return_type, int std);
 
 /**
  * @brief Create a null terminated function
@@ -65,11 +73,18 @@ int getFunctionsLength (const Function* list);
  */
 void destroyFunction (Function* function);
 
+Argument createArgument (char* name, Type type) {
+    Argument argument;
+    argument.name = malloc(sizeof(char) * (strlen(name) + 1));
+    strcpy(argument.name, name);
+    argument.type = type;
+    return argument;
+}
 
-
-Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length, DataType return_type, int std) {
+Function createFunction (char* name, Node* body, Argument* arguments, int arguments_length, Type return_type, int std) {
     Function function;
-    function.name = name;
+    function.name = malloc(sizeof(char) * (strlen(name) + 1));
+    strcpy(function.name, name);
     function.body = body;
     function.arguments_length = arguments_length;
     function.arguments = arguments;
@@ -81,6 +96,11 @@ Function createFunction (char* name, Node* body, Argument* arguments, int argume
 Function createNullTerminatedFunction () {
     Function function;
     function.name = NULL;
+    function.body = NULL;
+    function.arguments_length = 0;
+    function.arguments = NULL;
+    function.std_function = 0;
+    function.return_type = (Type) {D_NULL, 0};
     return function;
 }
 
@@ -93,8 +113,9 @@ int getFunctionsLength (const Function* list) {
 }
 
 void destroyFunction (Function* function) {
-    if (function->arguments != NULL) free(function->arguments);
-
-    // the function does not have ownership of the body or it's name (it's name is most likely unallocated anyways), so it must not be freed
+    if (function->name != NULL) free(function->name);
+    for (int i = 0; i < function->arguments_length; i++) {
+        free(function->arguments[i].name);
+    }
 }
 #endif

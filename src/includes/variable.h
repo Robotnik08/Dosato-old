@@ -126,6 +126,8 @@ int castArray (Variable* variable, Type type);
 */
 int compareType (Type left, Type right);
 
+int printType (Type t);
+
 Variable createVariable (const char* name, const DataType type, void* valueptr, const int constant, int array) {
     Variable variable;
     variable.name = malloc(sizeof(char) * (strlen(name) + 1));
@@ -187,6 +189,21 @@ void destroyVariableRef (Variable* variable) {
 
 char* toString (Variable* variable) {
     char* str = NULL;
+    
+    if (variable->type.array) {
+        int array_length = getVariablesLength((Variable*)variable->value);
+        str = malloc(sizeof(char) * 3);
+        strcpy(str, "[");
+        for (int i = 0; i < array_length; i++) {
+            char* res = toString(&((Variable*)variable->value)[i]);
+            str = realloc(str, sizeof(char) * (strlen(str) + strlen(res) + 3));
+            strcat(str, res);
+            if (i < array_length - 1) strcat(str, ", ");
+            free(res);
+        }
+        strcat(str, "]");
+        return str;
+    }
 
     char* res = NULL;
     switch (variable->type.dataType) {
@@ -343,6 +360,10 @@ int getIfCastable (DataType a, DataType b) {
 }
 
 long long int getSignedNumber (Variable* variable) {
+    if (variable->type.array) {
+        // return the length of the array
+        return getVariablesLength((Variable*)variable->value);
+    }
     switch (variable->type.dataType) {
         case TYPE_BOOL:
             return *(int*)variable->value != 0;
@@ -370,6 +391,10 @@ long long int getSignedNumber (Variable* variable) {
     }
 }
 unsigned long long int getUnsignedNumber (Variable* variable) {
+    if (variable->type.array) {
+        // return the length of the array
+        return getVariablesLength((Variable*)variable->value);
+    }
     switch (variable->type.dataType) {
         case TYPE_BOOL:
             return *(int*)variable->value != 0;
@@ -508,7 +533,7 @@ int castValue (Variable* variable, Type type) {
 }
 
 int castArray (Variable* variable, Type type) {
-    if (variable->type.dataType == type.dataType) {
+    if (compareType(variable->type, type)) {
         return 0;
     }
     if (!getIfCastable(variable->type.dataType, type.dataType) && variable->type.dataType != TYPE_ARRAY) {

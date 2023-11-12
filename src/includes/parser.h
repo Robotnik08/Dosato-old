@@ -144,6 +144,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 if (tokens[start + type_end + 1].type != TOKEN_IDENTIFIER) {
                     printError(full_code, tokens[start + 1].start, ERROR_EXPECTED_IDENTIFIER);
                 }
+                addToBody(&root.body, parse(full_code, tokens, start + type_end + 1, start + type_end + 1, NODE_IDENTIFIER));
                 // if theres no argument brackets, throw an error
                 if (tokens[start + type_end + 2].type != TOKEN_PARENTHESIS || !(tokens[start + type_end + 2].carry & BRACKET_ROUND)) {
                     printError(full_code, tokens[start + 3].start, ERROR_EXPECTED_ARGUMENTS);

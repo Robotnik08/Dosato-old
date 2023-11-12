@@ -316,7 +316,7 @@ int parseCall (Process* process, Node* call) {
         destroyVariable(&args[i]);
     }
     free(args);
-    if (code) {
+    if (code && process->running) {
         return error(process, getLastScope(&process->main_scope)->running_ast, code, getTokenStart(process, func_node[0].start));
     }
     return code;
@@ -377,7 +377,53 @@ int setVariable (Process* process, Node* line) {
 }
 
 int makeFunction (Process* process, Node* line) {
-    printf("make function\n");
+    if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_TYPE, getTokenStart(process, line->body[0].start));
+    }
+
+    if (line->body[1].type != NODE_IDENTIFIER) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
+    }
+
+    if (line->body[2].type != NODE_FUNCTION_DECLARATION_ARGUMENTS) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, line->body[2].start));
+    }
+
+    if (line->body[3].type != NODE_BLOCK) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_BLOCK, getTokenStart(process, line->body[3].start));
+    }
+
+    // check if function already exists
+    if (getFunction(&process->main_scope, line->body[1].text) != NULL) {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_FUNCTION_ALREADY_EXISTS, getTokenStart(process, line->body[1].start));
+    }
+
+    // make arguments
+    int args_length = getNodeBodyLength(line->body[2].body);
+    Argument* args = malloc(sizeof(Argument) * (args_length + 1));
+    for (int i = 0; i < args_length; i++) {
+        Type t = (Type){D_NULL,0};
+        int array_depth = 0;
+        Node* end_node = &line->body[2].body[i];
+        while (getTokenAtPosition(process, end_node->body[0].start).carry == TYPE_ARRAY) {
+            t.array++;
+            end_node = &end_node->body[1];
+        }
+        t.dataType = getTokenAtPosition(process, end_node->body[0].start).carry;
+
+        if (end_node->body[1].type != NODE_IDENTIFIER) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, end_node->body[1].start));
+        }
+        args[i] = createArgument(end_node->body[1].text, t);
+    }
+
+
+    Type returnType = (Type){.dataType = D_NULL, .array = 0};
+    int tRes = getTypeFromNode(process, &returnType, &line->body[0]);
+    if (tRes) return error(process, getLastScope(&process->main_scope)->running_ast, tRes, getTokenStart(process, line->body[0].start));
+
+    addFunction(&process->main_scope, createFunction(line->body[1].text, &line->body[3], args, args_length, returnType, 0));
+
     return 0;
 }
 

@@ -158,16 +158,16 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
 void addSystemFunctions (Scope* scope, int main, int depth) {
     if (main) {
         // SAY function
-        addFunction(scope, createFunction("SAY", NULL, NULL, 0, TYPE_VOID, 1));
+        addFunction(scope, createFunction("SAY", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
 
         // SAYLN function
-        addFunction(scope, createFunction("SAYLN", NULL, NULL, 0, TYPE_VOID, 1));
+        addFunction(scope, createFunction("SAYLN", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
 
         // END function
-        addFunction(scope, createFunction("END", NULL, NULL, 0, TYPE_VOID, 1));
+        addFunction(scope, createFunction("END", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
 
         // PAUSE function
-        addFunction(scope, createFunction("PAUSE", NULL, NULL, 0, TYPE_VOID, 1));
+        addFunction(scope, createFunction("PAUSE", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
     }
 }
 
@@ -272,14 +272,11 @@ Variable* getVariable (Scope* scope, char* name) {
 }
 
 Function* getFunction (Scope* scope, char* name) {
-    while (scope->running_line != -1) {
-        int length = getFunctionsLength(scope->functions);
-        for (int i = 0; i < length; i++) {
-            if (!strcmp(scope->functions[i].name, name)) {
-                return &scope->functions[i];
-            }
+    int length = getFunctionsLength(scope->functions);
+    for (int i = 0; i < length; i++) {
+        if (!strcmp(scope->functions[i].name, name)) {
+            return &scope->functions[i];
         }
-        scope = scope->child;
     }
     return NULL;
 }

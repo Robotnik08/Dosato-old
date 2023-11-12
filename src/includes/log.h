@@ -87,6 +87,8 @@ typedef enum {
     ERROR_WHILE_NOT_LAST,
     ERROR_EXPECTED_ELSE,
     ERROR_EXTENSION_NOT_FINAL,
+    ERROR_FUNCTION_ALREADY_EXISTS,
+    ERROR_INVALID_TYPE,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -163,6 +165,8 @@ const char* ERROR_MESSAGES[] = {
     "The while statement is not the last statement in the DO command",
     "Expected an else statement",
     "Extension is not at the end of the statement",
+    "The function already exists",
+    "The type is invalid",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

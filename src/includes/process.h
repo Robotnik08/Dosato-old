@@ -124,6 +124,14 @@ Token getTokenAtPosition (Process* process, int position);
 */
 int getTypeFromCastNode (Process* process, Type* t, Node* cast);
 
+/**
+ * @brief Get the type from a type node
+ * @param t The type to fill
+ * @param typeNode The type node
+ * @return The error code
+*/
+int getTypeFromNode (Process* process, Type* t, Node* typeNode);
+
 // include these after the struct definition to prevent circular dependencies
 #include "interpreter.h"
 
@@ -237,6 +245,26 @@ int getTypeFromCastNode (Process* process, Type* t, Node* cast) {
     return 0;
 }
 
+int getTypeFromNode (Process* process, Type* t, Node* typeNode) {
+    if (typeNode->type != NODE_TYPE_IDENTIFIER) return ERROR_INVALID_TYPE;
+    if (typeNode->start > typeNode->end) return ERROR_INVALID_TYPE;
+
+    for (int i = typeNode->start; i < typeNode->end; i++) {
+        if (getTokenAtPosition(process, i).carry == TYPE_ARRAY) {
+            t->array++;
+        } else {
+            return ERROR_INVALID_CAST;
+        }
+    }
+
+    if (getTokenAtPosition(process, typeNode->end).carry == TYPE_ARRAY) {
+        return ERROR_INVALID_CAST;
+    } else {
+        t->dataType = getTokenAtPosition(process, typeNode->end).carry;
+    }
+    
+    return 0;
+}
 #include "standard-library/dosato-std.h" // include the dosato standard library, after all the other definitions
 
 int callFunction (char* name, Variable* args, int args_length, Process* process) {
@@ -252,7 +280,36 @@ int callFunction (char* name, Variable* args, int args_length, Process* process)
     if (function->arguments_length != args_length) {
         return ERROR_FUNCTION_ARG_NOT_CORRECT_AMOUNT;
     }
-    return 0;
+
+    // create a new scope to run the function in
+    Scope scope = createScope(function->body, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope));
+
+    // add the arguments to the scope
+    for (int i = 0; i < args_length; i++) {
+        Variable arg = cloneVariable(&args[i]); // clone the variable, so we can change the name
+        free(arg.name);
+        arg.name = malloc(sizeof(char) * (strlen(function->arguments[i].name) + 1));
+        strcpy(arg.name, function->arguments[i].name);
+        if (!compareType(function->arguments[i].type, arg.type)) {
+            int cRes = castValue(&arg, function->arguments[i].type);
+            if (cRes) return cRes;
+        }
+        addVariable(&scope, arg);
+    }
+
+    *getLastScope(&process->main_scope)->child = scope;
+
+    // excute the function in here
+    int code = 0;
+    while (process->running) {
+        code = next(process);
+        if (code) break;
+    }
+    if (code == -1) code = 0;
+
+    // if the code is not 0, the error is returned, but we still get rid of the scope, for the sake of any catch blocks
+    removeLastScope(&process->main_scope);
+    return code;
 }
 
 #endif
