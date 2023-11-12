@@ -98,6 +98,13 @@ void addFunction (Scope* scope, Function func);
 Variable* getVariable (Scope* scope, char* name);
 
 /**
+ * @brief Get a variable from a list of variables
+ * @param list The list of variables to get the variable from
+ * @param name The name of the variable
+*/
+Variable* getVariableFromList (Variable* list, char* name);
+
+/**
  * @brief Get a function from a scope
  * @param scope The scope to get the function from
  * @param name The name of the function
@@ -217,15 +224,19 @@ Scope* getLastScope (Scope* scope) {
 
 void removeLastScope (Scope* scope) {
     Scope* last_scope = scope;
+    Scope* parent_scope = scope;
     if (getLastScope(scope) == scope) {
         // there is only one scope, this scope cannot be removed
         return;
     }
+
     while (last_scope->child->child != NULL) {
+        parent_scope = last_scope;
         last_scope = last_scope->child;
     }
-    destroyScope(last_scope->child);
-    last_scope->child = NULL;
+    destroyScope(last_scope);
+    free(last_scope);
+    parent_scope->child = NULL;
 }
 
 void addVariable (Scope* scope, Variable variable) {
