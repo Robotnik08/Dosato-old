@@ -453,6 +453,47 @@ int castValue (Variable* variable, Type type) {
         if (variable->type.array && type.array) {
             return castArray(variable, type);
         }
+        if (variable->type.array) {
+            switch (type.dataType) {
+                default: 
+                    return ERROR_ARRAY_CAST_ERROR;
+                case TYPE_STRING:
+                    char* res = toString(variable);
+                    void* new_value = malloc(sizeof(char) * (strlen(res) + 1));
+                    strcpy((char*)new_value, res);
+                    
+                    destroyVariable(variable);
+                    *variable = createVariable(variable->name, TYPE_STRING, new_value, 0, 0);
+
+                    break;
+                case TYPE_BYTE:
+                case TYPE_SHORT:
+                case TYPE_INT:
+                case TYPE_LONG:
+                case TYPE_UBYTE:
+                case TYPE_USHORT:
+                case TYPE_UINT:
+                case TYPE_ULONG:
+                case TYPE_FLOAT:
+                case TYPE_DOUBLE:
+                case TYPE_BOOL:
+                    int array_length = getVariablesLength((Variable*)variable->value);
+                    int* len_val = malloc(sizeof(int));
+                    *len_val = array_length;
+                    Variable* val = malloc(sizeof(Variable));
+                    *val = createVariable(variable->name, TYPE_INT, len_val, 0, 0);
+                    int cRes = castValue(val, type);
+                    if (cRes) return cRes;
+
+                    destroyVariable(variable);
+                    *variable = cloneVariable(val);
+                    destroyVariable(val);
+                    free(val);
+                    break;
+            }
+            return 0;
+        }
+
         return ERROR_ARRAY_CAST_ERROR;
     }
     if (variable->type.dataType == type.dataType) {
@@ -526,6 +567,7 @@ int castValue (Variable* variable, Type type) {
             new_value = malloc(sizeof(char) * (strlen(res) + 1));
             strcpy((char*)new_value, res);
             variable->type.dataType = TYPE_STRING;
+            free(res);
             break;
     }
     free(variable->value);
