@@ -445,7 +445,7 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
             if (op == OPERATOR_ADD_ASSIGN) {
                 if (!compareType(left->type, right->type)) {
                     int castRes = castValue(right, left->type);
-                    if (castRes) return ERROR_TYPE_MISMATCH;
+                    if (castRes) return castRes;
                 }
                 // allocate new memory for the array
                 newArray = malloc(sizeof(Variable) * (len + getVariablesLength(right->value) + 1));
@@ -460,7 +460,7 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
             } else if (op == OPERATOR_SUBTRACT_ASSIGN) {
                 if (!compareType((Type){.dataType = TYPE_LONG, .array = 0}, right->type)) {
                     int castRes = castValue(right, (Type){.dataType = TYPE_LONG, .array = 0});
-                    if (castRes) return ERROR_TYPE_MISMATCH;
+                    if (castRes) return castRes;
                 }
 
                 // check if the array is long enough

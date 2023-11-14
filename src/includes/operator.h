@@ -252,7 +252,7 @@ int not_bitwise (Variable* var, Variable* right);
 int negative (Variable* var, Variable* right);
 
 int add (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfAddable(left->type.dataType) && !checkIfAddable(right->type.dataType)) {
+    if (!checkIfAddable(left->type.dataType) && !checkIfAddable(right->type.dataType) && !(left->type.array || right->type.array)) {
         return ERROR_CANT_USE_TYPE_IN_ADDITION;
     }
     destroyVariable(var);
@@ -279,7 +279,11 @@ int add (Variable* var, Variable* left, Variable* right) {
             *var = createVariable("-lit", left->type.dataType, value, 0, left->type.array);
             return 0;
         }
-        return ERROR_ARRAY_CAST_ERROR; // can't join arrays of different depths
+        // add the two lengths together
+        long long int* val = malloc(sizeof(long long int));
+        *val = getSignedNumber(left) + getSignedNumber(right);
+        *var = createVariable("-lit", TYPE_LONG, val, 1, 0);
+        return 0;
     }
 
     if (left->type.dataType == TYPE_STRING || right->type.dataType == TYPE_STRING) {
