@@ -257,6 +257,31 @@ int add (Variable* var, Variable* left, Variable* right) {
     }
     destroyVariable(var);
 
+    // if array, join the arrays
+    if (left->type.array || right->type.array) {
+        if (left->type.array == right->type.array) {
+            // if both are arrays of the same depth, join them
+            if (!compareType(left->type, right->type)) {
+                int cRes = castValue(right, left->type);
+                if (cRes) return cRes;
+            }
+            int length = getVariablesLength((Variable*)left->value) + getVariablesLength((Variable*)right->value);
+
+            Variable* value = malloc(sizeof(Variable) *( length + 1));
+            for (int i = 0; i < getVariablesLength((Variable*)left->value); i++) {
+                value[i] = cloneVariable(&((Variable*)left->value)[i]);
+            }
+            for (int i = 0; i < getVariablesLength((Variable*)right->value); i++) {
+                value[i + getVariablesLength((Variable*)left->value)] = cloneVariable(&((Variable*)right->value)[i]);
+            };
+            value[length] = createNullTerminatedVariable();
+
+            *var = createVariable("-lit", left->type.dataType, value, 0, left->type.array);
+            return 0;
+        }
+        return ERROR_ARRAY_CAST_ERROR; // can't join arrays of different depths
+    }
+
     if (left->type.dataType == TYPE_STRING || right->type.dataType == TYPE_STRING) {
         char* left_value = toString(left);
         char* right_value = toString(right);
@@ -292,6 +317,28 @@ int subtract (Variable* var, Variable* left, Variable* right) {
         return ERROR_TYPE_NOT_SUBTRACTABLE;
     }
     destroyVariable(var);
+
+    // if array, pop the value from the array
+    if (left->type.array) {
+        // cast into an int
+        int cRes = castValue(right, (Type){TYPE_INT, 0});
+        if (cRes) return cRes;
+
+        int length = getVariablesLength((Variable*)left->value);
+
+        if (*((int*)right->value) > length || *((int*)right->value) < 0) {
+            return ERROR_ARRAY_OUT_OF_BOUNDS;
+        }
+
+        Variable* value = malloc(sizeof(Variable) *( length + 1 - *((int*)right->value)));
+        for (int i = 0; i < length - *((int*)right->value); i++) {
+            value[i] = cloneVariable(&((Variable*)left->value)[i]);
+        }
+        value[length - *((int*)right->value)] = createNullTerminatedVariable();
+
+        *var = createVariable("-lit", left->type.dataType, value, 0, left->type.array);
+        return 0;
+    }
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
         long long int left_value = getSignedNumber(left);
@@ -1093,11 +1140,11 @@ int hash_refrence (Variable** var, Variable* arr, Variable* right) {
     int arr_length = getVariablesLength(arr->value);
 
     int index = getSignedNumber(right);
-    if (index < 0 || index >= arr_length) {
+    if (abs(index) >= arr_length) {
         return ERROR_ARRAY_OUT_OF_BOUNDS;
     }
 
-    *var = &((Variable*)arr->value)[index];
+    *var = &((Variable*)arr->value)[index > 0 ? index : arr_length + index];
     
     return 0;
 }
@@ -1110,18 +1157,18 @@ int hash (Variable* var, Variable* arr, Variable* right) {
     int index = getSignedNumber(right);
     if (arr->type.array) {
         int arr_length = getVariablesLength(arr->value);
-        if (index < 0 || index >= arr_length) {
+        if (abs(index) >= arr_length) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
         }
 
-        *var = cloneVariable(&((Variable*)arr->value)[index]);
+        *var = cloneVariable(&((Variable*)arr->value)[index > 0 ? index : arr_length + index]);
     } else {
         int str_length = strlen((char*)arr->value);
-        if (index < 0 || index >= str_length) {
+        if (abs(index) >= str_length) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
         }
         char* value = malloc(sizeof(char) * 2);
-        value[0] = ((char*)arr->value)[index];
+        value[0] = ((char*)arr->value)[index > 0 ? index : str_length + index];
         value[1] = '\0';
         *var = createVariable("-lit", TYPE_STRING, value, 1, 0);
     }

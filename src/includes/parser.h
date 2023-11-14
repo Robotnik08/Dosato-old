@@ -294,29 +294,34 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 int p_values[] = OPERATOR_PRECEDENCE;
                 int exit_loop = 0;
                 for (int o = 0; o < (end - start)/2 && !exit_loop; o++) { // o is the offset, discarding the first and last token when parentheses are present
-                    if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_SQUARE && tokens[end - o].type == TOKEN_PARENTHESIS && tokens[end - o].carry & BRACKET_SQUARE) {
+                    if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_SQUARE && tokens[end - o].type == TOKEN_PARENTHESIS && tokens[end - o].carry & BRACKET_SQUARE
+                    && getBlock(tokens, start + o) == end - o) {
                         break; // found an array expression, don't parse it as a binary expression
                     }
-                    for (int p = 15; p > 0 && !exit_loop; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
+                    for (int p = 15; p > 0; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
                             if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
                                 i = getBlockReverse(tokens, i);
                                 if (p == 1 && i != start) { // if the precedence is 1 (it first checked all the other operators), check if the expression is unary with a type cast
                                     if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) {
-                                        exit_loop = 1;
+                                        exit_loop = 1; // exit loop if a type cast has been found
                                         break;
                                     }
                                 }
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
                                 if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || (full_code[tokens[i-1].start] == ')' && !checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) || full_code[tokens[i-1].start] == ']')) {
-                                    exit_loop = 1; // exit the loops
+                                    exit_loop = 1; // exit loop if the token before the operator is not an identifier, string, number or closing bracket (unary operators)
                                     continue;
                                 }
                                 addToBody(&root.body, parse(full_code, tokens, start + o, i-1, NODE_EXPRESSION));
                                 addToBody(&root.body, parse(full_code, tokens, i, i, NODE_OPERATOR));
                                 addToBody(&root.body, parse(full_code, tokens, i+1, end - o, NODE_EXPRESSION));
                                 return root;
+                            }
+                            if (tokens[i].type == TOKEN_MASTER_KEYWORD || tokens[i].type == TOKEN_EXT || tokens[i].type == TOKEN_SEPARATOR) {
+                                // unexpected token
+                                printError(full_code, tokens[i].start, ERROR_UNEXPECTED_TOKEN);
                             }
                         }
                     }
@@ -333,7 +338,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         }
                         else {
                             if (end - o - start + o <= 0) printError(full_code, tokens[start + o].start, ERROR_INVALID_EXPRESSION);
-                            addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
+                            // addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
                         }
                         return root;
                     }
