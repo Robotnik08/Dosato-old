@@ -338,7 +338,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                         }
                         else {
                             if (end - o - start + o <= 0) printError(full_code, tokens[start + o].start, ERROR_INVALID_EXPRESSION);
-                            // addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
+                            addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_EXPRESSION));
                         }
                         return root;
                     }

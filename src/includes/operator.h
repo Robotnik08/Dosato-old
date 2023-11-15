@@ -1148,7 +1148,7 @@ int hash_refrence (Variable** var, Variable* arr, Variable* right) {
         return ERROR_ARRAY_OUT_OF_BOUNDS;
     }
 
-    *var = &((Variable*)arr->value)[index > 0 ? index : arr_length + index];
+    *var = &((Variable*)arr->value)[index >= 0 ? index : arr_length + index];
     
     return 0;
 }
@@ -1165,7 +1165,7 @@ int hash (Variable* var, Variable* arr, Variable* right) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
         }
 
-        *var = cloneVariable(&((Variable*)arr->value)[index > 0 ? index : arr_length + index]);
+        *var = cloneVariable(&((Variable*)arr->value)[index >= 0 ? index : arr_length + index]);
     } else {
         int str_length = strlen((char*)arr->value);
         if (abs(index) >= str_length) {

@@ -104,8 +104,14 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             *right = createNullTerminatedVariable();
             int left_parse = parseExpression(left,  process, &node->body[0]);
             if (left_parse) return left_parse;
+            if (left->type.dataType == D_NULL) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->body[0].start));
+            }
             int right_parse = parseExpression(right, process, &node->body[2]);
             if (right_parse) return right_parse;
+            if (right->type.dataType == D_NULL) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->body[2].start));
+            }
             operator = process->code->tokens[node->body[1].start].carry;
 
             if (left->type.dataType == D_NULL || right->type.dataType == D_NULL) {
@@ -216,7 +222,8 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             *right = createNullTerminatedVariable();
 
             if (node->body[0].type == NODE_OPERATOR) {
-                if (parseExpression(right, process, &node->body[1])) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->body[1].start));
+                int rRes = parseExpression(right, process, &node->body[1]);
+                if (rRes) return rRes;
                 if (right->type.dataType == D_NULL) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
                 }
@@ -242,7 +249,8 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             }
             else if (node->body[0].type == NODE_OPERATOR_CAST) {
                 // this is never a reference, since it is a cast
-                if (parseExpression(right, process, &node->body[1])) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->body[1].start));
+                int rRes = parseExpression(right, process, &node->body[1]);
+                if (rRes) return rRes;
                 if (right->type.dataType == D_NULL) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
                 }
