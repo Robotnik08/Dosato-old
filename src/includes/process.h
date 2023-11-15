@@ -145,7 +145,7 @@ Process createProcess (int debug, int main, AST root_ast) {
     process.error_location = 0;
     process.error_code = 0;
 
-    process.main_scope = createScope(&process.code[0].root, 0, main, 0);
+    process.main_scope = createScope(&process.code[0].root, 0, main, 0, SCOPE_ROOT);
     process.debug = debug;
     
     return process;
@@ -188,9 +188,12 @@ int runProcess (Process* process) {
 void setReturnValue (Process* process, Variable* var) {
     Variable* returnVariable = getVariable(&process->main_scope, "_");
 
+    destroyVariable(returnVariable);
+
     *returnVariable = cloneVariable(var);
-    returnVariable->name = "_";
-    returnVariable->type = var->type;
+    free (returnVariable->name);
+    returnVariable->name = malloc(sizeof(char) * 2);
+    strcpy(returnVariable->name, "_");
     returnVariable->constant = 1;
 }
 
@@ -282,8 +285,9 @@ int callFunction (char* name, Variable* args, int args_length, Process* process)
     }
 
     // create a new scope to run the function in
-    Scope scope = createScope(function->body, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope));
-
+    Scope scope = createScope(function->body, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope), SCOPE_FUNCTION);
+    scope.returnType = function->return_type;
+    
     // add the arguments to the scope
     for (int i = 0; i < args_length; i++) {
         Variable arg = cloneVariable(&args[i]); // clone the variable, so we can change the name
@@ -306,10 +310,7 @@ int callFunction (char* name, Variable* args, int args_length, Process* process)
         if (code) break;
     }
     if (code == -1) code = 0;
-
-    // if the code is not 0, the error is returned, but we still get rid of the scope, for the sake of any catch blocks
-    removeLastScope(&process->main_scope);
-    return code;
+    return code > 0 ? code : 0;
 }
 
 #endif

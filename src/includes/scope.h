@@ -17,6 +17,18 @@
 
 typedef struct Scope Scope;
 
+typedef enum {
+    SCOPE_ROOT,
+    SCOPE_BLOCK,
+    SCOPE_FUNCTION
+} ScopeType;
+
+typedef enum {
+    TERMINATE_BREAK = -2,
+    TERMINATE_CONTINUE = -3,
+    TERMINATE_RETURN = -4
+} TerminateType;
+
 struct Scope {
     int running_line;
     int running_ast;
@@ -24,6 +36,11 @@ struct Scope {
     Function* functions;
     Node* body;
     Scope* child;
+
+    TerminateType terminated;
+
+    Type returnType;
+    ScopeType callType;
 };
 
 #include "garbagecollector.h"
@@ -42,7 +59,7 @@ void populateDefaultVariables (Scope* scope, int main, int depth);
  * @return The scope
  * @warning The scope must be destroyed after use
 */
-Scope createScope (Node* body, int ast_index, int main, int depth);
+Scope createScope (Node* body, int ast_index, int main, int depth, ScopeType callType);
 
 /**
  * @brief Create a null terminated scope
@@ -69,6 +86,13 @@ void destroyScope (Scope* scope);
  * @return The last scope
 */
 Scope* getLastScope (Scope* scope);
+
+/**
+ * @brief Get the last non terminated scope in a scope chain
+ * @param scope The scope to get the last scope of
+ * @return The last scope
+*/
+Scope* getLastNonTerminatedScope (Scope* scope);
 
 /**
  * @brief Remove the last scope in a scope chain
@@ -133,7 +157,7 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
         addVariable(scope, createVariable("_", TYPE_INT, return_value, 1, 0));
 
         // BOOL constants
-        int* const_true = malloc(sizeof(int));
+        int* const_true  = malloc(sizeof(int));
         *const_true = 1;
         int* const_false = malloc(sizeof(int));
         *const_false = 0;
@@ -168,14 +192,27 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // PAUSE function
         addFunction(scope, createFunction("PAUSE", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // BREAK function
+        addFunction(scope, createFunction("BREAK", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // CONTINUE function
+        addFunction(scope, createFunction("CONTINUE", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // RETURN function
+        addFunction(scope, createFunction("RETURN", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
     }
 }
 
-Scope createScope (Node* body, int ast_index, int main, int depth) {
+Scope createScope (Node* body, int ast_index, int main, int depth, ScopeType callType) {
     Scope scope;
     scope.body = body;
     scope.running_line = 0;
+    scope.terminated = 0;
     scope.running_ast = ast_index;
+
+    scope.returnType = (Type){TYPE_VOID, 0};
+    scope.callType = callType;
     
     scope.variables = malloc(sizeof(Variable));
     scope.variables[0] = createNullTerminatedVariable();
@@ -197,6 +234,10 @@ Scope createNullTerminatedScope () {
     scope.running_line = -1;
     scope.variables = NULL;
     scope.child = NULL;
+
+    scope.returnType = (Type){TYPE_VOID, 0};
+    scope.callType = SCOPE_ROOT;
+    scope.terminated = 0;
     return scope;
 }
 
@@ -216,6 +257,14 @@ void destroyScope (Scope* scope) {
 Scope* getLastScope (Scope* scope) {
     Scope* last_scope = scope;
     while (last_scope->child->running_line != -1) {
+        last_scope = last_scope->child;
+    }
+    return last_scope;
+}
+
+Scope* getLastNonTerminatedScope (Scope* scope) {
+    Scope* last_scope = scope;
+    while (last_scope->child->running_line != -1 && !last_scope->child->terminated) {
         last_scope = last_scope->child;
     }
     return last_scope;

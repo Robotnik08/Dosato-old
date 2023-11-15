@@ -4,6 +4,7 @@
 #include "SAY.h"
 #include "END.h"
 #include "PAUSE.h"
+#include "BREAK.h"
 
 #include "../ast.h"
 #include "../parser.h"
@@ -26,6 +27,12 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return end(process, args, argc);
     } else if (!strcmp(name, "PAUSE")) {
         return pause(process, args, argc);
+    } else if (!strcmp(name, "BREAK")) {
+        return breakBlock(process, args, argc);
+    } else if (!strcmp(name, "CONTINUE")) {
+        return continueBlock(process, args, argc);
+    } else if (!strcmp(name, "RETURN")) {
+        return returnBlock(process, args, argc);
     }
     return ERROR_FUNCTION_NOT_FOUND;
 }

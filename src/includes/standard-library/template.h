@@ -15,9 +15,9 @@
 #include "../scope.h"
 #include "../process.h"
 
-int template (Process* process, const Variable* args, int argc);
+int template_func (Process* process, const Variable* args, int argc);
 
-int template (Process* process, const Variable* args, int argc) {
+int template_func (Process* process, const Variable* args, int argc) {
     return 0; // return code
 }
 #endif

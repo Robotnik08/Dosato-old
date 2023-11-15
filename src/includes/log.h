@@ -90,6 +90,10 @@ typedef enum {
     ERROR_EXTENSION_NOT_FINAL,
     ERROR_FUNCTION_ALREADY_EXISTS,
     ERROR_INVALID_TYPE,
+    ERROR_BREAK_OUTSIDE_OF_LOOP,
+    ERROR_CONTINUE_OUTSIDE_OF_LOOP,
+    ERROR_TOO_FEW_ARGUMENTS,
+    ERROR_RETURN_OUTSIDE_OF_FUNCTION,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -169,6 +173,9 @@ const char* ERROR_MESSAGES[] = {
     "Extension is not at the end of the statement",
     "The function already exists",
     "The type is invalid",
+    "Break statement is not inside a loop",
+    "Continue statement is not inside a loop",
+    "Unable to return outside of a function",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

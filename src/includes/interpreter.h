@@ -93,9 +93,10 @@ int next (Process* process) {
     if (process->running) {
         
         Scope* scope = getLastScope(&(process->main_scope));
-        if (scope->running_line >= getNodeBodyLength(scope->body->body)) {
+        TerminateType term = scope->terminated;
+        if (scope->running_line >= getNodeBodyLength(scope->body->body) || term) {
             removeLastScope(&process->main_scope);
-            return -1; // the block has finished running
+            return term ? term : -1; // the block has finished running
         }
 
         int code = interpretCommand(process, &scope->body->body[scope->running_line]);
@@ -208,7 +209,11 @@ int functionCall (Process* process, Node* func, int start) {
         }
         
         int call_res = parseCallChain(process, func, start, condition_location-1);
-        if (call_res) return call_res;
+        if (call_res > 0) return call_res;
+
+        if (call_res == TERMINATE_BREAK || call_res == TERMINATE_RETURN) {
+            return 0;
+        }
     }
     return 0;
 }
@@ -218,7 +223,6 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
     
     // the first call of a call chain is always a function call
     int call_res = parseCall(process, &func->body[start]);
-
 
     // check if the next extension is a THEN, CATCH or INTO (CATCH and INTO only are at the end of the call chain)
     for (int i = start+1; i < end; i+= 2) { // skipping 2 per, since It's: EXT, CALL, EXT, CALL
@@ -237,9 +241,9 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
                 }
                 break;
         }
-        if (call_res) break; // if the call was not successful, we stop the call chain and perhapse run a CATCH
+        if (call_res > 0) break; // if the call was not successful, we stop the call chain and perhapse run a CATCH
     }
-    if (call_res) {
+    if (call_res > 0) {
         if (func->body[end-2].type == NODE_CATCH) {
             Variable* underscore = getVariable(&process->main_scope, "_"); // we store the error in the _ variable
             if (underscore == NULL) {
@@ -265,19 +269,18 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
 
             // run the catch block
             int catch_res = parseCall(process, &func->body[end-1]);
-            if (catch_res) return catch_res;
-            return 0;
+            return catch_res;
         }
         return call_res; // if theres no catch, throw the error
     }
-    return 0;
+    return call_res;
 }
 
 int parseCall (Process* process, Node* call) {
     // parse block as inline function
     if (call->type == NODE_BLOCK) {
         // create a new scope to run the function in
-        Scope scope = createScope(call, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope));
+        Scope scope = createScope(call, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope), SCOPE_BLOCK);
         *getLastScope(&process->main_scope)->child = scope;
 
         // excute the function in here
