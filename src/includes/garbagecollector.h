@@ -21,7 +21,7 @@
 void cleanScope (Scope* scope);
 
 void cleanScope (Scope* scope) {
-    if (scope->child != NULL) if (scope->child->running_line != -1) {
+    if (scope->child != NULL) if (scope->child->body != NULL) {
         cleanScope(scope->child);
     }
     

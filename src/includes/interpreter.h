@@ -287,9 +287,6 @@ int parseCall (Process* process, Node* call) {
             if (code) break;
         }
         if (code == -1) code = 0;
-
-        // if the code is not 0, the error is returned, but we still get rid of the scope, for the sake of any catch blocks
-        removeLastScope(&process->main_scope);
         return code;
     }
 

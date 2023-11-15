@@ -556,6 +556,7 @@ int parseArrayExpression (Variable* var, Process* process, Node* node) {
         sprintf(indexString, "%d", i);
         free(elements[i].name);
         elements[i].name = indexString;
+        elements[i].constant = 0;
         if (i == 0) {
             arrayType = elements[i].type;
         } else if (!compareType(arrayType, elements[i].type)) {
