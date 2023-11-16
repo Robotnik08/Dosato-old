@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <time.h>
-
 // includes
 #include "includes/strtools.h"
 #include "includes/lexer.h"
