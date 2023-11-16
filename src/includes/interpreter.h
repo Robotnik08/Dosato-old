@@ -142,11 +142,17 @@ int interpretCommand (Process* process, Node* command) {
 }
 
 int functionCall (Process* process, Node* func, int start) {
-    if (func->body == NULL) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
+    if (!func->validated) {
+        if (func->body == NULL) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
+        }
+        func->validated = 1;
     }
-    if (func->body[start].type != NODE_FUNCTION_IDENTIFIER && func->body[start].type != NODE_BLOCK) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start].start));
+    if (!func->body[start].validated) {
+        if (func->body[start].type != NODE_FUNCTION_IDENTIFIER && func->body[start].type != NODE_BLOCK) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start].start));
+        }
+        func->body[start].validated = 1;
     }
 
     // get any WHEN or WHILE statements, these encompass everything before the function call
@@ -157,8 +163,11 @@ int functionCall (Process* process, Node* func, int start) {
         if (func->body[i].type == NODE_WHEN || func->body[i].type == NODE_WHILE) {
             condition_location = i + 1;
             loop = func->body[i].type == NODE_WHILE;
-            if (func->body[i].type == NODE_WHILE && i + 1 != extension_length-1) {
-                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_WHILE_NOT_LAST, getTokenStart(process, func->body[i].start));
+            if (!func->body[i].validated) { 
+                if (func->body[i].type == NODE_WHILE && i + 1 != extension_length-1) {
+                    return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_WHILE_NOT_LAST, getTokenStart(process, func->body[i].start));
+                }
+                func->body[i].validated = 1;
             }
             if (func->body[i].type == NODE_WHEN) {
                 if (i+1 == extension_length-1) break;
@@ -310,11 +319,14 @@ int parseCall (Process* process, Node* call) {
 
     // parse function call to existing function
     Node* func_node = call->body;
-    if (func_node[0].type != NODE_IDENTIFIER) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func_node[0].start));
-    }
-    if (func_node[1].type != NODE_ARGUMENTS) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, func_node[1].start));
+    if (!func_node->validated) {
+        if (func_node[0].type != NODE_IDENTIFIER) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func_node[0].start));
+        }
+        if (func_node[1].type != NODE_ARGUMENTS) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, func_node[1].start));
+        }
+        func_node->validated = 1;
     }
     
     int args_length = getNodeBodyLength(func_node[1].body);

@@ -32,6 +32,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
     root.text = getStringFromNode(full_code, tokens, &root);
     root.type = type;
     root.body = NULL;
+    root.validated = 0;
     switch (type) {
         // if the node is a program or a block, check for full lines of code
         case NODE_PROGRAM:

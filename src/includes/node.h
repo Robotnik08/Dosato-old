@@ -57,6 +57,7 @@ struct Node {
     NodeType type;
     Node* body;
     char* text;
+    int validated;
 };
 
 /**
@@ -117,6 +118,7 @@ Node createNullTerminatedNode () {
     node.type = NODE_END;
     node.body = NULL;
     node.text = NULL;
+    node.validated = 0;
     return node;
 }
 
