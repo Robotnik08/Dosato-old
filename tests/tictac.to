@@ -1,0 +1,85 @@
+MAKE ARRAY CHAR board = [0,0,0,0,0,0,0,0,0];
+MAKE CHAR player = 'O';
+
+MAKE FUNC VOID printBoard (ARRAY CHAR b) {
+    DO SAYLN ("--------------");
+
+    MAKE INT i = 0;
+    DO {
+        MAKE INT j = 0;
+        DO {
+            DO SAY (b#(i*3+j)) WHEN (b#(i*3+j) != 0) ELSE SAY (i*3+j+1);
+            DO SAY (" ");
+            SET j += 1;
+        } WHILE (j < 3);
+        DO SAY ("\n");
+        SET i += 1;
+    } WHILE (i < 3);
+
+    DO SAYLN ("--------------");
+};
+
+MAKE FUNC BOOL checkWin (ARRAY CHAR b, CHAR p) {
+    MAKE INT i = 0;
+    // check for horizontal and vertical wins
+    DO {
+        DO RETURN (TRUE) WHEN (
+            (b#i == p && b#(i+1) == p && b#(i+2) == p) ||
+            (b#(i/3) == p && b#((i/3)+3) == p && b#((i/3)+6) == p)
+        );
+        SET i += 3;
+    } WHILE (i < 9);
+
+    // check for diagonal wins
+    DO RETURN (
+        (b#0 == p && b#4 == p && b#8 == p) ||
+        (b#2 == p && b#4 == p && b#6 == p)
+    );
+};
+
+MAKE FUNC BOOL checkTie (ARRAY INT b) {
+    MAKE INT i = 0;
+    DO {
+        DO RETURN (FALSE) WHEN (b#i == 0);
+        SET i += 1;
+    } WHILE (i < 9);
+    DO RETURN (TRUE);
+};
+ 
+MAKE FUNC VOID playMove () {
+    DO printBoard(board);
+
+    DO SAYLN ("Player " + player + "'s turn");
+    MAKE STRING input = "";
+    DO LISTEN () INTO input;
+    DO END () WHEN (input == "quit" || input == "exit" || input == "q" || input == "e");
+
+    DO SAYLN ("Please enter a number between 1 and 9") THEN playMove () THEN RETURN ()
+    WHEN (input != 1);
+    MAKE CHAR move = input#0;
+
+    DO SAYLN ("Please enter a number between 1 and 9") THEN playMove () THEN RETURN ()
+    WHEN (move < '1' || move > '9');
+
+    DO SAYLN ("This spot has already been taken") THEN playMove () THEN RETURN ()
+    WHEN (board#(move-'1'));
+
+    SET board#(move-'1') = player;
+    MAKE BOOL won = FALSE;
+    DO checkWin(board, player) INTO won;
+    DO SAYLN ("Player " + player + " wins!") THEN RETURN () WHEN (won);
+
+    DO checkTie(board) INTO won;
+    DO SAYLN ("Tie game!") THEN RETURN () WHEN (won);
+
+    DO {
+        SET player = 'X';
+    } WHEN (player == 'O') ELSE {
+        SET player = 'O';
+    };
+    DO playMove (); // next player's turn
+};
+
+
+DO playMove ();
+
