@@ -1,10 +1,11 @@
 #ifndef DOSATO_STD_H
 #define DOSATO_STD_H
 
-#include "SAY.h"
+#include "SAY.h" // also includes SAYLN
 #include "END.h"
 #include "PAUSE.h"
-#include "BREAK.h"
+#include "BREAK.h" // also includes CONTINUE and RETURN
+#include "LISTEN.h"
 
 #include "../ast.h"
 #include "../parser.h"
@@ -33,6 +34,8 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return continueBlock(process, args, argc);
     } else if (!strcmp(name, "RETURN")) {
         return returnBlock(process, args, argc);
+    } else if (!strcmp(name, "LISTEN")) {
+        return listen(process, args, argc);
     }
     return ERROR_FUNCTION_NOT_FOUND;
 }

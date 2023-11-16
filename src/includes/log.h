@@ -175,6 +175,7 @@ const char* ERROR_MESSAGES[] = {
     "The type is invalid",
     "Break statement is not inside a loop",
     "Continue statement is not inside a loop",
+    "Too few arguments in function call",
     "Unable to return outside of a function",
 
     "Internal Error, please report this to the developer",

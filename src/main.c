@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <time.h>
+
 // includes
 #include "includes/strtools.h"
 #include "includes/lexer.h"
@@ -109,13 +111,16 @@ int main (int argc, char* argv[])
 
         printf("\n\nRUNNING PROGRAM:\n\n");
     }
+    clock_t start = clock();
     int exit_code = runProcess(&main);
+    clock_t end = clock();
 
     /// CLEANUP ///
     destroyProcess(&main);
     free(contents);
     // flawless execution
 
+    printf("Time elapsed: %f\n", (double)(end - start) / CLOCKS_PER_SEC);
     return QUIT(exit_code);
 }
 

@@ -201,6 +201,9 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // RETURN function
         addFunction(scope, createFunction("RETURN", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // LISTEN function
+        addFunction(scope, createFunction("LISTEN", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
     }
 }
 

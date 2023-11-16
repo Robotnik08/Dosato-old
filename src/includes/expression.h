@@ -279,6 +279,7 @@ int parseExpression (Variable* var, Process* process, Node* node) {
 }
     
 int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
+    if (var == NULL) return 0;
     if (node->text == "-invalid") return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
     Variable* left;
     Variable* right;

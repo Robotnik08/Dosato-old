@@ -194,7 +194,7 @@ int getNodeBodyLength (const Node* nodes) {
 }
 
 void destroyNode (Node* node) {
-    if (node->body != NULL) {
+    if (node->type != NODE_END) {
         for (int i = 0; i < getNodeBodyLength(node->body); i++) {
             destroyNode(&node->body[i]);
         }

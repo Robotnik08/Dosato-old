@@ -199,15 +199,16 @@ int functionCall (Process* process, Node* func, int start) {
         if (condition_res) return condition_res;
         int cast_res = castValue(condition, (Type){TYPE_BOOL,0});
         if (cast_res) return error(process, getLastScope(&process->main_scope)->running_ast, cast_res, getTokenStart(process, func->body[condition_location].start));
-        if (!*(int*)condition->value) {
-            return 0;
-        }
-
+        int condition_result = *(int*)condition->value;
         if (!strcmp(condition->name, "-lit")) {
             destroyVariable(condition);
             free(condition);
         }
         
+        if (!condition_result) { // if the condition is false, we stop the loop
+            return 0;
+        }
+
         int call_res = parseCallChain(process, func, start, condition_location-1);
         if (call_res > 0) return call_res;
 
@@ -272,6 +273,20 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
             return catch_res;
         }
         return call_res; // if theres no catch, throw the error
+    }
+    if (func->body[end-2].type == NODE_INTO) {
+        Variable* left;
+        int left_res = parseRefrenceExpression(&left, process, &func->body[end-1]);
+        if (left_res) return left_res;
+
+        Variable* underscore = getVariable(&process->main_scope, "_"); // we store _ into the provided variable
+        if (underscore == NULL) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INTERNAL, getTokenStart(process, func->body[end-1].start));
+        }
+
+        // set the provided variable to the _ variable
+        int setRes = setVariableValue(left, underscore, OPERATOR_ASSIGN);
+        if (setRes) return error(process, getLastScope(&process->main_scope)->running_ast, setRes, getTokenStart(process, func->body[end-1].start));
     }
     return call_res;
 }
@@ -338,6 +353,7 @@ int makeVariable (Process* process, Node* line) {
     Variable var = createNullTerminatedVariable();
     int dataRes = parseExpression(&var, process, &line->body[2]);
     if (dataRes) return dataRes;
+    free (var.name); // free the old name, since we're going to overwrite it
     var.name = malloc(sizeof(char) * (strlen(line->body[1].text) + 1));
     strcpy(var.name, line->body[1].text);
     var.constant = 0;
@@ -367,8 +383,9 @@ int setVariable (Process* process, Node* line) {
     int rightRes = parseExpression(right, process, &line->body[2]); // we need to retrieve the value
     if (rightRes) return rightRes;
     
-    int setRest = setVariableValue(left, right, operator);
-    if (setRest) return error(process, getLastScope(&process->main_scope)->running_ast, setRest, getTokenStart(process, line->body[2].start));
+    int setRes = setVariableValue(left, right, operator);
+    if (setRes) return error(process, getLastScope(&process->main_scope)->running_ast, setRes, getTokenStart(process, line->body[2].start));
+
     if (!strcmp(right->name, "-lit")) {
         destroyVariable(right);
         free(right);

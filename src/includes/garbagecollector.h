@@ -36,6 +36,8 @@ void cleanScope (Scope* scope) {
         destroyFunction(&scope->functions[i]);
     }
     free (scope->functions);
+
+    free (scope->child);
 }
 
 #endif

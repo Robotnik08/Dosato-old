@@ -296,20 +296,41 @@ Variable cloneVariable (Variable* variable) {
                 *(int*)new_variable.value = *(int*)variable->value;
                 break;
             case TYPE_BYTE:
+                new_variable.value = malloc(sizeof(signed char));
+                *(signed char*)new_variable.value = *(signed char*)variable->value;
+                break;
             case TYPE_SHORT:
+                new_variable.value = malloc(sizeof(short));
+                *(short*)new_variable.value = *(short*)variable->value;
+                break;
             case TYPE_INT:
+                new_variable.value = malloc(sizeof(int));
+                *(int*)new_variable.value = *(int*)variable->value;
+                break;
             case TYPE_LONG:
                 new_variable.value = malloc(sizeof(long long int));
                 *(long long int*)new_variable.value = *(long long int*)variable->value;
                 break;
             case TYPE_UBYTE:
+                new_variable.value = malloc(sizeof(unsigned char));
+                *(unsigned char*)new_variable.value = *(unsigned char*)variable->value;
+                break;
             case TYPE_USHORT:
+                new_variable.value = malloc(sizeof(unsigned short));
+                *(unsigned short*)new_variable.value = *(unsigned short*)variable->value;
+                break;
             case TYPE_UINT:
+                new_variable.value = malloc(sizeof(unsigned int));
+                *(unsigned int*)new_variable.value = *(unsigned int*)variable->value;
+                break;
             case TYPE_ULONG:
                 new_variable.value = malloc(sizeof(unsigned long long int));
                 *(unsigned long long int*)new_variable.value = *(unsigned long long int*)variable->value;
                 break;
             case TYPE_FLOAT:
+                new_variable.value = malloc(sizeof(float));
+                *(float*)new_variable.value = *(float*)variable->value;
+                break;
             case TYPE_DOUBLE:
                 new_variable.value = malloc(sizeof(double));
                 *(double*)new_variable.value = *(double*)variable->value;

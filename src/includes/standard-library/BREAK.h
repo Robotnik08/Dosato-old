@@ -54,9 +54,6 @@ int continueBlock (Process* process, const Variable* args, int argc) {
 int returnBlock (Process* process, const Variable* args, int argc);
 
 int returnBlock (Process* process, const Variable* args, int argc) {
-    if (argc != 1) {
-        return argc < 1 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
-    }
     Scope* lastScope = NULL;
 
     do {
@@ -67,14 +64,19 @@ int returnBlock (Process* process, const Variable* args, int argc) {
     if (lastScope->callType != SCOPE_FUNCTION) {
         return ERROR_RETURN_OUTSIDE_OF_FUNCTION;
     }
+    if (lastScope->returnType.dataType != TYPE_VOID) {
+        if (argc != 1) {
+            return argc < 1 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
+        }
 
-    int cRes = castValue((Variable*)&args[0], lastScope->returnType);
-    if (cRes) return cRes;
+        int cRes = castValue((Variable*)&args[0], lastScope->returnType);
+        if (cRes) return cRes;
 
-    // set the return value
-    setReturnValue(process, (Variable*)&args[0]);
-
-
+        // set the return value
+        setReturnValue(process, (Variable*)&args[0]);
+    } else if (argc != 0) {
+        return argc < 0 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
+    }
     return 0; // return code
 }
 #endif
