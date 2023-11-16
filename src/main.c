@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <time.h>
 // includes
 #include "includes/strtools.h"
 #include "includes/lexer.h"
@@ -35,7 +34,7 @@ int QUIT (int code);
 // global variables
 int debug = 0;
 
-int main (int argc, char* argv[])
+int main (int argc, char** argv)
 {
     // if no arguments are given, show hint
     if (argc < 2)
@@ -92,10 +91,15 @@ int main (int argc, char* argv[])
 
     // close the file
     fclose(file);
+    if (size == 0) {
+        free(contents);
+        return QUIT(0);
+    }
 
     // the main process, containing the entry point of the program
     Process main = createProcess(debug, 1, loadAST(argv[1], contents));
 
+    free(contents);
     /// DEBUG ///
     if (debug) {
         printf("CONTENTS (%s):\n\n", main.code[0].filename);
@@ -111,14 +115,9 @@ int main (int argc, char* argv[])
         printf("\n\nRUNNING PROGRAM:\n\n");
     }
 
-    clock_t start = clock();
     int exit_code = runProcess(&main);
-    clock_t end = clock();
-
-    printf("Time taken: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
     /// CLEANUP ///
     destroyProcess(&main);
-    free(contents);
     // flawless execution
 
     return QUIT(exit_code);

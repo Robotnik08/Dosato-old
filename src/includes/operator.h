@@ -1167,14 +1167,13 @@ int hash (Variable* var, Variable* arr, Variable* right) {
 
         *var = cloneVariable(&((Variable*)arr->value)[index >= 0 ? index : arr_length + index]);
     } else {
-        int str_length = strlen((char*)arr->value);
+        int str_length = strlen((char*)arr->value) + 1;
         if (abs(index) >= str_length) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
         }
-        char* value = malloc(sizeof(char) * 2);
-        value[0] = ((char*)arr->value)[index > 0 ? index : str_length + index];
-        value[1] = '\0';
-        *var = createVariable("-lit", TYPE_STRING, value, 1, 0);
+        char* value = malloc(sizeof(char));
+        *value = ((char*)arr->value)[index >= 0 ? index : str_length + index];
+        *var = createVariable("-lit", TYPE_CHAR, value, 1, 0);
     }
     return 0;
 }

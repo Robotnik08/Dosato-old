@@ -12,6 +12,8 @@
 #include "strtools.h"
 #include "token.h"
 
+#include <math.h>
+
 /**
  * @brief Tokenise a string of code
  * @param tokens The tokens to fill
@@ -122,7 +124,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
                 start = i;
                 continue;
             }
-            if (full_code[i] == '/' && full_code[i + 1] == '/') {
+            if (full_code[i] == '/' && full_code[i + 1 < code_length ? i + 1 : 0] == '/') {
                 int foundEnd = 0;
                 start = i;
                 for (int j = i; j < code_length; j++) {
@@ -298,7 +300,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
         if (isFloateric(full_code[i])) {
             if (full_code[i] == '.') {
-                if (!isFloateric(full_code[i + 1])) continue;
+                if (i + 1 < code_length) if (!isFloateric(full_code[i + 1])) continue;
             }
             int start = i;
             int end = i;
@@ -343,7 +345,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
         }
         int foundBig = 0;
         for (int j = 0; j < sizeof(operatortokens)/sizeof(char*); j++) {
-            char bigoperator[3] = { full_code[i], full_code[i+1], '\0' };
+            char bigoperator[3] = { full_code[i], full_code[i+1 < code_length ? i+1 : 0], '\0' };
             if (!strcmp(bigoperator, operatortokens[j])) {
                 addToken(tokens, TOKEN_OPERATOR, i, i + strlen(operatortokens[j]) - 1, j);
                 i++;
@@ -384,4 +386,5 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
     sortTokens(tokens);
     trimComments(tokens); // comments will be ignored from now on
 }
+
 #endif

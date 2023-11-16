@@ -114,8 +114,11 @@ int getFunctionsLength (const Function* list) {
 
 void destroyFunction (Function* function) {
     if (function->name != NULL) free(function->name);
-    for (int i = 0; i < function->arguments_length; i++) {
-        free(function->arguments[i].name);
+    if (function->arguments != NULL) {
+        for (int i = 0; i < function->arguments_length; i++) {
+            free(function->arguments[i].name);
+        }
+        free(function->arguments);
     }
 }
 #endif

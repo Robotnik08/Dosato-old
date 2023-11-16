@@ -146,13 +146,10 @@ int functionCall (Process* process, Node* func, int start) {
         if (func->body == NULL) {
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
         }
-        func->validated = 1;
-    }
-    if (!func->body[start].validated) {
         if (func->body[start].type != NODE_FUNCTION_IDENTIFIER && func->body[start].type != NODE_BLOCK) {
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start].start));
         }
-        func->body[start].validated = 1;
+        func->validated = 1;
     }
 
     // get any WHEN or WHILE statements, these encompass everything before the function call
@@ -181,21 +178,22 @@ int functionCall (Process* process, Node* func, int start) {
     if (!loop) {
         // when the condition is not a loop, we need to check if the condition is true
         if (condition_location != -1) {
-            Variable* condition = malloc(sizeof(Variable));
+            Variable* condition = malloc(sizeof(Variable) + 1);
             *condition = createNullTerminatedVariable();
             int condition_res = parseExpression(condition, process, &func->body[condition_location]);
             if (condition_res) return condition_res;
             int cast_res = castValue(condition, (Type){TYPE_BOOL,0});
             if (cast_res) return error(process, getLastScope(&process->main_scope)->running_ast, cast_res, getTokenStart(process, func->body[condition_location].start));
-            if (!*(int*)condition->value) {
-                if (condition_location == extension_length-1) return 0;
-                return functionCall(process, func, condition_location+2);
-            }
-
+            int condition_result = *(int*)condition->value;
             if (!strcmp(condition->name, "-lit")) {
                 destroyVariable(condition);
                 free(condition);
             }
+            if (!condition_result) {
+                if (condition_location == extension_length-1) return 0;
+                return functionCall(process, func, condition_location+2);
+            }
+
         }
 
         // parse all the expressions before the WHEN when the condition is true
@@ -319,14 +317,14 @@ int parseCall (Process* process, Node* call) {
 
     // parse function call to existing function
     Node* func_node = call->body;
-    if (!func_node->validated) {
+    if (!call->validated) {
         if (func_node[0].type != NODE_IDENTIFIER) {
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func_node[0].start));
         }
         if (func_node[1].type != NODE_ARGUMENTS) {
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, func_node[1].start));
         }
-        func_node->validated = 1;
+        call->validated = 1;
     }
     
     int args_length = getNodeBodyLength(func_node[1].body);
@@ -350,11 +348,14 @@ int parseCall (Process* process, Node* call) {
 }
 
 int makeVariable (Process* process, Node* line) {
-    if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_TYPE, getTokenStart(process, line->body[0].start));
-    }
-    if (line->body[1].type != NODE_IDENTIFIER) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
+    if (!line->validated){
+        if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_TYPE, getTokenStart(process, line->body[0].start));
+        }
+        if (line->body[1].type != NODE_IDENTIFIER) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
+        }
+        line->validated = 1;
     }
 
     // check if variable already exists
@@ -380,8 +381,11 @@ int makeVariable (Process* process, Node* line) {
 
 int setVariable (Process* process, Node* line) {
     OperatorType operator = getTokenAtPosition(process, line->body[1].start).carry;
-    if (!isAssignmentOperator(operator) || line->body[1].type != NODE_OPERATOR) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ASSIGN_OPERATOR, getTokenStart(process, line->body[1].start));
+    if (!line->validated) {
+        if (!isAssignmentOperator(operator) || line->body[1].type != NODE_OPERATOR) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ASSIGN_OPERATOR, getTokenStart(process, line->body[1].start));
+        }
+        line->validated = 1;
     }
     
     Variable* left;
@@ -406,20 +410,23 @@ int setVariable (Process* process, Node* line) {
 }
 
 int makeFunction (Process* process, Node* line) {
-    if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_TYPE, getTokenStart(process, line->body[0].start));
-    }
+    if (!line->validated) {
+        if (line->body[0].type != NODE_TYPE_IDENTIFIER) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_TYPE, getTokenStart(process, line->body[0].start));
+        }
 
-    if (line->body[1].type != NODE_IDENTIFIER) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
-    }
+        if (line->body[1].type != NODE_IDENTIFIER) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, line->body[1].start));
+        }
 
-    if (line->body[2].type != NODE_FUNCTION_DECLARATION_ARGUMENTS) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, line->body[2].start));
-    }
+        if (line->body[2].type != NODE_FUNCTION_DECLARATION_ARGUMENTS) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARGUMENTS, getTokenStart(process, line->body[2].start));
+        }
 
-    if (line->body[3].type != NODE_BLOCK) {
-        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_BLOCK, getTokenStart(process, line->body[3].start));
+        if (line->body[3].type != NODE_BLOCK) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_BLOCK, getTokenStart(process, line->body[3].start));
+        }
+        line->validated = 1;
     }
 
     // check if function already exists
@@ -428,22 +435,25 @@ int makeFunction (Process* process, Node* line) {
     }
 
     // make arguments
-    int args_length = getNodeBodyLength(line->body[2].body);
-    Argument* args = malloc(sizeof(Argument) * (args_length + 1));
-    for (int i = 0; i < args_length; i++) {
-        Type t = (Type){D_NULL,0};
-        int array_depth = 0;
-        Node* end_node = &line->body[2].body[i];
-        while (getTokenAtPosition(process, end_node->body[0].start).carry == TYPE_ARRAY) {
-            t.array++;
-            end_node = &end_node->body[1];
-        }
-        t.dataType = getTokenAtPosition(process, end_node->body[0].start).carry;
+    int argc = getNodeBodyLength(line->body[2].body);
+    Argument* args = NULL;
+    if (argc > 0) {
+        args = malloc(sizeof(Argument) * (argc + 1));
+        for (int i = 0; i < argc; i++) {
+            Type t = (Type){D_NULL,0};
+            int array_depth = 0;
+            Node* end_node = &line->body[2].body[i];
+            while (getTokenAtPosition(process, end_node->body[0].start).carry == TYPE_ARRAY) {
+                t.array++;
+                end_node = &end_node->body[1];
+            }
+            t.dataType = getTokenAtPosition(process, end_node->body[0].start).carry;
 
-        if (end_node->body[1].type != NODE_IDENTIFIER) {
-            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, end_node->body[1].start));
+            if (end_node->body[1].type != NODE_IDENTIFIER) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, end_node->body[1].start));
+            }
+            args[i] = createArgument(end_node->body[1].text, t);
         }
-        args[i] = createArgument(end_node->body[1].text, t);
     }
 
 
@@ -451,7 +461,7 @@ int makeFunction (Process* process, Node* line) {
     int tRes = getTypeFromNode(process, &returnType, &line->body[0]);
     if (tRes) return error(process, getLastScope(&process->main_scope)->running_ast, tRes, getTokenStart(process, line->body[0].start));
 
-    addFunction(&process->main_scope, createFunction(line->body[1].text, &line->body[3], args, args_length, returnType, 0));
+    addFunction(&process->main_scope, createFunction(line->body[1].text, &line->body[3], args, argc, returnType, 0));
 
     return 0;
 }
@@ -474,6 +484,7 @@ int makeArray (Process* process, Node* line) {
         int cRes = castValue(&var, t);
         if (cRes) return error(process, getLastScope(&process->main_scope)->running_ast, cRes, getTokenStart(process, end_node->body[0].start));
     }
+    free (var.name); // free the old name, since we're going to overwrite it
     var.name = malloc(sizeof(char) * (strlen(end_node->body[1].text) + 1));
     strcpy(var.name, end_node->body[1].text);
     var.constant = 0;

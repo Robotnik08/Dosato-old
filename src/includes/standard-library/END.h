@@ -22,12 +22,11 @@ int end (Process* process, const Variable* args, int argc) {
         process->exit_code = 0;
         process->running = 0;
     } else if (argc == 1) {
-        if (checkIfNumber(args[0].type.dataType)) {
-            process->exit_code = *(int*)args[0].value;
-            process->running = 0;
-        } else {
-            return ERROR_TYPE_MISMATCH;
-        }
+        int cRes = castValue((Variable*)&args[0], (Type){TYPE_INT, 0});
+        if (cRes) return cRes;
+        
+        process->exit_code = *(int*)args[0].value;
+        process->running = 0;
     } else {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
