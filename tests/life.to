@@ -1,0 +1,83 @@
+// game of life in Dosato
+MAKE ARRAY ARRAY BOOL board = [];
+MAKE INT size = 10;
+
+MAKE FUNC VOID displayBoard (ARRAY ARRAY BOOL board) {
+    DO SAYLN ("Board:");
+    DO SAYLN ("-------------");
+    MAKE INT i = 0;
+    DO {
+        MAKE INT j = 0;
+        DO {
+            DO {
+                DO SAY ("#");
+            } WHEN (board#i#j) ELSE {
+                DO SAY (".");
+            };
+        } THEN {SET j += 1;} WHILE (j < size);
+        DO SAY ("\n");
+    } THEN {SET i += 1;} WHILE (i < size);
+    DO SAYLN ("\n-------------\n");
+};
+
+MAKE FUNC BOOL getFromPos (ARRAY ARRAY BOOL board, INT i, INT j) {
+    DO RETURN (board#i#j) WHEN (i >= 0 && i < size && j >= 0 && j < size) ELSE RETURN (FALSE);
+};
+
+// main game of life function
+MAKE FUNC BOOL getIfAlive (ARRAY ARRAY BOOL b, INT i, INT j) {
+    MAKE INT neighbors = 0;
+    DO getFromPos (b, i - 1, j - 1); SET neighbors += _;
+    DO getFromPos (b, i - 1, j);     SET neighbors += _;
+    DO getFromPos (b, i - 1, j + 1); SET neighbors += _;
+    DO getFromPos (b, i,     j - 1); SET neighbors += _;
+    DO getFromPos (b, i,     j + 1); SET neighbors += _;
+    DO getFromPos (b, i + 1, j - 1); SET neighbors += _;
+    DO getFromPos (b, i + 1, j);     SET neighbors += _;
+    DO getFromPos (b, i + 1, j + 1); SET neighbors += _;
+
+    MAKE BOOL alive = FALSE; DO getFromPos (b, i, j) INTO alive;
+    
+    DO RETURN (neighbors > 1 && neighbors < 4)
+    WHEN (alive) ELSE RETURN (neighbors == 3);
+};
+
+// initialize array
+MAKE INT i = 0;
+DO {
+    SET board += [[]];
+    MAKE INT j = 0;
+    DO {
+        SET board#i += [FALSE];
+    } THEN {SET j += 1;} WHILE (j < size);
+} THEN {SET i += 1;} WHILE (i < size);
+
+
+// glider
+DO {
+    SET board#0#2 = TRUE;
+    SET board#1#0 = TRUE;
+    SET board#1#2 = TRUE;
+    SET board#2#1 = TRUE;
+    SET board#2#2 = TRUE;
+};
+
+DO displayBoard(board);
+
+MAKE INT step = 0;
+MAKE INT maxSteps = 27;
+DO {
+    // edit board
+    MAKE ARRAY ARRAY BOOL newBoard = board;
+    MAKE INT i = 0;
+    DO {
+        MAKE INT j = 0;
+        DO {
+            DO getIfAlive (board, i, j) INTO newBoard#i#j;
+        } THEN {SET j += 1;} WHILE (j < size);
+    } THEN {SET i += 1;} WHILE (i < size);
+    SET board = newBoard;
+    DO displayBoard(board);
+} THEN {SET step += 1;} WHILE (step < maxSteps);
+
+DO SAYLN ("Done!\n");
