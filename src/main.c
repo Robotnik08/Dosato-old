@@ -64,14 +64,6 @@ int main (int argc, char** argv)
         return QUIT(0);
     }
 
-    char* filename = malloc (strlen(argv[1]) + 1);
-    strcpy(filename, argv[1]);
-    for (int i = 2; i < argc - 1; i++) {
-        filename = realloc(filename, strlen(filename) + strlen(argv[i]) + 2);
-        strcat(filename, " ");
-        strcat(filename, argv[i]);
-    }
-
     // open the file
     FILE* file = fopen(argv[1], "r");
 
