@@ -75,7 +75,7 @@ int parseExpression (Variable* var, Process* process, Node* node) {
     Variable* left;
     Variable* right;
     OperatorType operator;
-    int res = 0;
+    int oRes = 0;
     switch (node->type)
     {
         default:
@@ -93,8 +93,8 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             break;
         case NODE_EXPRESSION:
             if (getNodeBodyLength(node->body) == 1 && (node->body[0].type == NODE_EXPRESSION || node->body[0].type == NODE_LITERAL || node->body[0].type == NODE_IDENTIFIER || node->body[0].type == NODE_UNARY_EXPRESSION || node->body[0].type == NODE_ARRAY_EXPRESSION)) {
-                int res = parseExpression(var, process, &node->body[0]);
-                if (res) return res;
+                int oRes = parseExpression(var, process, &node->body[0]);
+                if (oRes) return oRes;
                 return 0;
             }
 
@@ -124,88 +124,82 @@ int parseExpression (Variable* var, Process* process, Node* node) {
 
                 // arithmetic operators
                 case OPERATOR_ADD:
-                    res = add(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = add(var, left, right);
                     break;
                 case OPERATOR_SUBTRACT:
-                    res = subtract(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = subtract(var, left, right);
                     break;
                 case OPERATOR_MULTIPLY:
-                    res = multiply(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = multiply(var, left, right);
+                    break;
+                case OPERATOR_POWER:
+                    oRes = pow_op(var, left, right);
                     break;
                 case OPERATOR_DIVIDE:
-                    res = divide(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = divide(var, left, right);
+                    break;
+                case OPERATOR_ROOT:
+                    oRes = root(var, left, right);
                     break;
                 case OPERATOR_MODULO:
-                    res = modulo(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = modulo(var, left, right);
                     break;
                 case OPERATOR_XOR:
-                    res = xor(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = xor(var, left, right);
                     break;
                 case OPERATOR_AND:
-                    res = and(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = and(var, left, right);
                     break;
                 case OPERATOR_OR:
-                    res = or(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = or(var, left, right);
                     break;
                 case OPERATOR_SHIFT_LEFT:
-                    res = bitshift_left(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start)); 
+                    oRes = bitshift_left(var, left, right);
                     break;
                 case OPERATOR_SHIFT_RIGHT:
-                    res = bitshift_right(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start)); 
+                    oRes = bitshift_right(var, left, right);
                     break;
 
                 // logical operators
                 case OPERATOR_OR_OR:
-                    res = logic_or(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = logic_or(var, left, right);
                     break;
                 case OPERATOR_AND_AND:
-                    res = logic_and(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = logic_and(var, left, right);
                     break;
                 
                 // comparison operators
                 case OPERATOR_EQUAL:
-                    res = equal(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = equal(var, left, right);
                     break;
                 case OPERATOR_NOT_EQUAL:
-                    res = not_equal(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = not_equal(var, left, right);
                     break;
                 case OPERATOR_LESS:
-                    res = less_than(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = less_than(var, left, right);
                     break;
                 case OPERATOR_GREATER:
-                    res = greater_than(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = greater_than(var, left, right);
                     break;
                 case OPERATOR_LESS_EQUAL:
-                    res = less_than_or_equal(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = less_than_or_equal(var, left, right);
                     break;
                 case OPERATOR_GREATER_EQUAL:
-                    res = greater_than_or_equal(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = greater_than_or_equal(var, left, right);
                     break;
 
-
+                // special operators
                 case OPERATOR_HASH:
-                    res = hash(var, left, right);
-                    if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                    oRes = hash(var, left, right);
+                    break;
+                case OPERATOR_MAX:
+                    oRes = max_op(var, left, right);
+                    break;
+                case OPERATOR_MIN:
+                    oRes = min_op(var, left, right);
                     break;
             }
+            if (oRes) return error(process, getLastScope(&process->main_scope)->running_ast, oRes, getTokenStart(process, node->start));
             
             if (!strcmp(left->name, "-lit")) {
                 destroyVariable(left);
@@ -231,21 +225,25 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                 operator = process->code->tokens[node->body[0].start].carry;
                 switch (operator) {
                     default:
-                        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_OPERATOR, getTokenStart(process, node->start));
+                        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_OPERATOR_NOT_UNARY, getTokenStart(process, node->start));
                         break;
                     case OPERATOR_NOT:
-                        res = not(var, right);
-                        if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                        oRes = not(var, right);
                         break;
                     case OPERATOR_NOT_BITWISE:
-                        res = not_bitwise(var, right);
-                        if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                        oRes = not_bitwise(var, right);
                         break;
                     case OPERATOR_SUBTRACT:
-                        res = negative(var, right);
-                        if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                        oRes = negative(var, right);
+                        break;
+                    case OPERATOR_ROOT:
+                        oRes = sqroot(var, right);
+                        break;
+                    case OPERATOR_ABSOLUTE:
+                        oRes = absolute(var, right);
                         break;
                 }
+                if (oRes) return error(process, getLastScope(&process->main_scope)->running_ast, oRes, getTokenStart(process, node->start));
             }
             else if (node->body[0].type == NODE_OPERATOR_CAST) {
                 // this is never a reference, since it is a cast
@@ -258,8 +256,8 @@ int parseExpression (Variable* var, Process* process, Node* node) {
                 Type castType = (Type){.dataType = D_NULL, .array = 0};
                 int tRes = getTypeFromCastNode(process, &castType, &node->body[0]);
                 if (tRes) return error(process, getLastScope(&process->main_scope)->running_ast, tRes, getTokenStart(process, node->start));
-                res = castValue(right, castType);
-                if (res) return error(process, getLastScope(&process->main_scope)->running_ast, res, getTokenStart(process, node->start));
+                oRes = castValue(right, castType);
+                if (oRes) return error(process, getLastScope(&process->main_scope)->running_ast, oRes, getTokenStart(process, node->start));
                 destroyVariable(var);
                 *var = cloneVariable(right);
             }
@@ -271,8 +269,8 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             break;
         
         case NODE_ARRAY_EXPRESSION:
-            int res = parseArrayExpression(var, process, node);
-            if (res) return res;
+            oRes = parseArrayExpression(var, process, node);
+            if (oRes) return oRes;
             break;
     }
     return 0; // success
@@ -284,7 +282,7 @@ int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
     Variable* left;
     Variable* right;
     OperatorType operator;
-    int res = 0;
+    int oRes = 0;
     switch (node->type)
     {
         default:
@@ -297,8 +295,8 @@ int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
             break;
         case NODE_EXPRESSION:
             if (getNodeBodyLength(node->body) == 1 && node->body[0].type == NODE_EXPRESSION) {
-                int res = parseRefrenceExpression(var, process, &node->body[0]);
-                if (res) return res;
+                oRes = parseRefrenceExpression(var, process, &node->body[0]);
+                if (oRes) return oRes;
                 return 0;
             }
             right = malloc(sizeof(Variable));
@@ -317,8 +315,8 @@ int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_REFRENCE_EXPRESSION, getTokenStart(process, node->start));
                     break;
                 case OPERATOR_HASH:
-                    int code = hash_refrence(var, left, right);
-                    if (code) return error(process, getLastScope(&process->main_scope)->running_ast, code, getTokenStart(process, node->start));
+                    oRes = hash_refrence(var, left, right);
+                    if (oRes) return error(process, getLastScope(&process->main_scope)->running_ast, oRes, getTokenStart(process, node->start));
                     break;
             }
             
@@ -502,40 +500,40 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
     }
     switch (op) {
         case OPERATOR_ASSIGN:
-            int res = assign(left, right);
-            if (res) return res;
+            int oRes = assign(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_ADD_ASSIGN:
-            res = assign_add(left, right);
-            if (res) return res;
+            oRes = assign_add(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_SUBTRACT_ASSIGN:
-            res = assign_subtract(left, right);
-            if (res) return res;
+            oRes = assign_subtract(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_MULTIPLY_ASSIGN:
-            res = assign_multiply(left, right);
-            if (res) return res;
+            oRes = assign_multiply(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_DIVIDE_ASSIGN:
-            res = assign_divide(left, right);
-            if (res) return res;
+            oRes = assign_divide(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_MODULO_ASSIGN:
-            res = assign_modulo(left, right);
-            if (res) return res;
+            oRes = assign_modulo(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_AND_ASSIGN:
-            res = assign_and(left, right);
-            if (res) return res;
+            oRes = assign_and(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_OR_ASSIGN:
-            res = assign_or(left, right);
-            if (res) return res;
+            oRes = assign_or(left, right);
+            if (oRes) return oRes;
             break;
         case OPERATOR_XOR_ASSIGN:
-            res = assign_xor(left, right);
-            if (res) return res;
+            oRes = assign_xor(left, right);
+            if (oRes) return oRes;
             break;
         default:
             return ERROR_INVALID_OPERATOR;
@@ -551,8 +549,8 @@ int parseArrayExpression (Variable* var, Process* process, Node* node) {
 
     for (int i = 0; i < elements_length; i++) {
         elements[i] = createNullTerminatedVariable();
-        int res = parseExpression(&elements[i], process, &node->body[i]);
-        if (res) return res;
+        int oRes = parseExpression(&elements[i], process, &node->body[i]);
+        if (oRes) return oRes;
         char* indexString = malloc(sizeof(char) * 21);
         sprintf(indexString, "%d", i);
         free(elements[i].name);

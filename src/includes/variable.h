@@ -443,6 +443,10 @@ unsigned long long int getUnsignedNumber (Variable* variable) {
     }
 }
 double getFloatNumber (Variable* variable) {
+    if (variable->type.array) {
+        // return the length of the array
+        return getVariablesLength((Variable*)variable->value);
+    }
     switch (variable->type.dataType) {
         case TYPE_BOOL:
             return (double)(*(int*)variable->value != 0);

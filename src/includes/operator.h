@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "ast.h"
 #include "variable.h"
@@ -123,12 +124,28 @@ int subtract (Variable* var, Variable* left, Variable* right);
 int multiply (Variable* var, Variable* left, Variable* right);
 
 /**
+ * @brief pow two variables **
+ * @param var The return variable
+ * @param left The left variable
+ * @param right The right variable
+*/
+int pow_op (Variable* var, Variable* left, Variable* right);
+
+/**
  * @brief Divide two variables /
  * @param var The return variable
  * @param left The left variable
  * @param right The right variable
 */
 int divide (Variable* var, Variable* left, Variable* right);
+
+/**
+ * @brief get the root of a number /^
+ * @param var The return variable
+ * @param left The left variable
+ * @param right The right variable
+*/
+int root (Variable* var, Variable* left, Variable* right);
 
 /**
  * @brief Modulo two variables %
@@ -251,6 +268,30 @@ int not_bitwise (Variable* var, Variable* right);
 */
 int negative (Variable* var, Variable* right);
 
+/**
+ * @brief Hash (get array index and call hash functions) #
+ * @param var The return variable
+ * @param left The left variable
+ * @param right The right variable
+*/
+int hash (Variable* var, Variable* left, Variable* right);
+
+/**
+ * @brief get the biggest of two variables
+ * @param var The return variable
+ * @param left The right variable
+ * @param right The right variable
+*/
+int max_op (Variable* var, Variable* left, Variable* right);
+
+/**
+ * @brief get the smallest of two variables
+ * @param var The return variable
+ * @param left The right variable
+ * @param right The right variable
+*/
+int min_op (Variable* var, Variable* left, Variable* right);
+
 int add (Variable* var, Variable* left, Variable* right) {
     if (!checkIfAddable(left->type.dataType) && !checkIfAddable(right->type.dataType) && !(left->type.array || right->type.array)) {
         return ERROR_CANT_USE_TYPE_IN_ADDITION;
@@ -317,9 +358,6 @@ int add (Variable* var, Variable* left, Variable* right) {
 }
 
 int subtract (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_TYPE_NOT_SUBTRACTABLE;
-    }
     destroyVariable(var);
 
     // if array, pop the value from the array
@@ -363,9 +401,6 @@ int subtract (Variable* var, Variable* left, Variable* right) {
 }
 
 int multiply (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_MULTIPLICATION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -381,15 +416,35 @@ int multiply (Variable* var, Variable* left, Variable* right) {
         double* value = malloc(sizeof(double));
 
         *value = left_value * right_value;
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
+    }
+    return 0;
+}
+
+int pow_op (Variable* var, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+
+        long long int* value = malloc(sizeof(long long int));
+
+        *value = pow(left_value, right_value);
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        double* value = malloc(sizeof(double));
+
+        *value = pow(left_value, right_value);
         *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
     }
     return 0;
 }
 
 int divide (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_DIVISION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -410,10 +465,34 @@ int divide (Variable* var, Variable* left, Variable* right) {
     return 0;
 }
 
+int root (Variable* var, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+
+    double left_value = getFloatNumber(left);
+    double right_value = getFloatNumber(right);
+    
+    double* value = malloc(sizeof(double));
+
+    *value = pow(right_value, 1.0 / left_value);
+    *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
+    return 0;
+}
+
+int sqroot (Variable* var, Variable* right) {
+    destroyVariable(var);
+
+
+    double right_value = getFloatNumber(right);
+    
+    double* value = malloc(sizeof(double));
+
+    *value = sqrt(right_value);
+    *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
+    return 0;
+
+}
 int modulo (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_MODULO;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -429,9 +508,6 @@ int modulo (Variable* var, Variable* left, Variable* right) {
 }
 
 int xor (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -447,9 +523,6 @@ int xor (Variable* var, Variable* left, Variable* right) {
 }
 
 int or (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -465,9 +538,6 @@ int or (Variable* var, Variable* left, Variable* right) {
 }
 
 int and (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -483,9 +553,6 @@ int and (Variable* var, Variable* left, Variable* right) {
 }
 
 int bitshift_left (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -501,9 +568,6 @@ int bitshift_left (Variable* var, Variable* left, Variable* right) {
 }
 
 int bitshift_right (Variable* var, Variable* left, Variable* right) {
-    if (!checkIfNumber(left->type.dataType) && !checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
@@ -532,10 +596,26 @@ int not (Variable* var, Variable* right) {
     return 0;
 }
 
-int not_bitwise (Variable* var, Variable* right) {
-    if (!checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_BITWISE_EXPRESSION;
+int absolute (Variable* var, Variable* right) {
+    destroyVariable(var);
+
+    if (!checkIfFloating(right->type.dataType)) {
+        long long int right_value = getSignedNumber(right);
+        long long int* value = malloc(sizeof(long long int));
+        *value = abs(right_value);
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        double right_value = getFloatNumber(right);
+        
+        double* value = malloc(sizeof(double));
+
+        *value = fabs(right_value);
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
     }
+    return 0;
+}
+
+int not_bitwise (Variable* var, Variable* right) {
     destroyVariable(var);
 
     if (!checkIfFloating(right->type.dataType)) {
@@ -550,9 +630,6 @@ int not_bitwise (Variable* var, Variable* right) {
 }
 
 int negative (Variable* var, Variable* right) {
-    if (!checkIfNumber(right->type.dataType)) {
-        return ERROR_CANT_USE_TYPE_IN_NEGATION;
-    }
     destroyVariable(var);
 
     if (!checkIfFloating(right->type.dataType)) {
@@ -698,96 +775,86 @@ int not_equal (Variable* var, Variable* left, Variable* right) {
 int less_than (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
-    long long int left_value;
-    long long int right_value;
-
-    if (checkIfFloating(left->type.dataType)) {
-        left_value = (int)getFloatNumber(left);
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        int* value = malloc(sizeof(int));
+        *value = left_value < right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     } else {
-        left_value = getSignedNumber(left);
-    }
-    if (checkIfFloating(right->type.dataType)) {
-        right_value = (int)getFloatNumber(right);
-    } else {
-        right_value = getSignedNumber(right);
-    }
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        int* value = malloc(sizeof(int));
 
-    int* value = malloc(sizeof(int));
-    *value = left_value < right_value;
-    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        *value = left_value < right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
     return 0;
 }
 
 int greater_than (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
-    long long int left_value;
-    long long int right_value;
-
-    if (checkIfFloating(left->type.dataType)) {
-        left_value = (int)getFloatNumber(left);
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        int* value = malloc(sizeof(int));
+        *value = left_value > right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     } else {
-        left_value = getSignedNumber(left);
-    }
-    if (checkIfFloating(right->type.dataType)) {
-        right_value = (int)getFloatNumber(right);
-    } else {
-        right_value = getSignedNumber(right);
-    }
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        int* value = malloc(sizeof(int));
 
-    int* value = malloc(sizeof(int));
-    *value = left_value > right_value;
-    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        *value = left_value > right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
     return 0;
 }
 
 int less_than_or_equal (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
-    long long int left_value;
-    long long int right_value;
-
-    if (checkIfFloating(left->type.dataType)) {
-        left_value = (int)getFloatNumber(left);
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        int* value = malloc(sizeof(int));
+        *value = left_value <= right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     } else {
-        left_value = getSignedNumber(left);
-    }
-    if (checkIfFloating(right->type.dataType)) {
-        right_value = (int)getFloatNumber(right);
-    } else {
-        right_value = getSignedNumber(right);
-    }
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        int* value = malloc(sizeof(int));
 
-    int* value = malloc(sizeof(int));
-    *value = left_value <= right_value;
-    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        *value = left_value <= right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
     return 0;
 }
 
 int greater_than_or_equal (Variable* var, Variable* left, Variable* right) {
     destroyVariable(var);
 
-    long long int left_value;
-    long long int right_value;
-
-    if (checkIfFloating(left->type.dataType)) {
-        left_value = (int)getFloatNumber(left);
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        int* value = malloc(sizeof(int));
+        *value = left_value >= right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
     } else {
-        left_value = getSignedNumber(left);
-    }
-    if (checkIfFloating(right->type.dataType)) {
-        right_value = (int)getFloatNumber(right);
-    } else {
-        right_value = getSignedNumber(right);
-    }
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        int* value = malloc(sizeof(int));
 
-    int* value = malloc(sizeof(int));
-    *value = left_value >= right_value;
-    *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+        *value = left_value >= right_value;
+        *var = createVariable("-lit", TYPE_BOOL, value, 1, 0);
+    }
     return 0;
 }
-
-
 
 int assign (Variable* left, Variable* right) {
     switch (left->type.dataType) {
@@ -1155,6 +1222,7 @@ int hash_refrence (Variable** var, Variable* arr, Variable* right) {
 
 int hash (Variable* var, Variable* arr, Variable* right) {
     destroyVariable(var);
+
     if (!arr->type.array && arr->type.dataType != TYPE_STRING) {
         return ERROR_TYPE_MISMATCH;
     }
@@ -1177,4 +1245,47 @@ int hash (Variable* var, Variable* arr, Variable* right) {
     }
     return 0;
 }
+
+int max_op (Variable* var, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        long long int* value = malloc(sizeof(long long int));
+        *value = left_value < right_value ? right_value : left_value;
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        double* value = malloc(sizeof(double));
+
+        *value = left_value < right_value ? right_value : left_value;
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
+    }
+    return 0;
+}
+
+int min_op (Variable* var, Variable* left, Variable* right) {
+    destroyVariable(var);
+
+    if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        long long int* value = malloc(sizeof(long long int));
+        *value = left_value > right_value ? right_value : left_value;
+        *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
+    } else {
+        double left_value = getFloatNumber(left);
+        double right_value = getFloatNumber(right);
+        
+        double* value = malloc(sizeof(double));
+
+        *value = left_value > right_value ? right_value : left_value;
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
+    }
+    return 0;
+}
+
 #endif

@@ -16,14 +16,14 @@
 #define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_EXPRESSION, NEEDS_FUNCTION}
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
-#define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#", \
-                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>","&=","|=","^=",\
-                   }
+#define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#",  \
+                   "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>","&=","|=","^=", \
+                   "**","^/","|>","<|","!-"}
 // operator precedence is borrowed from C
 #define OPERATOR_PRECEDENCE \
-                  { 4,   4,   3,   3,   3,   14,  6,   6,   2,   8,   9,   10,  2,   13,  13,  1,   15,  1, \
-                    14,  14,  14,  14,  14,  2,   2,   7,   7,   6,   6,   11,  12,  5,   5,   14,  14,  14 \
-                  }
+                  { 4,   4,   3,   3,   3,   14,  6,   6,   2,   8,   9,   10,  2,   13,  13,  1,   15,  1,   \
+                    14,  14,  14,  14,  14,  2,   2,   7,   7,   6,   6,   11,  12,  5,   5,   14,  14,  14,  \
+                    2,   2,   2,   2,   2}
 
 #define BRACKETS {"()", "{}", "[]"}
 
@@ -87,7 +87,11 @@ typedef enum {
     OPERATOR_AND_ASSIGN,
     OPERATOR_OR_ASSIGN,
     OPERATOR_XOR_ASSIGN,
-    OPERATOR_NOT_NOT,
+    OPERATOR_POWER,
+    OPERATOR_ROOT,
+    OPERATOR_MAX,
+    OPERATOR_MIN,
+    OPERATOR_ABSOLUTE
 } OperatorType;
 
 typedef enum {
@@ -203,9 +207,6 @@ int isAssignmentOperator (OperatorType operator) {
         case OPERATOR_AND_ASSIGN:
         case OPERATOR_OR_ASSIGN:
         case OPERATOR_XOR_ASSIGN:
-        case OPERATOR_INCREMENT:
-        case OPERATOR_DECREMENT:
-        case OPERATOR_NOT_NOT:
             return 1;
     }
     return 0;
