@@ -6,6 +6,8 @@
 #include "PAUSE.h"
 #include "BREAK.h" // also includes CONTINUE and RETURN
 #include "LISTEN.h"
+#include "CLEAR.h"
+#include "SYSTEM.h"
 
 #include "../ast.h"
 #include "../parser.h"
@@ -36,6 +38,10 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return returnBlock(process, args, argc);
     } else if (!strcmp(name, "LISTEN")) {
         return listen(process, args, argc);
+    } else if (!strcmp(name, "CLEAR")) {
+        return clear(process, args, argc);
+    } else if (!strcmp(name, "SYSTEM")) {
+        return sys(process, args, argc);
     }
     return ERROR_FUNCTION_NOT_FOUND;
 }

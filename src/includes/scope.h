@@ -204,6 +204,12 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // LISTEN function
         addFunction(scope, createFunction("LISTEN", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // CLEAR function
+        addFunction(scope, createFunction("CLEAR", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // SYSTEM function
+        addFunction(scope, createFunction("SYSTEM", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
     }
 }
 

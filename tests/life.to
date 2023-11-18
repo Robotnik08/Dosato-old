@@ -3,8 +3,7 @@ MAKE ARRAY ARRAY BOOL board = [];
 MAKE INT size = 10;
 
 MAKE FUNC VOID displayBoard (ARRAY ARRAY BOOL board) {
-    DO SAYLN ("Board:");
-    DO SAYLN ("-------------");
+    DO CLEAR ();
     MAKE INT i = 0;
     DO {
         MAKE INT j = 0;
@@ -17,7 +16,6 @@ MAKE FUNC VOID displayBoard (ARRAY ARRAY BOOL board) {
         } THEN {SET j += 1;} WHILE (j < size);
         DO SAY ("\n");
     } THEN {SET i += 1;} WHILE (i < size);
-    DO SAYLN ("\n-------------\n");
 };
 
 MAKE FUNC BOOL getFromPos (ARRAY ARRAY BOOL board, INT i, INT j) {
@@ -79,5 +77,3 @@ DO {
     SET board = newBoard;
     DO displayBoard(board);
 } THEN {SET step += 1;} WHILE (step < maxSteps);
-
-DO SAYLN ("Done!\n");
