@@ -64,6 +64,9 @@ int returnBlock (Process* process, const Variable* args, int argc) {
     if (lastScope->callType != SCOPE_FUNCTION) {
         return ERROR_RETURN_OUTSIDE_OF_FUNCTION;
     }
+    lastScope->terminated = -1;
+
+    
     if (lastScope->returnType.dataType != TYPE_VOID) {
         if (argc != 1) {
             return argc < 1 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;

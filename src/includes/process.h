@@ -144,6 +144,8 @@ Process createProcess (int debug, int main, AST root_ast) {
     process.error_ast_index = 0;
     process.error_location = 0;
     process.error_code = 0;
+    process.exit_code = 0;
+    process.running = 0;
 
     process.main_scope = createScope(&process.code[0].root, 0, main, 0, SCOPE_ROOT);
     process.debug = debug;
@@ -310,7 +312,6 @@ int callFunction (char* name, Variable* args, int args_length, Process* process)
         code = next(process);
         if (code) break;
     }
-    if (code == -1) code = 0;
     return code > 0 ? code : 0;
 }
 

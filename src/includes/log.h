@@ -215,7 +215,7 @@ void logText (const LogType type, const char* contents) {
 }
 void printError (const char* full_code, const int pos, const ErrorType type) {
     printf("\nERROR:\n");
-    printf("E%i: %s\n", type, ERROR_MESSAGES[type < ERROR_AMOUNT && ERROR_AMOUNT > 0 ? type : ERROR_UNKNOWN]);
+    printf("E%d: %s\n", type, ERROR_MESSAGES[type < ERROR_AMOUNT && ERROR_AMOUNT > 0 ? type : ERROR_UNKNOWN]);
     printf("At line %i:%i\n", getLine(full_code, pos), getLineCol(full_code, pos));
     exit(type);
 }

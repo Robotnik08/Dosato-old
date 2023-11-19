@@ -20,7 +20,8 @@ typedef struct Scope Scope;
 typedef enum {
     SCOPE_ROOT,
     SCOPE_BLOCK,
-    SCOPE_FUNCTION
+    SCOPE_FUNCTION,
+    SCOPE_EXPRESSION
 } ScopeType;
 
 typedef enum {
