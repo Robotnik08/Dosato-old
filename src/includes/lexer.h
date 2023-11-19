@@ -298,7 +298,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
                 i = (*tokens)[t].end + 1;
             }
         }
-        if (isFloateric(full_code[i])) {
+        if (isFloateric(full_code[i]) && !isAlphaNameric(full_code[i-1])) {
             if (full_code[i] == '.') {
                 if (i + 1 < code_length) if (!isFloateric(full_code[i + 1])) continue;
             }
@@ -365,7 +365,7 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
     tokenCount = getTokenAmount(*tokens);
     sortTokens(tokens);
     
-    // get general tokens (variables, functions, etc.)
+    // get identifier tokens (variables, functions, etc.)
     for (int i = 0; i < code_length; i++) {
         for (int t = 0; t < tokenCount; t++) {
             if (i == (*tokens)[t].start) {
