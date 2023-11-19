@@ -1,0 +1,10 @@
+// factorial function in Dosato
+
+MAKE FUNC LONG factorial (LONG n) {
+    DO RETURN (1) WHEN (n <= 1);
+    DO RETURN (n * factorial(n - 1));
+};
+
+DO SAYLN ("5! = " + factorial(5));
+DO SAYLN ("10! = " + factorial(10));
+DO SAYLN ("20! = " + factorial(20));
