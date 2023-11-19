@@ -50,8 +50,7 @@ MAKE FUNC VOID playMove () {
     DO printBoard(board);
 
     DO SAYLN ("Player " + player + "'s turn");
-    MAKE STRING input = "";
-    DO LISTEN () INTO input;
+    MAKE STRING input = LISTEN();
     DO END () WHEN (input == "quit" || input == "exit" || input == "q" || input == "e");
 
     DO SAYLN ("Please enter a number between 1 and 9") THEN playMove () THEN RETURN ()
@@ -65,12 +64,9 @@ MAKE FUNC VOID playMove () {
     WHEN (board#(move-'1'));
 
     SET board#(move-'1') = player;
-    MAKE BOOL won = FALSE;
-    DO checkWin(board, player) INTO won;
-    DO SAYLN ("Player " + player + " wins!") THEN RETURN () WHEN (won);
+    DO SAYLN ("Player " + player + " wins!") THEN RETURN () WHEN (checkWin(board, player));
 
-    DO checkTie(board) INTO won;
-    DO SAYLN ("Tie game!") THEN RETURN () WHEN (won);
+    DO SAYLN ("Tie game!") THEN RETURN () WHEN (checkTie(board));
 
     DO {
         SET player = 'X';
@@ -80,6 +76,4 @@ MAKE FUNC VOID playMove () {
     DO playMove (); // next player's turn
 };
 
-
-DO playMove ();
-
+DO playMove (); // start game

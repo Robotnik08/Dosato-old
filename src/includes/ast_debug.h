@@ -105,6 +105,9 @@ char* getNodeTypeString(NodeType type) {
             
         case NODE_OPERATOR_CAST:
             return "operator_cast";
+
+        case NODE_BLOCK_EXPRESSION:
+            return "block_expression";
             
         case NODE_WHEN:
             return "when";

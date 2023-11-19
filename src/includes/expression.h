@@ -92,7 +92,14 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             *var = cloneVariable(ref);
             break;
         case NODE_EXPRESSION:
-            if (getNodeBodyLength(node->body) == 1 && (node->body[0].type == NODE_EXPRESSION || node->body[0].type == NODE_LITERAL || node->body[0].type == NODE_IDENTIFIER || node->body[0].type == NODE_UNARY_EXPRESSION || node->body[0].type == NODE_ARRAY_EXPRESSION)) {
+            if (getNodeBodyLength(node->body) == 1 && 
+            (node->body[0].type == NODE_EXPRESSION 
+            || node->body[0].type == NODE_LITERAL 
+            || node->body[0].type == NODE_IDENTIFIER 
+            || node->body[0].type == NODE_UNARY_EXPRESSION 
+            || node->body[0].type == NODE_ARRAY_EXPRESSION 
+            || node->body[0].type == NODE_BLOCK_EXPRESSION 
+            || node->body[0].type == NODE_FUNCTION_IDENTIFIER)) {
                 int oRes = parseExpression(var, process, &node->body[0]);
                 if (oRes) return oRes;
                 return 0;
@@ -270,6 +277,18 @@ int parseExpression (Variable* var, Process* process, Node* node) {
         
         case NODE_ARRAY_EXPRESSION:
             oRes = parseArrayExpression(var, process, node);
+            if (oRes) return oRes;
+            break;
+
+        case NODE_FUNCTION_IDENTIFIER:
+        case NODE_BLOCK_EXPRESSION:
+            oRes = parseCall(process, node);
+            // change var to the return value
+            destroyVariable(var);
+            *var = cloneVariable(getReturnValue(process));
+            free (var->name);
+            var->name = malloc(sizeof(char) * 5);
+            strcpy(var->name, "-lit");
             if (oRes) return oRes;
             break;
     }

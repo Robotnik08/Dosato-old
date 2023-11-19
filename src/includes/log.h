@@ -173,8 +173,8 @@ const char* ERROR_MESSAGES[] = {
     "Extension is not at the end of the statement",
     "The function already exists",
     "The type is invalid",
-    "Break statement is not inside a loop",
-    "Continue statement is not inside a loop",
+    "Break statement is not inside a block",
+    "Continue statement is not inside a block",
     "Too few arguments in function call",
     "Unable to return outside of a function",
 

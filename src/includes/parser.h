@@ -37,6 +37,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         // if the node is a program or a block, check for full lines of code
         case NODE_PROGRAM:
         case NODE_BLOCK:
+        case NODE_BLOCK_EXPRESSION:
             for (int i = start; i < end; i++) {
                 if (tokens[i].type == TOKEN_MASTER_KEYWORD) {
                     int full_line = getFullLine(tokens, i);
@@ -295,13 +296,13 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 int p_values[] = OPERATOR_PRECEDENCE;
                 int exit_loop = 0;
                 for (int o = 0; o < (end - start)/2 && !exit_loop; o++) { // o is the offset, discarding the first and last token when parentheses are present
-                    if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_SQUARE && tokens[end - o].type == TOKEN_PARENTHESIS && tokens[end - o].carry & BRACKET_SQUARE
+                    if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & (BRACKET_SQUARE | BRACKET_CURLY) && tokens[end - o].type == TOKEN_PARENTHESIS && tokens[end - o].carry & (BRACKET_SQUARE | BRACKET_CURLY)
                     && getBlock(tokens, start + o) == end - o) {
-                        break; // found an array expression, don't parse it as a binary expression
+                        break; // found an array expression or block expression, don't parse it as a binary expression
                     }
                     for (int p = 15; p > 0; p--) { // looping through the precedence values, meaning that the highest precedence is checked first
                         for (int i = end - o; i >= start + o; i--) { // looping backwards through the tokens
-                            if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry & (BRACKET_ROUND | BRACKET_SQUARE)) {
+                            if (tokens[i].type == TOKEN_PARENTHESIS && tokens[i].carry) {
                                 i = getBlockReverse(tokens, i);
                                 if (p == 1 && i != start) { // if the precedence is 1 (it first checked all the other operators), check if the expression is unary with a type cast
                                     if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) {
@@ -309,9 +310,13 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                         break;
                                     }
                                 }
+                                if (p == 1 && tokens[i-1].type == TOKEN_IDENTIFIER) {
+                                    exit_loop = 1; // exit the loop if a function call has been found
+                                    break;
+                                }
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {
-                                if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || (full_code[tokens[i-1].start] == ')' && !checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) || full_code[tokens[i-1].start] == ']')) {
+                                if (!(tokens[i-1].type == TOKEN_IDENTIFIER || tokens[i-1].type == TOKEN_STRING || tokens[i-1].type == TOKEN_NUMBER || (full_code[tokens[i-1].start] == ')' && !checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) || full_code[tokens[i-1].start] == ']' || full_code[tokens[i-1].start] == '}')) {
                                     exit_loop = 1; // exit loop if the token before the operator is not an identifier, string, number or closing bracket (unary operators)
                                     continue;
                                 }
@@ -322,6 +327,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             }
                             if (tokens[i].type == TOKEN_MASTER_KEYWORD || tokens[i].type == TOKEN_EXT || tokens[i].type == TOKEN_SEPARATOR) {
                                 // unexpected token
+                                return root;
                                 printError(full_code, tokens[i].start, ERROR_UNEXPECTED_TOKEN);
                             }
                         }
@@ -331,6 +337,14 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 for (int o = 0; o < (end - start + 2)/2; o++) {
                     if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_SQUARE) {
                         addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_ARRAY_EXPRESSION));
+                        return root;
+                    }
+                    if (tokens[start + o].type == TOKEN_PARENTHESIS && tokens[start + o].carry & BRACKET_CURLY) {
+                        addToBody(&root.body, parse(full_code, tokens, start + o + 1, end - o - 1, NODE_BLOCK_EXPRESSION));
+                        return root;
+                    }
+                    if (tokens[start + o].type == TOKEN_IDENTIFIER && full_code[tokens[start + o + 1].start] == '(') {
+                        addToBody(&root.body, parse(full_code, tokens, start + o, end - o, NODE_FUNCTION_IDENTIFIER));
                         return root;
                     }
                     if (getBlock(tokens, start + o) != end - o) {

@@ -24,20 +24,18 @@ MAKE FUNC BOOL getFromPos (ARRAY ARRAY BOOL board, INT i, INT j) {
 
 // main game of life function
 MAKE FUNC BOOL getIfAlive (ARRAY ARRAY BOOL b, INT i, INT j) {
-    MAKE INT neighbors = 0;
-    DO getFromPos (b, i - 1, j - 1); SET neighbors += _;
-    DO getFromPos (b, i - 1, j);     SET neighbors += _;
-    DO getFromPos (b, i - 1, j + 1); SET neighbors += _;
-    DO getFromPos (b, i,     j - 1); SET neighbors += _;
-    DO getFromPos (b, i,     j + 1); SET neighbors += _;
-    DO getFromPos (b, i + 1, j - 1); SET neighbors += _;
-    DO getFromPos (b, i + 1, j);     SET neighbors += _;
-    DO getFromPos (b, i + 1, j + 1); SET neighbors += _;
-
-    MAKE BOOL alive = FALSE; DO getFromPos (b, i, j) INTO alive;
+    MAKE INT neighbors = 
+    getFromPos (b, i - 1, j - 1) +
+    getFromPos (b, i - 1, j    ) +
+    getFromPos (b, i - 1, j + 1) +
+    getFromPos (b, i,     j - 1) +
+    getFromPos (b, i,     j + 1) +
+    getFromPos (b, i + 1, j - 1) +
+    getFromPos (b, i + 1, j    ) +
+    getFromPos (b, i + 1, j + 1);
     
     DO RETURN (neighbors > 1 && neighbors < 4)
-    WHEN (alive) ELSE RETURN (neighbors == 3);
+    WHEN (getFromPos(b, i, j)) ELSE RETURN (neighbors == 3);
 };
 
 // initialize array
@@ -71,7 +69,7 @@ DO {
     DO {
         MAKE INT j = 0;
         DO {
-            DO getIfAlive (board, i, j) INTO newBoard#i#j;
+            SET newBoard#i#j = getIfAlive (board, i, j);
         } THEN {SET j += 1;} WHILE (j < size);
     } THEN {SET i += 1;} WHILE (i < size);
     SET board = newBoard;

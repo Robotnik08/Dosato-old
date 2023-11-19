@@ -66,6 +66,13 @@ int runProcess (Process* process);
 void setReturnValue (Process* process, Variable* var);
 
 /**
+ * @brief Get the return value of a process
+ * @param process The process to get the return value from
+ * @return The return value
+*/
+Variable* getReturnValue (Process* process);
+
+/**
  * @brief Get the token list of an AST
  * @param process The process to get the token list from
  * @param ast_index The index of the AST to get the token list from
@@ -198,6 +205,10 @@ void setReturnValue (Process* process, Variable* var) {
     returnVariable->name = malloc(sizeof(char) * 2);
     strcpy(returnVariable->name, "_");
     returnVariable->constant = 1;
+}
+
+Variable* getReturnValue (Process* process) {
+    return getVariable(&process->main_scope, "_");
 }
 
 Token* getTokenList (Process* process, int ast_index) {

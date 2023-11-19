@@ -22,7 +22,6 @@
 #include "variable.h"
 #include "log.h"
 #include "error.h"
-#include "expression.h"
 
 /**
  * @brief Run the interpreter, line by line
@@ -60,6 +59,7 @@ int parseCallChain (Process* process, Node* func, int start, int end);
  * @param func The function to call
 */
 int parseCall (Process* process, Node* call);
+#include "expression.h"
 
 /**
  * @brief Interpret a variable creation
@@ -300,9 +300,9 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
 
 int parseCall (Process* process, Node* call) {
     // parse block as inline function
-    if (call->type == NODE_BLOCK) {
+    if (call->type == NODE_BLOCK || call->type == NODE_BLOCK_EXPRESSION) {
         // create a new scope to run the function in
-        Scope scope = createScope(call, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope), SCOPE_BLOCK);
+        Scope scope = createScope(call, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope), call->type == NODE_BLOCK ? SCOPE_BLOCK : SCOPE_EXPRESSION);
         *getLastScope(&process->main_scope)->child = scope;
 
         // excute the function in here

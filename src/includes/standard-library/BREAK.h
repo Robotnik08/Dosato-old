@@ -61,24 +61,33 @@ int returnBlock (Process* process, const Variable* args, int argc) {
         lastScope->terminated = TERMINATE_RETURN;
     } while (lastScope->callType == SCOPE_BLOCK);
 
-    if (lastScope->callType != SCOPE_FUNCTION) {
+    if (lastScope->callType != SCOPE_FUNCTION && lastScope->callType != SCOPE_EXPRESSION) {
         return ERROR_RETURN_OUTSIDE_OF_FUNCTION;
     }
     lastScope->terminated = -1;
 
-    
-    if (lastScope->returnType.dataType != TYPE_VOID) {
-        if (argc != 1) {
-            return argc < 1 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
+    if (lastScope->callType == SCOPE_FUNCTION) {
+        if (lastScope->returnType.dataType != TYPE_VOID) {
+            if (argc != 1) {
+                return argc < 1 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
+            }
+
+            int cRes = castValue((Variable*)&args[0], lastScope->returnType);
+            if (cRes) return cRes;
+
+            // set the return value
+            setReturnValue(process, (Variable*)&args[0]);
+        } else if (argc != 0) {
+            return argc < 0 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
         }
-
-        int cRes = castValue((Variable*)&args[0], lastScope->returnType);
-        if (cRes) return cRes;
-
-        // set the return value
-        setReturnValue(process, (Variable*)&args[0]);
-    } else if (argc != 0) {
-        return argc < 0 ? ERROR_TOO_FEW_ARGUMENTS : ERROR_TOO_MANY_ARGUMENTS;
+    } else if (lastScope->callType == SCOPE_EXPRESSION) {
+        if (argc > 1) {
+            return ERROR_TOO_MANY_ARGUMENTS;
+        }
+        if (argc) {
+            // set the return value
+            setReturnValue(process, (Variable*)&args[0]);
+        }
     }
     return 0; // return code
 }
