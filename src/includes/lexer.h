@@ -298,7 +298,13 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
                 i = (*tokens)[t].end + 1;
             }
         }
-        if (isFloateric(full_code[i]) && !isAlphaNameric(full_code[i-1])) {
+        if (isFloateric(full_code[i])) {
+            if (isAlphaNameric(full_code[i-1])) {
+                for (int k = i; k < code_length && isFloateric(full_code[i]); k++) {
+                    i = k;
+                }
+                continue;
+            }
             if (full_code[i] == '.') {
                 if (i + 1 < code_length) if (!isFloateric(full_code[i + 1])) continue;
             }
