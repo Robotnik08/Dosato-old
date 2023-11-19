@@ -463,9 +463,9 @@ double getFloatNumber (Variable* variable) {
         case TYPE_ULONG:
             return (double)(*(unsigned long long*)variable->value);
         case TYPE_FLOAT:
-            return *(float*)variable->value; // casting into a signed int, it'll be casted back to unsigned in the return
+            return *(float*)variable->value;
         case TYPE_DOUBLE:
-            return *(double*)variable->value; // casting into a signed int, it'll be casted back to unsigned in the return
+            return *(double*)variable->value;
         case TYPE_STRING:
             return (double)strlen((char*)variable->value);
         default:

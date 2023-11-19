@@ -15,9 +15,9 @@
 #include "../scope.h"
 #include "../process.h"
 
-int sys (Process* process, const Variable* args, int argc);
+int std_SYSTEM (Process* process, const Variable* args, int argc);
 
-int sys (Process* process, const Variable* args, int argc) {
+int std_SYSTEM (Process* process, const Variable* args, int argc) {
     if (argc > 1) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }

@@ -15,9 +15,9 @@
 #include "../scope.h"
 #include "../process.h"
 
-int pause (Process* process, const Variable* args, int argc);
+int std_PAUSE (Process* process, const Variable* args, int argc);
 
-int pause (Process* process, const Variable* args, int argc) {
+int std_PAUSE (Process* process, const Variable* args, int argc) {
     if (argc) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }

@@ -18,9 +18,9 @@
 #include "../strtools.h"
 #include "../input.h"
 
-int listen (Process* process, const Variable* args, int argc);
+int std_LISTEN (Process* process, const Variable* args, int argc);
 
-int listen (Process* process, const Variable* args, int argc) {
+int std_LISTEN (Process* process, const Variable* args, int argc) {
     if (argc > 1) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }

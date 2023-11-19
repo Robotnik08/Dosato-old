@@ -57,7 +57,7 @@ int checkIfNumber (DataType type) {
         case TYPE_DOUBLE:
         case TYPE_CHAR:
         case TYPE_BOOL:
-            return 1;
+            return 2;
             break;
         default:
             return 0;
@@ -486,7 +486,7 @@ int sqroot (Variable* var, Variable* right) {
     double right_value = getFloatNumber(right);
     
     double* value = malloc(sizeof(double));
-
+    if (right_value < 0) return ERROR_MATH_DOMAIN_ERROR;
     *value = sqrt(right_value);
     *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
     return 0;

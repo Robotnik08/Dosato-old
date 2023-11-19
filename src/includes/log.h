@@ -94,6 +94,7 @@ typedef enum {
     ERROR_CONTINUE_OUTSIDE_OF_LOOP,
     ERROR_TOO_FEW_ARGUMENTS,
     ERROR_RETURN_OUTSIDE_OF_FUNCTION,
+    ERROR_MATH_DOMAIN_ERROR,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -177,6 +178,7 @@ const char* ERROR_MESSAGES[] = {
     "Continue statement is not inside a block",
     "Too few arguments in function call",
     "Unable to return outside of a function",
+    "Math domain error",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

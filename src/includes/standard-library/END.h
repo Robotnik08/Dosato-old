@@ -15,9 +15,9 @@
 #include "../scope.h"
 #include "../process.h"
 
-int end (Process* process, const Variable* args, int argc);
+int std_END (Process* process, const Variable* args, int argc);
 
-int end (Process* process, const Variable* args, int argc) {
+int std_END (Process* process, const Variable* args, int argc) {
     if (argc == 0) {
         process->exit_code = 0;
         process->running = 0;

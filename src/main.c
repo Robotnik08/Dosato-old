@@ -115,7 +115,10 @@ int main (int argc, char** argv)
         printf("\n\nRUNNING PROGRAM:\n\n");
     }
 
+    // RUN THE PROGRAM //
     int exit_code = runProcess(&main);
+
+
     /// CLEANUP ///
     destroyProcess(&main);
     // flawless execution

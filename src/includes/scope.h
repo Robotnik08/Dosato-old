@@ -211,6 +211,38 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // SYSTEM function
         addFunction(scope, createFunction("SYSTEM", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // MATH functions
+
+        // SQRT function
+        addFunction(scope, createFunction("SQRT", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // POW function
+        addFunction(scope, createFunction("POW", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // ROUND function
+        addFunction(scope, createFunction("ROUND", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // FLOOR function
+        addFunction(scope, createFunction("FLOOR", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // CEIL function
+        addFunction(scope, createFunction("CEIL", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // ABS function
+        addFunction(scope, createFunction("ABS", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // MIN function
+        addFunction(scope, createFunction("MIN", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // MAX function
+        addFunction(scope, createFunction("MAX", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // LOG function
+        addFunction(scope, createFunction("LOG", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // LOG10 function
+        addFunction(scope, createFunction("LOG10", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
     }
 }
 

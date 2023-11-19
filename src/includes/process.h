@@ -188,8 +188,8 @@ int runProcess (Process* process) {
     }
 
     if (process->error_code != 0) {
-        destroyProcess(process);
         printError(process->code[process->error_ast_index].full_code, process->error_location, process->error_code);
+        destroyProcess(process);
     }
 
     return process->exit_code;

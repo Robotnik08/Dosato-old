@@ -15,9 +15,9 @@
 #include "../scope.h"
 #include "../process.h"
 
-int breakBlock (Process* process, const Variable* args, int argc);
+int std_BREAK (Process* process, const Variable* args, int argc);
 
-int breakBlock (Process* process, const Variable* args, int argc) {
+int std_BREAK (Process* process, const Variable* args, int argc) {
     if (argc > 1) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
@@ -37,9 +37,9 @@ int breakBlock (Process* process, const Variable* args, int argc) {
     return 0; // return code
 }
 
-int continueBlock (Process* process, const Variable* args, int argc);
+int std_CONTINUE (Process* process, const Variable* args, int argc);
 
-int continueBlock (Process* process, const Variable* args, int argc) {
+int std_CONTINUE (Process* process, const Variable* args, int argc) {
     if (argc > 0) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
@@ -51,9 +51,9 @@ int continueBlock (Process* process, const Variable* args, int argc) {
     return 0; // return code
 }
 
-int returnBlock (Process* process, const Variable* args, int argc);
+int std_RETURN (Process* process, const Variable* args, int argc);
 
-int returnBlock (Process* process, const Variable* args, int argc) {
+int std_RETURN (Process* process, const Variable* args, int argc) {
     Scope* lastScope = NULL;
 
     do {

@@ -17,11 +17,11 @@
 #include "../log.h"
 
 
-int say (Process* process, const Variable* args, int argc, int newline);
+int std_SAY (Process* process, const Variable* args, int argc, int newline);
 
 int printVar (const Variable* var);
 
-int say (Process* process, const Variable* args, int argc, int newline) {
+int std_SAY (Process* process, const Variable* args, int argc, int newline) {
     int code = 0;
     for (int i = 0; i < argc; i++) {
         printVar(&args[i]);

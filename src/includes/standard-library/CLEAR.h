@@ -15,9 +15,9 @@
 #include "../scope.h"
 #include "../process.h"
 
-int clear (Process* process, const Variable* args, int argc);
+int std_CLEAR (Process* process, const Variable* args, int argc);
 
-int clear (Process* process, const Variable* args, int argc) {
+int std_CLEAR (Process* process, const Variable* args, int argc) {
     if (argc > 0) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
