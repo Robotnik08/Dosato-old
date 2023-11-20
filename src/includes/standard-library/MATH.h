@@ -36,6 +36,23 @@ int std_MAX (Process* process, const Variable* args, int argc);
 
 int std_LOG (Process* process, const Variable* args, int argc);
 
+int std_LOG10 (Process* process, const Variable* args, int argc);
+
+int std_SIN (Process* process, const Variable* args, int argc);
+
+int std_COS (Process* process, const Variable* args, int argc);
+
+int std_TAN (Process* process, const Variable* args, int argc);
+
+int std_ASIN (Process* process, const Variable* args, int argc);
+
+int std_ACOS (Process* process, const Variable* args, int argc);
+
+int std_ATAN (Process* process, const Variable* args, int argc);
+
+int std_ATAN2 (Process* process, const Variable* args, int argc);
+
+int std_EXP (Process* process, const Variable* args, int argc);
 
 int std_SQRT (Process* process, const Variable* args, int argc) {
     if (argc > 1) {
@@ -459,6 +476,322 @@ int std_LOG (Process* process, const Variable* args, int argc) {
         *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
         setReturnValue(process, var);
 
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_LOG10 (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = log10(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(double));
+        *value = log10(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_SIN (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = sin(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(double));
+        *value = sin(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_COS (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = cos(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(double));
+        *value = cos(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_TAN (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = tan(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(double));
+        *value = tan(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_ASIN (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        if (in_val < -1 || in_val > 1) return ERROR_MATH_DOMAIN_ERROR;
+        
+        double* value = malloc(sizeof(long long int));
+        *value = asin(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        if (in_val < -1 || in_val > 1) return ERROR_MATH_DOMAIN_ERROR;
+        
+        double* value = malloc(sizeof(double));
+        *value = asin(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_ACOS (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        if (in_val < -1 || in_val > 1) return ERROR_MATH_DOMAIN_ERROR;
+        
+        double* value = malloc(sizeof(long long int));
+        *value = acos(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        if (in_val < -1 || in_val > 1) return ERROR_MATH_DOMAIN_ERROR;
+        
+        double* value = malloc(sizeof(double));
+        *value = acos(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_ATAN (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = atan(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(double));
+        *value = atan(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_ATAN2 (Process* process, const Variable* args, int argc) {
+    if (argc > 2) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+    if (argc < 2) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType) && !checkIfFloating(args[1].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        long long int in_val2 = getSignedNumber((Variable*)&args[1]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = atan2(in_val, in_val2);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        double in_val2 = getFloatNumber((Variable*)&args[1]);
+        
+        double* value = malloc(sizeof(double));
+        *value = atan2(in_val, in_val2);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
+
+int std_EXP (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType)) {
+        long long int in_val = getSignedNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(long long int));
+        *value = exp(in_val);
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double in_val = getFloatNumber((Variable*)&args[0]);
+        
+        double* value = malloc(sizeof(double));
+        *value = exp(in_val);
+        
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 0);
+        
+        setReturnValue(process, var);
+        
         destroyVariable(var);
         free(var);
     }

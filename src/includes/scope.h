@@ -212,7 +212,8 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
         // SYSTEM function
         addFunction(scope, createFunction("SYSTEM", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
 
-        // MATH functions
+
+        /// MATH functions ///
 
         // SQRT function
         addFunction(scope, createFunction("SQRT", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
@@ -243,6 +244,30 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // LOG10 function
         addFunction(scope, createFunction("LOG10", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // SIN function
+        addFunction(scope, createFunction("SIN", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // COS function
+        addFunction(scope, createFunction("COS", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // TAN function
+        addFunction(scope, createFunction("TAN", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // ASIN function
+        addFunction(scope, createFunction("ASIN", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // ACOS function
+        addFunction(scope, createFunction("ACOS", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // ATAN function
+        addFunction(scope, createFunction("ATAN", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // ATAN2 function
+        addFunction(scope, createFunction("ATAN2", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // EXP function
+        addFunction(scope, createFunction("EXP", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
     }
 }
 

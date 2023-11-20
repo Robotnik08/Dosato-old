@@ -115,7 +115,7 @@ int main (int argc, char** argv)
         printf("\n\nRUNNING PROGRAM:\n\n");
     }
 
-    // RUN THE PROGRAM //
+    /// RUN THE PROGRAM ///
     int exit_code = runProcess(&main);
 
 

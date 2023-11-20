@@ -65,26 +65,25 @@ int standard_call (Process* process, const char* name, const Variable* args, int
     // trigonometric functions
     else if (!strcmp (name, "LOG")) {
         return std_LOG(process, args, argc);
-    } 
-    // else if (!strcmp (name, "LOG10")) {
-    //     return std_LOG10(process, args, argc);
-    // } else if (!strcmp (name, "EXP")) {
-    //     return std_EXP(process, args, argc);
-    // } else if (!strcmp (name, "SIN")) {
-    //     return std_SIN(process, args, argc);
-    // } else if (!strcmp (name, "COS")) {
-    //     return std_COS(process, args, argc);
-    // } else if (!strcmp (name, "TAN")) {
-    //     return std_TAN(process, args, argc);
-    // } else if (!strcmp (name, "ASIN")) {
-    //     return std_ASIN(process, args, argc);
-    // } else if (!strcmp (name, "ACOS")) {
-    //     return std_ACOS(process, args, argc);
-    // } else if (!strcmp (name, "ATAN")) {
-    //     return std_ATAN(process, args, argc);
-    // } else if (!strcmp (name, "ATAN2")) {
-    //     return std_ATAN2(process, args, argc);
-    // }
+    } else if (!strcmp (name, "LOG10")) {
+        return std_LOG10(process, args, argc);
+    } else if (!strcmp (name, "SIN")) {
+        return std_SIN(process, args, argc);
+    } else if (!strcmp (name, "COS")) {
+        return std_COS(process, args, argc);
+    } else if (!strcmp (name, "TAN")) {
+        return std_TAN(process, args, argc);
+    } else if (!strcmp (name, "ASIN")) {
+        return std_ASIN(process, args, argc);
+    } else if (!strcmp (name, "ACOS")) {
+        return std_ACOS(process, args, argc);
+    } else if (!strcmp (name, "ATAN")) {
+        return std_ATAN(process, args, argc);
+    } else if (!strcmp (name, "ATAN2")) {
+        return std_ATAN2(process, args, argc);
+    } else if (!strcmp (name, "EXP")) {
+        return std_EXP(process, args, argc);
+    }
     
     return ERROR_FUNCTION_NOT_FOUND;
 }
