@@ -9,6 +9,8 @@
 #include "CLEAR.h"
 #include "SYSTEM.h"
 #include "MATH.h" // includes all math functions
+#include "RANDOM.h" // includes all random functions
+#include "TIME.h" // includes all time functions
 
 #include "../ast.h"
 #include "../parser.h"
@@ -83,6 +85,30 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_ATAN2(process, args, argc);
     } else if (!strcmp (name, "EXP")) {
         return std_EXP(process, args, argc);
+    }
+    // random functions
+    else if (!strcmp (name, "SRAND")) {
+        return std_SRAND(process, args, argc);
+    } else if (!strcmp (name, "RANDINT")) {
+        return std_RANDINT(process, args, argc);
+    } else if (!strcmp (name, "RAND")) {
+        return std_RAND(process, args, argc);
+    } else if (!strcmp (name, "RANDRANGE")) {
+        return std_RANDRANGE(process, args, argc);
+    }
+    // time functions
+    else if (!strcmp (name, "TIME")) {
+        return std_TIME(process, args, argc);
+    } else if (!strcmp (name, "DATE")) {
+        return std_DATE(process, args, argc);
+    } else if (!strcmp (name, "DATETIME")) {
+        return std_DATETIME(process, args, argc);
+    } else if (!strcmp (name, "TIMESTAMP")) {
+        return std_TIMESTAMP(process, args, argc);
+    } else if (!strcmp (name, "CLOCK")) {
+        return std_CLOCK(process, args, argc);
+    } else if (!strcmp (name, "SLEEP")) {
+        return std_SLEEP(process, args, argc);
     }
     
     return ERROR_FUNCTION_NOT_FOUND;

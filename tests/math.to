@@ -121,3 +121,54 @@ DO SAYLN ("The log10 of 1 is: " + LOG10(1));
 DO SAYLN ("The log10 of 2 is: " + LOG10(2));
 DO SAYLN ("The log10 of 10 is: " + LOG10(10));
 DO SAYLN ("The log10 of 100 is: " + LOG10(100));
+
+DO SAY ('\n');
+
+DO SAYLN ("The EXP of 1 is: " + EXP(1));
+DO SAYLN ("The EXP of 2 is: " + EXP(2));
+DO SAYLN ("The EXP of 10 is: " + EXP(10));
+DO SAYLN ("The EXP of 100 is: " + EXP(100));
+
+DO SAY ('\n');
+
+DO SAYLN ("The sine of 0 is: " + SIN(0));
+DO SAYLN ("The sine of 1 is: " + SIN(1));
+DO SAYLN ("The sine of 2 is: " + SIN(2));
+DO SAYLN ("The sine of PI is: " + SIN(MATH_PI));
+
+DO SAY ('\n');
+
+DO SAYLN ("The cosine of 0 is: " + COS(0));
+DO SAYLN ("The cosine of 1 is: " + COS(1));
+DO SAYLN ("The cosine of 2 is: " + COS(2));
+DO SAYLN ("The cosine of PI is: " + COS(MATH_PI));
+
+DO SAY ('\n');
+
+DO SAYLN ("The tangent of 0 is: " + TAN(0));
+DO SAYLN ("The tangent of 1 is: " + TAN(1));
+DO SAYLN ("The tangent of 2 is: " + TAN(2));
+DO SAYLN ("The tangent of PI is: " + TAN(MATH_PI));
+
+DO SAY ('\n');
+
+DO SAYLN ("The arcsine of 0 is: " + ASIN(0));
+DO SAYLN ("The arcsine of 1 is: " + ASIN(1));
+DO SAYLN ("The arcsine of 2 is: " + ASIN(0.5));
+DO SAYLN ("The arcsine of PI is: " + ASIN(0.2));
+
+DO SAY ('\n');
+
+DO SAYLN ("The arccosine of 0 is: " + ACOS(0));
+DO SAYLN ("The arccosine of 1 is: " + ACOS(1));
+DO SAYLN ("The arccosine of 2 is: " + ACOS(0.5));
+DO SAYLN ("The arccosine of PI is: " + ACOS(0.2));
+
+DO SAY ('\n');
+
+DO SAYLN ("The arctangent of 0 is: " + ATAN(0));
+DO SAYLN ("The arctangent of 1 is: " + ATAN(1));
+DO SAYLN ("The arctangent of 2 is: " + ATAN(0.5));
+DO SAYLN ("The arctangent of PI is: " + ATAN(0.2));
+
+DO SAY ('\n');

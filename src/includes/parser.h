@@ -307,12 +307,12 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                 if (p == 1 && i != start) { // if the precedence is 1 (it first checked all the other operators), check if the expression is unary with a type cast
                                     if (tokens[i-1].type == TOKEN_PARENTHESIS && tokens[i-1].carry & BRACKET_ROUND && checkIfOnly(tokens, TOKEN_VAR_TYPE, getBlockReverse(tokens, i-1), i-1)) {
                                         exit_loop = 1; // exit loop if a type cast has been found
-                                        break;
+                                        continue;
                                     }
                                 }
                                 if (p == 1 && tokens[i-1].type == TOKEN_IDENTIFIER) {
                                     exit_loop = 1; // exit the loop if a function call has been found
-                                    break;
+                                    continue;
                                 }
                             }
                             if (tokens[i].type == TOKEN_OPERATOR && p_values[tokens[i].carry] == p) {

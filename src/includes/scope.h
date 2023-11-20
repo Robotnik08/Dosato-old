@@ -182,6 +182,9 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
 
 void addSystemFunctions (Scope* scope, int main, int depth) {
     if (main) {
+
+        /// DOSATO functions ///
+
         // SAY function
         addFunction(scope, createFunction("SAY", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
 
@@ -268,6 +271,40 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // EXP function
         addFunction(scope, createFunction("EXP", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        /// RANDOM functions ///
+
+        // SRAND function
+        addFunction(scope, createFunction("SRAND", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // RANDOMINT function
+        addFunction(scope, createFunction("RANDINT", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // RANDOM function
+        addFunction(scope, createFunction("RAND", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // RANDRANGE function
+        addFunction(scope, createFunction("RANDRANGE", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        /// TIME functions ///
+
+        // TIME function
+        addFunction(scope, createFunction("TIME", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // DATE function
+        addFunction(scope, createFunction("DATE", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // DATETIME function
+        addFunction(scope, createFunction("DATETIME", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // TIMESTAMP function
+        addFunction(scope, createFunction("TIMESTAMP", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // CLOCK function
+        addFunction(scope, createFunction("CLOCK", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
+
+        // SLEEP function
+        addFunction(scope, createFunction("SLEEP", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
     }
 }
 
