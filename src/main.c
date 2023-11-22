@@ -19,7 +19,7 @@
 #include "includes/ast.h"
 #include "includes/process.h"
 
-#define VERSION "0.0.3"
+#define VERSION "0.9"
 #define PROGRAM_NAME "Dosato"
 #define AUTHOR "Sebastiaan Heins"
 
@@ -58,8 +58,8 @@ int main (int argc, char** argv)
     // if the first argument is -v or --version, show the version number
     if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)
     {
-        printf("Dosato Version: 0.0.3\n");
-        printf("2023, made by Sebastiaan Heins\n");
+        printf("%s Version: %s\n", PROGRAM_NAME, VERSION);
+        printf("2023, made by %s\n", AUTHOR);
 
         return QUIT(0);
     }
@@ -78,7 +78,7 @@ int main (int argc, char** argv)
     debug = argv[2] != NULL && (!strcmp(argv[2], "-d") || !strcmp(argv[2], "--debug"));
 
     // get the size of the file
-    int size = 0;
+    long long int size = 0;
     while (fgetc(file) != EOF) {
         size++;
     }

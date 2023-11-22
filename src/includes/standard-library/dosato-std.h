@@ -11,6 +11,7 @@
 #include "MATH.h" // includes all math functions
 #include "RANDOM.h" // includes all random functions
 #include "TIME.h" // includes all time functions
+#include "FILE.h" // includes all file functions
 
 #include "../ast.h"
 #include "../parser.h"
@@ -110,7 +111,14 @@ int standard_call (Process* process, const char* name, const Variable* args, int
     } else if (!strcmp (name, "SLEEP")) {
         return std_SLEEP(process, args, argc);
     }
-    
+    // file functions
+    else if (!strcmp (name, "READ")) {
+        return std_READ(process, args, argc);
+    } else if (!strcmp (name, "WRITE")) {
+        return std_WRITE(process, args, argc);
+    } else if (!strcmp (name, "APPEND")) {
+        return std_APPEND(process, args, argc);
+    }
     return ERROR_FUNCTION_NOT_FOUND;
 }
 

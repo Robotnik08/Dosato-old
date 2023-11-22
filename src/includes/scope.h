@@ -172,6 +172,16 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
         double* const_e = malloc(sizeof(double));
         *const_e = 2.71828182845904523536;
         addVariable(scope, createVariable("MATH_E", TYPE_DOUBLE, const_e, 1, 0));
+
+        // EASTER EGG constants
+        char* const_dosato = malloc(sizeof(char) * 7);
+        strcpy(const_dosato, "DOSATO");
+        addVariable(scope, createVariable("__DOSATO", TYPE_STRING, const_dosato, 1, 0));
+
+        char* const_warrioralex = malloc(sizeof(char));
+        *const_warrioralex = 'W';
+        addVariable(scope, createVariable("__WARRIORALEXONE", TYPE_CHAR, const_warrioralex, 1, 0));
+
     }
 
     // the depth of the scope is stored in the __depth variable
@@ -305,6 +315,17 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // SLEEP function
         addFunction(scope, createFunction("SLEEP", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        /// FILE functions ///
+
+        // READ function
+        addFunction(scope, createFunction("READ", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // WRITE function
+        addFunction(scope, createFunction("WRITE", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        // APPEND function
+        addFunction(scope, createFunction("APPEND", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
     }
 }
 

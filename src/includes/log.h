@@ -95,6 +95,7 @@ typedef enum {
     ERROR_TOO_FEW_ARGUMENTS,
     ERROR_RETURN_OUTSIDE_OF_FUNCTION,
     ERROR_MATH_DOMAIN_ERROR,
+    ERROR_FILE_NOT_FOUND,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -179,6 +180,7 @@ const char* ERROR_MESSAGES[] = {
     "Too few arguments in function call",
     "Unable to return outside of a function",
     "Math domain error",
+    "File not found",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

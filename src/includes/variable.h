@@ -486,9 +486,11 @@ int castValue (Variable* variable, Type type) {
                     char* res = toString(variable);
                     void* new_value = malloc(sizeof(char) * (strlen(res) + 1));
                     strcpy((char*)new_value, res);
-                    
+                    free (res);
+                    char* name = malloc(sizeof(char) * (strlen(variable->name) + 1));
+                    strcpy(name, variable->name);
                     destroyVariable(variable);
-                    *variable = createVariable(variable->name, TYPE_STRING, new_value, 0, 0);
+                    *variable = createVariable(name, TYPE_STRING, new_value, 0, 0);
 
                     break;
                 case TYPE_BYTE:
