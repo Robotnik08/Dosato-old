@@ -173,6 +173,14 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
         for (int j = 0; j < sizeof(mastertokens)/sizeof(char*); j++) {
+            // check if the previous char is not alphanameric
+            if (i > 0) {
+                if (isAlphaNameric(full_code[i-1])) break;
+                // check if the next char is not alphanameric
+                if (i + strlen(mastertokens[j]) < code_length) {
+                    if (isAlphaNameric(full_code[i + strlen(mastertokens[j])])) continue; // not a break, since the next type could differ in length
+                }
+            }
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, mastertokens[j])) {
                 free(next_word);
@@ -197,6 +205,14 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
         for (int j = 0; j < sizeof(var_typetokens)/sizeof(char*); j++) {
+            // check if the previous char is not alphanameric
+            if (i > 0) {
+                if (isAlphaNameric(full_code[i-1])) break;
+                // check if the next char is not alphanameric
+                if (i + strlen(var_typetokens[j]) < code_length) {
+                    if (isAlphaNameric(full_code[i + strlen(var_typetokens[j])])) continue; // not a break, since the next type could differ in length
+                }
+            }
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, var_typetokens[j])) {
                 free(next_word);
@@ -221,6 +237,14 @@ void tokenise (Token** tokens, const char* full_code, const int code_length) {
             }
         }
         for (int j = 0; j < sizeof(extension_tokens)/sizeof(char*); j++) {
+            // check if the previous char is not alphanameric
+            if (i > 0) {
+                if (isAlphaNameric(full_code[i-1])) break;
+                // check if the next char is not alphanameric
+                if (i + strlen(extension_tokens[j]) < code_length) {
+                    if (isAlphaNameric(full_code[i + strlen(extension_tokens[j])])) continue; // not a break, since the next type could differ in length
+                }
+            }
             char* next_word = getWord(full_code, i);
             if (!strcmp(next_word, extension_tokens[j])) {
                 free(next_word);
