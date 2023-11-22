@@ -633,4 +633,26 @@ int printType (Type t) {
     return printf("Type: DataType %d, ArrayDepth %d\n", t.dataType, t.array);
 }
 
+int pushArray (Variable* arr, Variable* val) {
+    if (arr->type.array == 0) {
+        return ERROR_ARRAY_CAST_ERROR;
+    }
+    if (arr->value == NULL) {
+        arr->value = malloc(sizeof(Variable) * 2);
+        ((Variable*)arr->value)[0] = cloneVariable(val);
+        int cRes = castValue(&((Variable*)arr->value)[0], (Type){arr->type.dataType, arr->type.array - 1});
+        if (cRes) return cRes;
+        ((Variable*)arr->value)[1] = createNullTerminatedVariable();
+        return 0;
+    }
+    int array_length = getVariablesLength(arr->value);
+    printf ("Array length: %d\n", array_length);
+    arr->value = realloc(arr->value, sizeof(Variable) * (array_length + 2));
+    ((Variable*)arr->value)[array_length] = cloneVariable(val);
+    int cRes = castValue(&((Variable*)arr->value)[array_length], (Type){arr->type.dataType, arr->type.array - 1});
+    if (cRes) return cRes;
+    ((Variable*)arr->value)[array_length + 1] = createNullTerminatedVariable();
+    return 0;
+}
+
 #endif

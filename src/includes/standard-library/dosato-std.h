@@ -12,6 +12,7 @@
 #include "RANDOM.h" // includes all random functions
 #include "TIME.h" // includes all time functions
 #include "FILE.h" // includes all file functions
+#include "STRING.h" // includes all string functions
 
 #include "../ast.h"
 #include "../parser.h"
@@ -118,6 +119,10 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_WRITE(process, args, argc);
     } else if (!strcmp (name, "APPEND")) {
         return std_APPEND(process, args, argc);
+    }
+    // string functions
+    else if (!strcmp (name, "SPLIT")) {
+        return std_SPLIT(process, args, argc);
     }
     return ERROR_FUNCTION_NOT_FOUND;
 }

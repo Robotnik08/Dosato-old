@@ -326,6 +326,11 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // APPEND function
         addFunction(scope, createFunction("APPEND", NULL, NULL, 0, (Type){TYPE_VOID, 0}, 1));
+
+        /// STRING functions ///
+
+        // SPLIT
+        addFunction(scope, createFunction("SPLIT", NULL, NULL, 0, (Type){TYPE_STRING, 1}, 1));
     }
 }
 
