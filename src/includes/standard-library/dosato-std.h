@@ -123,6 +123,34 @@ int standard_call (Process* process, const char* name, const Variable* args, int
     // string functions
     else if (!strcmp (name, "SPLIT")) {
         return std_SPLIT(process, args, argc);
+    } else if (!strcmp (name, "LOWERCASE")) {
+        return std_LOWERCASE(process, args, argc);
+    } else if (!strcmp (name, "UPPERCASE")) {
+        return std_UPPERCASE(process, args, argc);
+    } else if (!strcmp (name, "LENGTH")) {
+        return std_LENGTH(process, args, argc);
+    } else if (!strcmp (name, "SUBSTRING")) {
+        return std_SUBSTRING(process, args, argc);
+    } else if (!strcmp (name, "INDEXOF")) {
+        return std_INDEXOF(process, args, argc);
+    } else if (!strcmp (name, "LASTINDEXOF")) {
+        return std_LASTINDEXOF(process, args, argc);
+    } else if (!strcmp (name, "STARTSWITH")) {
+        return std_STARTSWITH(process, args, argc);
+    } else if (!strcmp (name, "ENDSWITH")) {
+        return std_ENDSWITH(process, args, argc);
+    } else if (!strcmp (name, "TRIM")) {
+        return std_TRIM(process, args, argc);
+    } else if (!strcmp (name, "REVERSE")) {
+        return std_REVERSE(process, args, argc);
+    } else if (!strcmp (name, "REPLACE")) {
+        return std_REPLACE(process, args, argc);
+    } else if (!strcmp (name, "CONTAINS")) {
+        return std_CONTAINS(process, args, argc);
+    } else if (!strcmp (name, "REMOVE")) {
+        return std_REMOVE(process, args, argc);
+    } else if (!strcmp (name, "INSERT")) {
+        return std_INSERT(process, args, argc);
     }
     return ERROR_FUNCTION_NOT_FOUND;
 }

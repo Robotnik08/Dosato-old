@@ -646,11 +646,10 @@ int pushArray (Variable* arr, Variable* val) {
         return 0;
     }
     int array_length = getVariablesLength(arr->value);
-    printf ("Array length: %d\n", array_length);
     arr->value = realloc(arr->value, sizeof(Variable) * (array_length + 2));
-    ((Variable*)arr->value)[array_length] = cloneVariable(val);
-    int cRes = castValue(&((Variable*)arr->value)[array_length], (Type){arr->type.dataType, arr->type.array - 1});
+    int cRes = castValue(val, (Type){arr->type.dataType, arr->type.array - 1});
     if (cRes) return cRes;
+    ((Variable*)arr->value)[array_length] = cloneVariable(val);
     ((Variable*)arr->value)[array_length + 1] = createNullTerminatedVariable();
     return 0;
 }

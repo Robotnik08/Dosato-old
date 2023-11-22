@@ -331,6 +331,48 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // SPLIT
         addFunction(scope, createFunction("SPLIT", NULL, NULL, 0, (Type){TYPE_STRING, 1}, 1));
+
+        // LOWERCASE
+        addFunction(scope, createFunction("LOWERCASE", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // UPPERCASE
+        addFunction(scope, createFunction("UPPERCASE", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // LENGTH
+        addFunction(scope, createFunction("LENGTH", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // SUBSTRING
+        addFunction(scope, createFunction("SUBSTRING", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // INDEXOF
+        addFunction(scope, createFunction("INDEXOF", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // LASTINDEXOF
+        addFunction(scope, createFunction("LASTINDEXOF", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // STARTSWITH
+        addFunction(scope, createFunction("STARTSWITH", NULL, NULL, 0, (Type){TYPE_BOOL, 0}, 1));
+
+        // ENDSWITH
+        addFunction(scope, createFunction("ENDSWITH", NULL, NULL, 0, (Type){TYPE_BOOL, 0}, 1));
+
+        // TRIM
+        addFunction(scope, createFunction("TRIM", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // REVERSE
+        addFunction(scope, createFunction("REVERSE", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // REPLACE
+        addFunction(scope, createFunction("REPLACE", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // CONTAINS
+        addFunction(scope, createFunction("CONTAINS", NULL, NULL, 0, (Type){TYPE_BOOL, 0}, 1));
+
+        // REMOVE
+        addFunction(scope, createFunction("REMOVE", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // INSERT
+        addFunction(scope, createFunction("INSERT", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
     }
 }
 

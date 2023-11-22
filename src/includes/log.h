@@ -96,6 +96,8 @@ typedef enum {
     ERROR_RETURN_OUTSIDE_OF_FUNCTION,
     ERROR_MATH_DOMAIN_ERROR,
     ERROR_FILE_NOT_FOUND,
+    ERROR_NUMBER_CANNOT_BE_NEGATIVE,
+    ERROR_START_GREATER_THAN_END,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -181,6 +183,8 @@ const char* ERROR_MESSAGES[] = {
     "Unable to return outside of a function",
     "Math domain error",
     "File not found",
+    "Number cannot be negative",
+    "Start is greater than end",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

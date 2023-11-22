@@ -1,0 +1,20 @@
+MAKE STRING test = "Replace this but not that, Insert here: . Remove this. Does this contain ThIs?";
+SET test = REPLACE(test, "this", "replaced");
+SET test = REMOVE (test, 44, 12);
+SET test = INSERT (test, "inserted", 28);
+SET test += CONTAINS (test, "ThIs?");
+SET test = UPPERCASE (test); // LOWERCASE is also available
+SET test += ". The length of this string is: " + LENGTH (test);
+SET test += ". The position of the first 'i' is: " + INDEXOF (test, "i");
+SET test += ". The position of the last 'i' is: " + LASTINDEXOF (test, "i");
+SET test += ". The substring from 10 to 20 is: " + SUBSTRING (test, 10, 20);
+SET test += ". Does the string start with REPLACE?: " + STARTSWITH (test, "REPLACE");
+SET test += ". Does the string end with TRUE?: " + ENDSWITH (test, "TRUE") + ". Random whitespace to be deleted        ";
+SET test = TRIM (test);
+SET test += "Bye bye whitespace";
+SET test = REVERSE (test);
+SET test += ". Oops! string reversed! Let me change that back";
+SET test = REVERSE (test);
+
+
+DO SAYLN (test);
