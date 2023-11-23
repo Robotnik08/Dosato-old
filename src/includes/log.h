@@ -98,6 +98,7 @@ typedef enum {
     ERROR_FILE_NOT_FOUND,
     ERROR_NUMBER_CANNOT_BE_NEGATIVE,
     ERROR_START_GREATER_THAN_END,
+    ERROR_PERMISSION_DENIED,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -185,6 +186,7 @@ const char* ERROR_MESSAGES[] = {
     "File not found",
     "Number cannot be negative",
     "Start is greater than end",
+    "Permission denied",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",
@@ -218,6 +220,7 @@ void logText (const LogType type, const char* contents) {
     }
     printf("%s", contents);
     if (type == ERROR) {
+        _fcloseall(); // close all files if any were opened
         exit(1);
     }
 }
@@ -225,6 +228,7 @@ void printError (const char* full_code, const int pos, const ErrorType type) {
     printf("\nERROR:\n");
     printf("E%d: %s\n", type, ERROR_MESSAGES[type < ERROR_AMOUNT && ERROR_AMOUNT > 0 ? type : ERROR_UNKNOWN]);
     printf("At line %i:%i\n", getLine(full_code, pos), getLineCol(full_code, pos));
+    _fcloseall(); // close all files if any were opened
     exit(type);
 }
 

@@ -131,5 +131,6 @@ int QUIT (int code)
     if (debug) {
         printf("\n\nFinished with exit code %i\n", code);
     }
+    _fcloseall(); // close all files if any were opened
     return code;
 }
