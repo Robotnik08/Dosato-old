@@ -71,7 +71,7 @@ char* toString (Variable* variable);
  * @param variable The variable to clone
  * @return The cloned variable
 */
-Variable cloneVariable (Variable* variable);
+Variable cloneVariable (const Variable* variable);
 
 /**
  * @brief Get whether or not a variable can be casted to another type
@@ -278,7 +278,7 @@ char* toString (Variable* variable) {
     return str;
 }
 
-Variable cloneVariable (Variable* variable) {
+Variable cloneVariable (const Variable* variable) {
     Variable new_variable = createVariable("-lit", variable->type.dataType, NULL, variable->constant, variable->type.array);
 
     if (!variable->type.array) {

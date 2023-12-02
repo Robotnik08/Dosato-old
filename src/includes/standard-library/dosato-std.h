@@ -13,6 +13,7 @@
 #include "TIME.h" // includes all time functions
 #include "FILE.h" // includes all file functions
 #include "STRING.h" // includes all string functions
+#include "ARRAY.h" // includes all array functions
 
 #include "../ast.h"
 #include "../parser.h"
@@ -152,6 +153,23 @@ int standard_call (Process* process, const char* name, const Variable* args, int
     } else if (!strcmp (name, "INSERT")) {
         return std_INSERT(process, args, argc);
     }
+    // array functions
+    else if (!strcmp (name, "ARRAYSHIFT")) {
+        return std_ARRAYSHIFT(process, args, argc);
+    } else if (!strcmp (name, "ARRAYREMOVE")) {
+        return std_ARRAYREMOVE(process, args, argc);
+    } else if (!strcmp (name, "ARRAYINSERT")) {
+        return std_ARRAYINSERT(process, args, argc);
+    } else if (!strcmp (name, "ARRAYSLICE")) {
+        return std_ARRAYSLICE(process, args, argc);
+    } 
+    // else if (!strcmp (name, "ARRAYFINDINDEX")) {
+    //     return std_ARRAYFINDINDEX(process, args, argc);
+    // } else if (!strcmp (name, "ARRAYFINDLASTINDEX")) {
+    //     return std_ARRAYFINDLASTINDEX(process, args, argc);
+    // } else if (!strcmp (name, "ARRAYCONTAINS")) {
+    //     return std_ARRAYCONTAINS(process, args, argc);
+    // }
     return ERROR_FUNCTION_NOT_FOUND;
 }
 

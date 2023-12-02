@@ -373,6 +373,21 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // INSERT
         addFunction(scope, createFunction("INSERT", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+
+        /// ARRAY functions ///
+
+        // ARRAYSHIFT
+        addFunction(scope, createFunction("ARRAYSHIFT", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // ARRAYREMOVE
+        addFunction(scope, createFunction("ARRAYREMOVE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // ARRAYINSERT
+        addFunction(scope, createFunction("ARRAYINSERT", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // ARRAYSLICE
+        addFunction(scope, createFunction("ARRAYSLICE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
     }
 }
 
