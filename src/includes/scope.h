@@ -173,6 +173,14 @@ void populateDefaultVariables (Scope* scope, int main, int depth) {
         *const_e = 2.71828182845904523536;
         addVariable(scope, createVariable("MATH_E", TYPE_DOUBLE, const_e, 1, 0));
 
+        // MAXINT and MININT constants
+        int* const_maxint = malloc(sizeof(int));
+        *const_maxint = 2147483647;
+        addVariable(scope, createVariable("MAXINT", TYPE_INT, const_maxint, 1, 0));
+        int* const_minint = malloc(sizeof(int));
+        *const_minint = -2147483648;
+        addVariable(scope, createVariable("MININT", TYPE_INT, const_minint, 1, 0));
+
         // EASTER EGG constants
         char* const_dosato = malloc(sizeof(char) * 7);
         strcpy(const_dosato, "DOSATO");
@@ -373,6 +381,12 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // INSERT
         addFunction(scope, createFunction("INSERT", NULL, NULL, 0, (Type){TYPE_STRING, 0}, 1));
+
+        // STRINGTOINT
+        addFunction(scope, createFunction("STRINGTOINT", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // STRINGTODOUBLE
+        addFunction(scope, createFunction("STRINGTODOUBLE", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
 
 
         /// ARRAY functions ///

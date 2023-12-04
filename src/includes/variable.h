@@ -222,54 +222,34 @@ char* toString (Variable* variable) {
             strcpy(str, *(int*)variable->value ? "TRUE" : "FALSE");
             break;
         case TYPE_BYTE:
-            res = itos(*(signed char*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = itos(*(signed char*)variable->value);
             break;
         case TYPE_SHORT:
-            res = itos(*(short*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = itos(*(short*)variable->value);
             break;
         case TYPE_INT:
-            res = itos(*(int*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = itos(*(int*)variable->value);
             break;
         case TYPE_LONG:
-            res = itos(*(long long*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = itos(*(long long*)variable->value);
             break;
         case TYPE_UBYTE:
-            res = uitos(*(unsigned char*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = uitos(*(unsigned char*)variable->value);
             break;
         case TYPE_USHORT:
-            res = uitos(*(unsigned short*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = uitos(*(unsigned short*)variable->value);
             break;
         case TYPE_UINT:
-            res = uitos(*(unsigned int*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = uitos(*(unsigned int*)variable->value);
             break;
         case TYPE_ULONG:
-            res = uitos(*(unsigned long long*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = uitos(*(unsigned long long*)variable->value);
             break;
         case TYPE_FLOAT:
-            res = ftos(*(float*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = ftos(*(float*)variable->value);
             break;
         case TYPE_DOUBLE:
-            res = ftos(*(double*)variable->value);
-            str = malloc(sizeof(char) * (strlen(res) + 1));
-            strcpy(str, res);
+            str = ftos(*(double*)variable->value);
             break;
         default:
             str = NULL;

@@ -152,6 +152,10 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_REMOVE(process, args, argc);
     } else if (!strcmp (name, "INSERT")) {
         return std_INSERT(process, args, argc);
+    } else if (!strcmp (name, "STRINGTOINT")) {
+        return std_STRINGTOINT(process, args, argc);
+    } else if (!strcmp (name, "STRINGTODOUBLE")) {
+        return std_STRINGTODOUBLE(process, args, argc);
     }
     // array functions
     else if (!strcmp (name, "ARRAYSHIFT")) {

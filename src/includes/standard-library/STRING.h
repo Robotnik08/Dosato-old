@@ -45,6 +45,10 @@ int std_REMOVE (Process* process, const Variable* args, int argc);
 
 int std_INSERT (Process* process, const Variable* args, int argc);
 
+int std_STRINGTOINT (Process* process, const Variable* args, int argc);
+
+int std_STRINGTODOUBLE (Process* process, const Variable* args, int argc);
+
 int std_SPLIT (Process* process, const Variable* args, int argc) {
     if (argc > 2) {
         return ERROR_TOO_MANY_ARGUMENTS;
@@ -742,6 +746,64 @@ int std_INSERT (Process* process, const Variable* args, int argc) {
     destroyVariable(var);
     free(var);
 
+    return 0; // return code
+}
+
+int std_STRINGTOINT (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+    if (argc < 1) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+    
+    int cRes = castValue((Variable*)&args[0], (Type){TYPE_STRING, 0});
+    if (cRes) return cRes;
+    
+    char* str = (char*)args[0].value;
+    
+    Variable* var = malloc(sizeof(Variable));
+    *var = createVariable("-lit", TYPE_INT, NULL, 0, 0);
+    
+    int* val = malloc(sizeof(int));
+    *val = atoi(str);
+    
+    var->value = val;
+    
+    setReturnValue(process, var);
+    
+    destroyVariable(var);
+    free(var);
+    
+    return 0; // return code
+}
+
+int std_STRINGTODOUBLE (Process* process, const Variable* args, int argc) {
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+    if (argc < 1) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+    
+    int cRes = castValue((Variable*)&args[0], (Type){TYPE_STRING, 0});
+    if (cRes) return cRes;
+    
+    char* str = (char*)args[0].value;
+    
+    Variable* var = malloc(sizeof(Variable));
+    *var = createVariable("-lit", TYPE_DOUBLE, NULL, 0, 0);
+    
+    double* val = malloc(sizeof(double));
+    *val = atof(str);
+    
+    var->value = val;
+    
+    setReturnValue(process, var);
+    
+    destroyVariable(var);
+    free(var);
+    
     return 0; // return code
 }
 
