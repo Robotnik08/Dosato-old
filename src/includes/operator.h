@@ -292,6 +292,14 @@ int max_op (Variable* var, Variable* left, Variable* right);
 */
 int min_op (Variable* var, Variable* left, Variable* right);
 
+/**
+ * @brief check if a variable equals another variable (like ==)
+ * @param left The left variable
+ * @param right The right variable
+ * @return 0 if they are equal, 1 if they are not equal
+*/
+int compareVariables (Variable* left, Variable* right);
+
 int add (Variable* var, Variable* left, Variable* right) {
     if (!checkIfAddable(left->type.dataType) && !checkIfAddable(right->type.dataType) && !(left->type.array || right->type.array)) {
         return ERROR_CANT_USE_TYPE_IN_ADDITION;
@@ -1286,6 +1294,32 @@ int min_op (Variable* var, Variable* left, Variable* right) {
         *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
     }
     return 0;
+}
+
+int compareVariables (Variable* left, Variable* right) {
+    if (left->type.dataType == TYPE_STRING || right->type.dataType == TYPE_STRING) {
+        if (left->type.dataType != right->type.dataType) {
+            return 0;
+        } else {
+            char* left_value = toString(left);
+            char* right_value = toString(right);
+            if (left_value == NULL || right_value == NULL) {
+                return ERROR_CANT_CONVERT_TO_STRING;
+            }
+            int value = strcmp(left_value, right_value) == 0;
+            free(left_value);
+            free(right_value);
+            return value;
+        }
+    } else if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
+        long long int left_value = getSignedNumber(left);
+        long long int right_value = getSignedNumber(right);
+        return left_value == right_value;
+    }
+    double left_value = getFloatNumber(left);
+    double right_value = getFloatNumber(right);
+    
+    return left_value == right_value;
 }
 
 #endif

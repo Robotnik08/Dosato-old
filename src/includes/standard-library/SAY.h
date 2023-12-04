@@ -38,7 +38,11 @@ int printVar (const Variable* var) {
         int len = getVariablesLength(var->value);
         code |= printf("[") < 0 ? ERROR_SAY_ERROR : 0;
         for (int i = 0; i < len; i++) {
+            if (compareType(var->type, (Type){TYPE_STRING, 1})) printf("\"");
+            if (compareType(var->type, (Type){TYPE_CHAR, 1})) printf("'");
             code |= printVar(&((Variable*)var->value)[i]) < 0 ? ERROR_SAY_ERROR : 0;
+            if (compareType(var->type, (Type){TYPE_STRING, 1})) printf("\"");
+            if (compareType(var->type, (Type){TYPE_CHAR, 1})) printf("'");
             if (i < len - 1) code |= printf(", ") < 0 ? ERROR_SAY_ERROR : 0;
         }
         code |= printf("]") < 0 ? ERROR_SAY_ERROR : 0;

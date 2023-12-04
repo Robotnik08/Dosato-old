@@ -166,14 +166,21 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_ARRAYINSERT(process, args, argc);
     } else if (!strcmp (name, "ARRAYSLICE")) {
         return std_ARRAYSLICE(process, args, argc);
-    } 
-    // else if (!strcmp (name, "ARRAYFINDINDEX")) {
-    //     return std_ARRAYFINDINDEX(process, args, argc);
-    // } else if (!strcmp (name, "ARRAYFINDLASTINDEX")) {
-    //     return std_ARRAYFINDLASTINDEX(process, args, argc);
-    // } else if (!strcmp (name, "ARRAYCONTAINS")) {
-    //     return std_ARRAYCONTAINS(process, args, argc);
-    // }
+    } else if (!strcmp (name, "ARRAYFINDINDEX")) {
+        return std_ARRAYFINDINDEX(process, args, argc);
+    } else if (!strcmp (name, "ARRAYLASTINDEX")) {
+        return std_ARRAYLASTINDEX(process, args, argc);
+    } else if (!strcmp (name, "ARRAYCONTAINS")) {
+        return std_ARRAYCONTAINS(process, args, argc);
+    } else if (!strcmp (name, "ARRAYREVERSE")) {
+        return std_ARRAYREVERSE(process, args, argc);
+    } else if (!strcmp (name, "RANGE")) {
+        return std_RANGE(process, args, argc);
+    } else if (!strcmp (name, "RANGEF")) {
+        return std_RANGEF(process, args, argc);
+    } else if (!strcmp (name, "FILL")) {
+        return std_FILL(process, args, argc);
+    }
     return ERROR_FUNCTION_NOT_FOUND;
 }
 

@@ -402,6 +402,28 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // ARRAYSLICE
         addFunction(scope, createFunction("ARRAYSLICE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // ARRAYFINDINDEX
+        addFunction(scope, createFunction("ARRAYFINDINDEX", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // ARRAYFINDLASTINDEX
+        addFunction(scope, createFunction("ARRAYLASTINDEX", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
+        // ARRAYCONTAINS
+        addFunction(scope, createFunction("ARRAYCONTAINS", NULL, NULL, 0, (Type){TYPE_BOOL, 0}, 1));
+
+        // ARRAYREVERSE
+        addFunction(scope, createFunction("ARRAYREVERSE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // RANGE
+        addFunction(scope, createFunction("RANGE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // RANGEF
+        addFunction(scope, createFunction("RANGEF", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // FILL
+        addFunction(scope, createFunction("FILL", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+        
     }
 }
 
