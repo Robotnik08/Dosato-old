@@ -88,6 +88,8 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_ATAN2(process, args, argc);
     } else if (!strcmp (name, "EXP")) {
         return std_EXP(process, args, argc);
+    } else if (!strcmp (name, "QUADRATIC")) {
+        return std_QUADRATIC(process, args, argc);
     }
     // random functions
     else if (!strcmp (name, "SRAND")) {

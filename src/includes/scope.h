@@ -290,6 +290,10 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
         // EXP function
         addFunction(scope, createFunction("EXP", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
 
+        // QUADRATIC function
+        addFunction(scope, createFunction("QUADRATIC", NULL, NULL, 0, (Type){TYPE_DOUBLE, 1}, 1));
+
+
         /// RANDOM functions ///
 
         // SRAND function

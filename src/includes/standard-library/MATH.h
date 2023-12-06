@@ -54,6 +54,8 @@ int std_ATAN2 (Process* process, const Variable* args, int argc);
 
 int std_EXP (Process* process, const Variable* args, int argc);
 
+int std_QUADRATIC (Process* process, const Variable* args, int argc);
+
 int std_SQRT (Process* process, const Variable* args, int argc) {
     if (argc > 1) {
         return ERROR_TOO_MANY_ARGUMENTS;
@@ -798,5 +800,76 @@ int std_EXP (Process* process, const Variable* args, int argc) {
     return 0;
 }
 
+int std_QUADRATIC (Process* process, const Variable* args, int argc) {
+    if (argc > 3) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+    if (argc < 3) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+
+    if (!checkIfFloating(args[0].type.dataType) && !checkIfFloating(args[1].type.dataType) && !checkIfFloating(args[2].type.dataType)) {
+        long long int a = getSignedNumber((Variable*)&args[0]);
+        long long int b = getSignedNumber((Variable*)&args[1]);
+        long long int c = getSignedNumber((Variable*)&args[2]);
+        
+        Variable* value = malloc(sizeof(Variable) * 3); // Array of 2 variables
+
+        Variable* var1 = malloc(sizeof(Variable));
+        Variable* var2 = malloc(sizeof(Variable));
+
+        double* value1 = malloc(sizeof(double));
+        double* value2 = malloc(sizeof(double));
+
+        *value1 = (-b + sqrt(pow(b, 2) - 4 * a * c)) / (2 * a);
+        *value2 = (-b - sqrt(pow(b, 2) - 4 * a * c)) / (2 * a);
+
+        *var1 = createVariable("-lit", TYPE_DOUBLE, value1, 0, 0);
+        *var2 = createVariable("-lit", TYPE_DOUBLE, value2, 0, 0);
+
+        ((Variable*)value)[0] = *var1;
+        ((Variable*)value)[1] = *var2;
+        ((Variable*)value)[2] = createNullTerminatedVariable();
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 1);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    } else {
+        double a = getFloatNumber((Variable*)&args[0]);
+        double b = getFloatNumber((Variable*)&args[1]);
+        double c = getFloatNumber((Variable*)&args[2]);
+
+        Variable* value = malloc(sizeof(Variable) * 3); // Array of 2 variables
+        
+        Variable* var1 = malloc(sizeof(Variable));
+        Variable* var2 = malloc(sizeof(Variable));
+
+        double* value1 = malloc(sizeof(double));
+        double* value2 = malloc(sizeof(double));
+
+        *value1 = (-b + sqrt(pow(b, 2) - 4 * a * c)) / (2 * a);
+        *value2 = (-b - sqrt(pow(b, 2) - 4 * a * c)) / (2 * a);
+
+        *var1 = createVariable("-lit", TYPE_DOUBLE, value1, 0, 0);
+        *var2 = createVariable("-lit", TYPE_DOUBLE, value2, 0, 0);
+
+        ((Variable*)value)[0] = *var1;
+        ((Variable*)value)[1] = *var2;
+        ((Variable*)value)[2] = createNullTerminatedVariable();
+
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable("-lit", TYPE_DOUBLE, value, 0, 1);
+        
+        setReturnValue(process, var);
+        
+        destroyVariable(var);
+        free(var);
+    }
+    return 0;
+}
 
 #endif
