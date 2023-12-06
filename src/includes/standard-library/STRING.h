@@ -763,10 +763,10 @@ int std_STRINGTOINT (Process* process, const Variable* args, int argc) {
     char* str = (char*)args[0].value;
     
     Variable* var = malloc(sizeof(Variable));
-    *var = createVariable("-lit", TYPE_INT, NULL, 0, 0);
+    *var = createVariable("-lit", TYPE_LONG, NULL, 0, 0);
     
-    int* val = malloc(sizeof(int));
-    *val = atoi(str);
+    long long int* val = malloc(sizeof(long long int));
+    *val = atoll(str);
     
     var->value = val;
     
