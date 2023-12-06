@@ -146,7 +146,7 @@ int functionCall (Process* process, Node* func, int start) {
         if (func->body == NULL) {
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->start));
         }
-        if (func->body[start].type != NODE_FUNCTION_IDENTIFIER && func->body[start].type != NODE_BLOCK) {
+        if (func->body[start].type != NODE_FUNCTION_IDENTIFIER && func->body[start].type != NODE_BLOCK && func->body[start].type != NODE_IF) {
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start].start));
         }
         func->validated = 1;
@@ -229,8 +229,53 @@ int functionCall (Process* process, Node* func, int start) {
 int parseCallChain (Process* process, Node* func, int start, int end) {
     if (start > end) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_IDENTIFIER_INVALID, getTokenStart(process, func->start));
     
-    // the first call of a call chain is always a function call
-    int call_res = parseCall(process, &func->body[start]);
+    int call_res = 0;
+    // the first call is a normal call, or an IF statement
+    if (func->body[start].type == NODE_FUNCTION_IDENTIFIER || func->body[start].type == NODE_BLOCK) {
+        call_res = parseCall(process, &func->body[start]);
+    } else if (func->body[start].type == NODE_IF) {
+        if (func->body[start + 1].type != NODE_EXPRESSION) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_EXPRESSION, getTokenStart(process, func->body[start + 1].start));
+        }
+        if (func->body[start + 2].type != NODE_THEN) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXTENSION, getTokenStart(process, func->body[start].start));
+        }
+        if (func->body[start + 3].type != NODE_FUNCTION_IDENTIFIER && func->body[start + 3].type != NODE_BLOCK) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start + 2].start));
+        }
+
+        // check if the condition is true
+        Variable* condition = malloc(sizeof(Variable));
+        *condition = createNullTerminatedVariable();
+        int condition_res = parseExpression(condition, process, &func->body[start+1]);
+        if (condition_res) return condition_res;
+        int cast_res = castValue(condition, (Type){TYPE_BOOL,0});
+        if (cast_res) return error(process, getLastScope(&process->main_scope)->running_ast, cast_res, getTokenStart(process, func->body[start + 1].start));
+        int condition_result = *(int*)condition->value;
+        if (!strcmp(condition->name, "-lit")) {
+            destroyVariable(condition);
+            free(condition);
+        }
+
+        if (condition_result) {
+            call_res = parseCall(process, &func->body[start + 3]);
+        } else {
+            if (start + 4 == end) {
+                if (func->body[end].type == NODE_NULL) {
+                    return 0; // end of the call chain
+                }
+            }
+
+            if (func->body[start + 4].type == NODE_ELSE) {
+                return functionCall(process, func, start + 5); // run the else block
+            }
+        }
+
+        // set the start of the chain to after the THEN
+        start += 3;
+    } else {
+        return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_IDENTIFIER_INVALID, getTokenStart(process, func->start));
+    }
 
     // check if the next extension is a THEN, CATCH or INTO (CATCH and INTO only are at the end of the call chain)
     for (int i = start+1; i < end; i+= 2) { // skipping 2 per, since It's: EXT, CALL, EXT, CALL
@@ -253,21 +298,16 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
     }
     if (call_res > 0) {
         if (func->body[end-2].type == NODE_CATCH) {
-            Variable* underscore = getVariable(&process->main_scope, "_"); // we store the error in the _ variable
-            if (underscore == NULL) {
-                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INTERNAL, getTokenStart(process, func->body[end-1].start));
-            }
+            int* val = malloc(sizeof(int));
+            *val = call_res;
 
-            // set the _ variable to the error
-            destroyVariable(underscore);
-            *underscore = createNullTerminatedVariable();
-            underscore->name = malloc(sizeof(char) * 2);
-            strcpy(underscore->name, "_");
-            underscore->constant = 1;
-            underscore->type = (Type){TYPE_INT,0};
-            int* error = malloc(sizeof(int));
-            *error = call_res;
-            underscore->value = error;
+            Variable* err_code = malloc(sizeof(Variable));
+            *err_code = createVariable("-lit", TYPE_INT, val, 0, 0);
+
+            setReturnValue(process, err_code);
+
+            destroyVariable(err_code);
+            free(err_code);
 
             // if the catch block was successful, we reset the error state of the process
             process->error_code = 0;

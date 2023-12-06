@@ -66,12 +66,19 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 } else if (tokens[i].type == TOKEN_EXT) {
                     int t_end = end;
                     const ExtensionKeywordType types[] = EXTENSION_ACCEPTS;
-                    Node ext_root;
-                    Node ext_body;
+                    Node ext_root = createNullTerminatedNode();
+                    Node ext_body = createNullTerminatedNode();
                     // check if the provided tokens match the extension
                     switch (types[tokens[i].carry])
                     {
                         // if the extension calls something, first check if it's a function identifier, then parse the arguments
+
+                        case NEEDS_IF_OR_FUNCTION:
+                            if (tokens[i+1].type == TOKEN_EXT && tokens[i+1].carry == EXT_IF) {
+                                t_end = i;
+                                ext_root = parse(full_code, tokens, i, t_end, NODE_WHEN + tokens[i].carry);
+                                break;
+                            }
                         case NEEDS_FUNCTION:
                             if (tokens[i+1].type == TOKEN_IDENTIFIER) {
                                 if (tokens[i+2].type == TOKEN_PARENTHESIS && tokens[i+2].carry & BRACKET_ROUND) {

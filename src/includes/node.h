@@ -44,6 +44,8 @@ typedef enum {
     NODE_CATCH,
     NODE_INTO,
     NODE_THEN,
+    NODE_FOR,
+    NODE_IF,
     
     NODE_END = -1
 } NodeType;
@@ -124,6 +126,7 @@ Node createNullTerminatedNode () {
 }
 
 void addToBody (Node** body, const Node node) {
+    if (node.type == NODE_END) return;
     int length = getNodeBodyLength(*body);
     *body = realloc(*body, sizeof(Node) * (length + 2));
     (*body)[length] = node;

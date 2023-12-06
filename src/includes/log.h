@@ -99,6 +99,7 @@ typedef enum {
     ERROR_NUMBER_CANNOT_BE_NEGATIVE,
     ERROR_START_GREATER_THAN_END,
     ERROR_PERMISSION_DENIED,
+    ERROR_INVALID_EXTENSION,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -187,6 +188,7 @@ const char* ERROR_MESSAGES[] = {
     "Number cannot be negative",
     "Start is greater than end",
     "Permission denied",
+    "Invalid DO extension",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

@@ -12,8 +12,8 @@
 #include <stdio.h>
 
 #define MASTER_KEYWORDS {"DO", "MAKE", "SET"}
-#define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "CATCH", "INTO", "THEN"}
-#define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_FUNCTION, NEEDS_EXPRESSION, NEEDS_FUNCTION}
+#define EXTENSION_KEYWORDS {"WHEN", "WHILE", "ELSE", "CATCH", "INTO", "THEN", "FOR", "IF"}
+#define EXTENSION_ACCEPTS {NEEDS_EXPRESSION, NEEDS_EXPRESSION, NEEDS_IF_OR_FUNCTION, NEEDS_FUNCTION, NEEDS_EXPRESSION, NEEDS_FUNCTION, NEEDS_EXPRESSION, NEEDS_EXPRESSION}
 #define VAR_TYPES {"INT", "BOOL", "STRING", "FLOAT", "DOUBLE", "CHAR", "SHORT", "LONG", "BYTE", "VOID", "ARRAY", "FUNC", "UINT", "USHORT", "ULONG", "UBYTE", "STRUCT"}
 #define SEPARATORS {';'}
 #define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#",  \
@@ -130,6 +130,8 @@ typedef enum {
     EXT_CATCH,
     EXT_STORE,
     EXT_THEN,
+    EXT_FOR,
+    EXT_IF,
 
     E_NULL = -1
 } ExtensionKeywordType;
@@ -144,7 +146,8 @@ typedef enum {
     NEEDS_NULL,
     NEEDS_BLOCK,
     NEEDS_EXPRESSION,
-    NEEDS_FUNCTION
+    NEEDS_FUNCTION,
+    NEEDS_IF_OR_FUNCTION
 } KeyWordFollowUpType;
 
 /**

@@ -126,6 +126,12 @@ char* getNodeTypeString(NodeType type) {
             
         case NODE_THEN:
             return "then";
+
+        case NODE_FOR:
+            return "for";
+
+        case NODE_IF:
+            return "if";
             
         case NODE_END:
             return "NODE_END";
