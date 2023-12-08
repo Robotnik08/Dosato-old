@@ -258,21 +258,22 @@ int functionCall (Process* process, Node* func, int start) {
         
         char* right_name = func->body[condition_location].body[2].text;
 
+        if (getVariable(getLastScope(&process->main_scope), right_name) != NULL) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_VARIABLE_ALREADY_EXISTS, getTokenStart(process, func->body[condition_location].body[2].start));
+
         int len = getVariablesLength((Variable*)left->value);
 
         if (len == 0) {
             return 0;
         }
-        Variable* var = malloc(sizeof(Variable));
-        *var = createVariable(right_name, left->type.dataType, NULL, 0, left->type.array-1);
         int call_res = 0;
-        addVariable(getLastScope(&process->main_scope), *var);
+        Variable* realVar = addVariable(getLastScope(&process->main_scope), createVariable(right_name, left->type.dataType, NULL, 0, left->type.array-1));
+
         for (int f = 0; f < len; f++) {
-            var->value = cloneValue(&((Variable*)left->value)[f]);
+            realVar->value = cloneValue(&((Variable*)left->value)[f]);
 
-            int call_res = parseCallChain(process, func, start, condition_location-1);
+            call_res = parseCallChain(process, func, start, condition_location-1);
 
-            destroyValue(var);
+            destroyValue(realVar);
 
             if (call_res > 0) break;
 
@@ -282,7 +283,6 @@ int functionCall (Process* process, Node* func, int start) {
             }
         }
         popVariable(getLastScope(&process->main_scope));
-        free(var);
 
         return call_res;
     }

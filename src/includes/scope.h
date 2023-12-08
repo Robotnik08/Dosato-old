@@ -105,8 +105,9 @@ void removeLastScope (Scope* scope);
  * @brief Add a variable to a scope
  * @param scope The scope to add the variable to
  * @param variable The variable to add
+ * @return The pointer to the just added variable
 */
-void addVariable (Scope* scope, Variable variable);
+Variable* addVariable (Scope* scope, Variable variable);
 
 /**
  * @brief Add a function to a scope
@@ -511,11 +512,12 @@ void removeLastScope (Scope* scope) {
     *last_scope = createNullTerminatedScope();
 }
 
-void addVariable (Scope* scope, Variable variable) {
+Variable* addVariable (Scope* scope, Variable variable) {
     int length = getVariablesLength(scope->variables);
     scope->variables = realloc(scope->variables, sizeof(Variable) * (length + 2));
     scope->variables[length] = variable;
     scope->variables[length+1] = createNullTerminatedVariable();
+    return &scope->variables[length];
 }
 
 void popVariable (Scope* scope) {

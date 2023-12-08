@@ -279,7 +279,6 @@ char* toString (Variable* variable) {
 
 Variable cloneVariable (const Variable* variable) {
     Variable new_variable = createVariable("-lit", variable->type.dataType, NULL, variable->constant, variable->type.array);
-
     if (!variable->type.array) {
         switch (variable->type.dataType) {
             case TYPE_CHAR:
@@ -355,29 +354,17 @@ void* cloneValue (const Variable* variable) {
     if (!variable->type.array) {
         switch (variable->type.dataType) {
             case TYPE_CHAR:
-                return (void*)variable->value;
             case TYPE_STRING:
-                return (void*)variable->value;
             case TYPE_BOOL:
-                return (void*)variable->value;
             case TYPE_BYTE:
-                return (void*)variable->value;
             case TYPE_SHORT:
-                return (void*)variable->value;
             case TYPE_INT:
-                return (void*)variable->value;
             case TYPE_LONG:
-                return (void*)variable->value;
             case TYPE_UBYTE:
-                return (void*)variable->value;
             case TYPE_USHORT:
-                return (void*)variable->value;
             case TYPE_UINT:
-                return (void*)variable->value;
             case TYPE_ULONG:
-                return (void*)variable->value;
             case TYPE_FLOAT:
-                return (void*)variable->value;
             case TYPE_DOUBLE:
                 return (void*)variable->value;
             default:

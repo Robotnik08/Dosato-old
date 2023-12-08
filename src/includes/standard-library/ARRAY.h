@@ -564,6 +564,7 @@ int std_FILL (Process* process, const Variable* args, int argc) {
 
     for (int i = 0; i < len; i++) {
         newArr[i] = cloneVariable(&args[0]);
+        newArr[i].constant = 0;
     }
 
     newArr[len] = createNullTerminatedVariable();
