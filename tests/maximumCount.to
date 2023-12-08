@@ -5,9 +5,9 @@ MAKE FUNC INT maximumCount (ARRAY INT nums) {
     MAKE INT neg = 0;
     MAKE INT i = 0;
     DO {
-        SET pos += nums#i > 0;
-        SET neg += nums#i < 0;
-    } THEN { SET i += 1; } WHILE (i < nums);
+        SET pos += num > 0;
+        SET neg += num < 0;
+    } FOR (nums => num);
     DO RETURN (pos) WHEN (pos > neg) ELSE RETURN (neg); 
 };
 

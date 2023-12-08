@@ -1,53 +1,38 @@
 // game of life in Dosato
-MAKE ARRAY ARRAY BOOL board = [];
 MAKE INT size = 10;
+MAKE ARRAY ARRAY BOOL board = FILL(FILL(FALSE, size),size);
 
-MAKE FUNC VOID displayBoard (ARRAY ARRAY BOOL board) {
-    DO CLEAR ();
-    MAKE INT i = 0;
+MAKE FUNC VOID displayBoard () {
+    MAKE STRING out = "";
     DO {
-        MAKE INT j = 0;
         DO {
-            DO {
-                DO SAY ("#");
-            } WHEN (board#i#j) ELSE {
-                DO SAY (".");
-            };
-        } THEN {SET j += 1;} WHILE (j < size);
-        DO SAY ("\n");
-    } THEN {SET i += 1;} WHILE (i < size);
+            DO IF (board#i#j) THEN {SET out += "#";} ELSE {SET out += ".";};
+        } FOR (RANGE(size) => j);
+        SET out += "\n";
+    } FOR (RANGE(size) => i);
+    DO CLEAR ();
+    DO SAY (out);
 };
 
-MAKE FUNC BOOL getFromPos (ARRAY ARRAY BOOL board, INT i, INT j) {
+MAKE FUNC BOOL getFromPos (INT i, INT j) {
     DO RETURN (board#i#j) WHEN (i >= 0 && i < size && j >= 0 && j < size) ELSE RETURN (FALSE);
 };
 
 // main game of life function
-MAKE FUNC BOOL getIfAlive (ARRAY ARRAY BOOL b, INT i, INT j) {
+MAKE FUNC BOOL getIfAlive (INT i, INT j) {
     MAKE INT neighbors = 
-    getFromPos (b, i - 1, j - 1) +
-    getFromPos (b, i - 1, j    ) +
-    getFromPos (b, i - 1, j + 1) +
-    getFromPos (b, i,     j - 1) +
-    getFromPos (b, i,     j + 1) +
-    getFromPos (b, i + 1, j - 1) +
-    getFromPos (b, i + 1, j    ) +
-    getFromPos (b, i + 1, j + 1);
+    getFromPos (i - 1, j - 1) +
+    getFromPos (i - 1, j    ) +
+    getFromPos (i - 1, j + 1) +
+    getFromPos (i,     j - 1) +
+    getFromPos (i,     j + 1) +
+    getFromPos (i + 1, j - 1) +
+    getFromPos (i + 1, j    ) +
+    getFromPos (i + 1, j + 1);
     
     DO RETURN (neighbors > 1 && neighbors < 4)
-    WHEN (getFromPos(b, i, j)) ELSE RETURN (neighbors == 3);
+    WHEN (getFromPos(i, j)) ELSE RETURN (neighbors == 3);
 };
-
-// initialize array
-MAKE INT i = 0;
-DO {
-    SET board += [[]];
-    MAKE INT j = 0;
-    DO {
-        SET board#i += [FALSE];
-    } THEN {SET j += 1;} WHILE (j < size);
-} THEN {SET i += 1;} WHILE (i < size);
-
 
 // glider
 DO {
@@ -58,20 +43,17 @@ DO {
     SET board#2#2 = TRUE;
 };
 
-DO displayBoard(board);
+DO displayBoard();
 
-MAKE INT step = 0;
 MAKE INT maxSteps = 27;
 DO {
     // edit board
     MAKE ARRAY ARRAY BOOL newBoard = board;
-    MAKE INT i = 0;
     DO {
-        MAKE INT j = 0;
         DO {
-            SET newBoard#i#j = getIfAlive (board, i, j);
-        } THEN {SET j += 1;} WHILE (j < size);
-    } THEN {SET i += 1;} WHILE (i < size);
+            SET newBoard#i#j = getIfAlive (i, j);
+        } FOR (RANGE(size) => j);
+    } FOR (RANGE(size) => i);
     SET board = newBoard;
-    DO displayBoard(board);
-} THEN {SET step += 1;} WHILE (step < maxSteps);
+    DO displayBoard();
+} FOR (RANGE(maxSteps) => s);

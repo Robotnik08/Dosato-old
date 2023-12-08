@@ -1,53 +1,38 @@
-MAKE ARRAY CHAR board = [0,0,0,0,0,0,0,0,0];
+MAKE ARRAY BYTE board = [0,0,0,0,0,0,0,0,0];
 MAKE CHAR player = 'O';
 
-MAKE FUNC VOID printBoard (ARRAY CHAR b) {
+MAKE FUNC VOID printBoard () {
     DO SAYLN ("--------------");
 
-    MAKE INT i = 0;
     DO {
-        MAKE INT j = 0;
         DO {
-            DO SAY (b#(i*3+j)) WHEN (b#(i*3+j) != 0) ELSE SAY (i*3+j+1);
+            DO SAY ((CHAR)(board#(i*3+j))) WHEN (board#(i*3+j) != 0) ELSE SAY (i*3+j+1);
             DO SAY (" ");
-            SET j += 1;
-        } WHILE (j < 3);
+        } FOR (RANGE(3) => j);
         DO SAY ("\n");
-        SET i += 1;
-    } WHILE (i < 3);
+    } FOR (RANGE(3) => i);
 
     DO SAYLN ("--------------");
 };
 
-MAKE FUNC BOOL checkWin (ARRAY CHAR b, CHAR p) {
-    MAKE INT i = 0;
+MAKE FUNC BOOL checkWin (CHAR p) {
     // check for horizontal and vertical wins
     DO {
         DO RETURN (TRUE) WHEN (
-            (b#i == p && b#(i+1) == p && b#(i+2) == p) ||
-            (b#(i/3) == p && b#((i/3)+3) == p && b#((i/3)+6) == p)
+            (board#i == p && board#(i+1) == p && board#(i+2) == p) ||
+            (board#(i/3) == p && board#((i/3)+3) == p && board#((i/3)+6) == p)
         );
-        SET i += 3;
-    } WHILE (i < 9);
+    } FOR (RANGE(3) => i);
 
     // check for diagonal wins
     DO RETURN (
-        (b#0 == p && b#4 == p && b#8 == p) ||
-        (b#2 == p && b#4 == p && b#6 == p)
+        (board#0 == p && board#4 == p && board#8 == p) ||
+        (board#2 == p && board#4 == p && board#6 == p)
     );
-};
-
-MAKE FUNC BOOL checkTie (ARRAY INT b) {
-    MAKE INT i = 0;
-    DO {
-        DO RETURN (FALSE) WHEN (b#i == 0);
-        SET i += 1;
-    } WHILE (i < 9);
-    DO RETURN (TRUE);
 };
  
 MAKE FUNC VOID playMove () {
-    DO printBoard(board);
+    DO printBoard();
 
     DO SAYLN ("Player " + player + "'s turn");
     MAKE STRING input = LISTEN();
@@ -64,13 +49,13 @@ MAKE FUNC VOID playMove () {
     WHEN (board#(move-'1'));
 
     SET board#(move-'1') = player;
-    DO SAYLN ("Player " + player + " wins!") THEN RETURN () WHEN (checkWin(board, player));
+    DO SAYLN ("Player " + player + " wins!") THEN RETURN () WHEN (checkWin(player));
 
-    DO SAYLN ("Tie game!") THEN RETURN () WHEN (checkTie(board));
+    DO SAYLN ("Tie game!") THEN RETURN () WHEN (!ARRAYCONTAINS(board, 0));
 
-    DO {
+    DO IF (player == 'O') THEN {
         SET player = 'X';
-    } WHEN (player == 'O') ELSE {
+    } ELSE {
         SET player = 'O';
     };
     DO playMove (); // next player's turn
