@@ -518,6 +518,16 @@ void addVariable (Scope* scope, Variable variable) {
     scope->variables[length+1] = createNullTerminatedVariable();
 }
 
+void popVariable (Scope* scope) {
+    int length = getVariablesLength(scope->variables);
+    if (length == 0) {
+        return;
+    }
+    destroyVariable(&scope->variables[length-1]);
+    scope->variables = realloc(scope->variables, sizeof(Variable) * length);
+    scope->variables[length-1] = createNullTerminatedVariable();
+}
+
 void addFunction (Scope* scope, Function func) {
     int length = getFunctionsLength(scope->functions);
     scope->functions = realloc(scope->functions, sizeof(Function) * (length + 2));

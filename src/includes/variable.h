@@ -173,6 +173,25 @@ void destroyVariable (Variable* variable) {
 
     switch (variable->type.dataType) {
         default:
+            if (variable->value == NULL) return;
+            free(variable->value);
+            variable->value = NULL;
+            break;
+    }
+}
+
+void destroyValue (Variable* variable) {
+    if (variable->type.array) {
+        Variable* array = (Variable*)variable->value;
+        int array_length = getVariablesLength(array);
+        for (int i = 0; i < array_length; i++) {
+            destroyVariable(&array[i]);
+        }
+    }
+
+    switch (variable->type.dataType) {
+        default:
+            if (variable->value == NULL) return;
             free(variable->value);
             variable->value = NULL;
             break;
@@ -330,6 +349,49 @@ Variable cloneVariable (const Variable* variable) {
         new_variable.value = new_array;
     }
     return new_variable;
+}
+
+void* cloneValue (const Variable* variable) {
+    if (!variable->type.array) {
+        switch (variable->type.dataType) {
+            case TYPE_CHAR:
+                return (void*)variable->value;
+            case TYPE_STRING:
+                return (void*)variable->value;
+            case TYPE_BOOL:
+                return (void*)variable->value;
+            case TYPE_BYTE:
+                return (void*)variable->value;
+            case TYPE_SHORT:
+                return (void*)variable->value;
+            case TYPE_INT:
+                return (void*)variable->value;
+            case TYPE_LONG:
+                return (void*)variable->value;
+            case TYPE_UBYTE:
+                return (void*)variable->value;
+            case TYPE_USHORT:
+                return (void*)variable->value;
+            case TYPE_UINT:
+                return (void*)variable->value;
+            case TYPE_ULONG:
+                return (void*)variable->value;
+            case TYPE_FLOAT:
+                return (void*)variable->value;
+            case TYPE_DOUBLE:
+                return (void*)variable->value;
+            default:
+                return NULL;
+        }
+    }
+    Variable* array = (Variable*)variable->value;
+    int array_length = getVariablesLength(array);
+    Variable* new_array = malloc(sizeof(Variable) * (array_length + 1));
+    for (int i = 0; i < array_length; i++) {
+        new_array[i] = cloneVariable(&array[i]);
+    }
+    new_array[array_length] = createNullTerminatedVariable();
+    return new_array;
 }
 
 int getIfCastable (DataType a, DataType b) {

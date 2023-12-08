@@ -18,12 +18,12 @@
 #define SEPARATORS {';'}
 #define OPERATORS {"+", "-", "*", "/", "%", "=", ">", "<", "!", "&", "^", "|", "~", "?", ":", ".", ",", "#",  \
                    "+=","-=","*=","/=","%=","++","--","==","!=",">=","<=","&&","||","<<",">>","&=","|=","^=", \
-                   "**","^/","|>","<|","!-"}
+                   "**","^/","|>","<|","!-", "=>"}
 // operator precedence is borrowed from C
 #define OPERATOR_PRECEDENCE \
                   { 4,   4,   3,   3,   3,   14,  6,   6,   2,   8,   9,   10,  2,   13,  13,  1,   15,  1,   \
                     14,  14,  14,  14,  14,  2,   2,   7,   7,   6,   6,   11,  12,  5,   5,   14,  14,  14,  \
-                    2,   2,   2,   2,   2}
+                    2,   2,   2,   2,   2,   15}
 
 #define BRACKETS {"()", "{}", "[]"}
 
@@ -91,7 +91,8 @@ typedef enum {
     OPERATOR_ROOT,
     OPERATOR_MAX,
     OPERATOR_MIN,
-    OPERATOR_ABSOLUTE
+    OPERATOR_ABSOLUTE,
+    OPERATOR_AS
 } OperatorType;
 
 typedef enum {

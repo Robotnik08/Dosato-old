@@ -156,10 +156,12 @@ int functionCall (Process* process, Node* func, int start) {
     int extension_length = getNodeBodyLength(func->body);
     int condition_location = -1;
     int loop = 0;
+    int for_loop = 0;
     for (int i = start; i < extension_length; i++) {
-        if (func->body[i].type == NODE_WHEN || func->body[i].type == NODE_WHILE) {
+        if (func->body[i].type == NODE_WHEN || func->body[i].type == NODE_WHILE || func->body[i].type == NODE_FOR) {
             condition_location = i + 1;
             loop = func->body[i].type == NODE_WHILE;
+            for_loop = func->body[i].type == NODE_FOR;
             if (!func->body[i].validated) { 
                 if (func->body[i].type == NODE_WHILE && i + 1 != extension_length-1) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_WHILE_NOT_LAST, getTokenStart(process, func->body[i].start));
@@ -175,7 +177,7 @@ int functionCall (Process* process, Node* func, int start) {
             break;
         }
     }
-    if (!loop) {
+    if (!loop && !for_loop) {
         // when the condition is not a loop, we need to check if the condition is true
         if (condition_location != -1) {
             Variable* condition = malloc(sizeof(Variable) + 1);
@@ -199,7 +201,7 @@ int functionCall (Process* process, Node* func, int start) {
         // parse all the expressions before the WHEN when the condition is true
         return parseCallChain(process, func, start, condition_location == -1 ? extension_length : condition_location-1);
     }
-    while (1) {
+    while (loop) {
         Variable* condition = malloc(sizeof(Variable));
         *condition = createNullTerminatedVariable();
         int condition_res = parseExpression(condition, process, &func->body[condition_location]);
@@ -223,6 +225,68 @@ int functionCall (Process* process, Node* func, int start) {
             return 0;
         }
     }
+
+    if (for_loop) {
+        if (!func->body[condition_location].validated) {
+            if (func->body[condition_location].type != NODE_EXPRESSION) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[condition_location].start));
+            }
+            if (getNodeBodyLength(func->body[condition_location].body) != 3) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, func->body[condition_location].start));
+            }
+
+            if (func->body[condition_location].body[1].type != NODE_OPERATOR || getTokenAtPosition(process, func->body[condition_location].body[1].start).carry != OPERATOR_AS) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_OPERATOR, getTokenStart(process, func->body[condition_location].body[1].start));
+            }
+
+            if (func->body[condition_location].body[2].type != NODE_IDENTIFIER) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[condition_location].body[2].start));
+            }
+            func->body[condition_location].validated = 1;
+        }   
+        
+
+        Variable* left = malloc(sizeof(Variable));
+        *left = createNullTerminatedVariable();
+
+        int left_res = parseExpression(left, process, &func->body[condition_location].body[0]);
+        if (left_res) return left_res;
+
+        if (left->type.array == 0) {
+            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_ARRAY, getTokenStart(process, func->body[condition_location].start));
+        }
+        
+        char* right_name = func->body[condition_location].body[2].text;
+
+        int len = getVariablesLength((Variable*)left->value);
+
+        if (len == 0) {
+            return 0;
+        }
+        Variable* var = malloc(sizeof(Variable));
+        *var = createVariable(right_name, left->type.dataType, NULL, 0, left->type.array-1);
+        int call_res = 0;
+        addVariable(getLastScope(&process->main_scope), *var);
+        for (int f = 0; f < len; f++) {
+            var->value = cloneValue(&((Variable*)left->value)[f]);
+
+            int call_res = parseCallChain(process, func, start, condition_location-1);
+
+            destroyValue(var);
+
+            if (call_res > 0) break;
+
+            if (call_res == TERMINATE_BREAK || call_res == TERMINATE_RETURN) {
+                call_res = 0;
+                break;
+            }
+        }
+        popVariable(getLastScope(&process->main_scope));
+        free(var);
+
+        return call_res;
+    }
+
     return 0;
 }
 

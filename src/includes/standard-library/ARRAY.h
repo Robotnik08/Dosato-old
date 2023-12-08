@@ -446,14 +446,14 @@ int std_RANGE (Process* process, const Variable* args, int argc) {
     }
 
     int arraylen = 0;
-    for (int i = start; i <= end; i += step) {
+    for (int i = start; i < end; i += step) {
         arraylen++;
     }
 
     Variable* newArr = malloc(sizeof(Variable) * (arraylen + 1)); // new array
 
     int arr_i = 0;
-    for (int i = start; i <= end; i += step) {
+    for (int i = start; i < end; i += step) {
         int* val = malloc(sizeof(int));
         *val = i;
         newArr[arr_i++] = createVariable("-lit", TYPE_INT, val, 0, 0);
@@ -512,14 +512,14 @@ int std_RANGEF (Process* process, const Variable* args, int argc) {
     }
 
     int arraylen = 0;
-    for (double i = start; i <= end; i += step) {
+    for (double i = start; i < end; i += step) {
         arraylen++;
     }
 
     Variable* newArr = malloc(sizeof(Variable) * (arraylen + 1)); // new array
 
     int i = 0;
-    while (start <= end) {
+    while (start < end) {
         double* val = malloc(sizeof(double));
         *val = start;
         newArr[i] = createVariable("-lit", TYPE_DOUBLE, val, 0, 0);
