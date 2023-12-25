@@ -49,6 +49,8 @@ int std_STRINGTOINT (Process* process, const Variable* args, int argc);
 
 int std_STRINGTODOUBLE (Process* process, const Variable* args, int argc);
 
+int std_COUNT (Process* process, const Variable* args, int argc);
+
 int std_SPLIT (Process* process, const Variable* args, int argc) {
     if (argc > 2) {
         return ERROR_TOO_MANY_ARGUMENTS;
@@ -801,6 +803,50 @@ int std_STRINGTODOUBLE (Process* process, const Variable* args, int argc) {
     
     setReturnValue(process, var);
     
+    destroyVariable(var);
+    free(var);
+    
+    return 0; // return code
+}
+
+int std_COUNT (Process* process, const Variable* args, int argc) {
+    if (argc < 2) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+
+    if (argc > 2) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    int cRes = castValue((Variable*)&args[0], (Type){TYPE_STRING, 0});
+    if (cRes) return cRes;
+
+    char* str = (char*)args[0].value;
+
+    cRes = castValue((Variable*)&args[1], (Type){TYPE_STRING, 0});
+    if (cRes) return cRes;
+
+    char* substr = (char*)args[1].value;
+
+    int count = 0;
+
+    char* res = strstr(str, substr);
+
+    while (res != NULL) {
+        count++;
+        res = strstr(res + strlen(substr), substr);
+    }
+
+    Variable* var = malloc(sizeof(Variable));
+    *var = createVariable("-lit", TYPE_INT, NULL, 0, 0);
+
+    int* val = malloc(sizeof(int));
+    *val = count;
+
+    var->value = val;
+
+    setReturnValue(process, var);
+
     destroyVariable(var);
     free(var);
     

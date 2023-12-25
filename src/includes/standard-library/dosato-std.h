@@ -158,6 +158,8 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_STRINGTOINT(process, args, argc);
     } else if (!strcmp (name, "STRINGTODOUBLE")) {
         return std_STRINGTODOUBLE(process, args, argc);
+    } else if (!strcmp (name, "COUNT")) {
+        return std_COUNT(process, args, argc);
     }
     // array functions
     else if (!strcmp (name, "ARRAYSHIFT")) {
@@ -176,6 +178,10 @@ int standard_call (Process* process, const char* name, const Variable* args, int
         return std_ARRAYCONTAINS(process, args, argc);
     } else if (!strcmp (name, "ARRAYREVERSE")) {
         return std_ARRAYREVERSE(process, args, argc);
+    } else if (!strcmp (name, "ARRAYSORT")) {
+        return std_ARRAYSORT(process, args, argc);
+    } else if (!strcmp (name, "ARRAYSORTFUNC")) {
+        return std_ARRAYSORTFUNC(process, args, argc);
     } else if (!strcmp (name, "RANGE")) {
         return std_RANGE(process, args, argc);
     } else if (!strcmp (name, "RANGEF")) {

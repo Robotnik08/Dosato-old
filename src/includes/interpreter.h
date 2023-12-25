@@ -243,7 +243,7 @@ int functionCall (Process* process, Node* func, int start) {
                 return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[condition_location].body[2].start));
             }
             func->body[condition_location].validated = 1;
-        }   
+        }
         
 
         Variable* left = malloc(sizeof(Variable));
@@ -298,14 +298,17 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
     if (func->body[start].type == NODE_FUNCTION_IDENTIFIER || func->body[start].type == NODE_BLOCK) {
         call_res = parseCall(process, &func->body[start]);
     } else if (func->body[start].type == NODE_IF) {
-        if (func->body[start + 1].type != NODE_EXPRESSION) {
-            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_EXPRESSION, getTokenStart(process, func->body[start + 1].start));
-        }
-        if (func->body[start + 2].type != NODE_THEN) {
-            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXTENSION, getTokenStart(process, func->body[start].start));
-        }
-        if (func->body[start + 3].type != NODE_FUNCTION_IDENTIFIER && func->body[start + 3].type != NODE_BLOCK) {
-            return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start + 2].start));
+        if (!func->body[start].validated) {
+            if (func->body[start + 1].type != NODE_EXPRESSION) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_EXPRESSION, getTokenStart(process, func->body[start + 1].start));
+            }
+            if (func->body[start + 2].type != NODE_THEN) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXTENSION, getTokenStart(process, func->body[start].start));
+            }
+            if (func->body[start + 3].type != NODE_FUNCTION_IDENTIFIER && func->body[start + 3].type != NODE_BLOCK) {
+                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXPECTED_IDENTIFIER, getTokenStart(process, func->body[start + 2].start));
+            }
+            func->body[start].validated = 1;
         }
 
         // check if the condition is true
@@ -335,8 +338,20 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
             }
         }
 
-        // set the start of the chain to after the THEN
-        start += 3;
+        int newStart = start + 3;
+
+        if (func->body[newStart + 1].type == NODE_ELSE) {
+            newStart++;
+            while (newStart < end) {
+                if (func->body[newStart].type == NODE_ELSE && func->body[newStart+1].type == NODE_IF) {
+                    newStart += 5;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        start = newStart;
     } else {
         return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_IDENTIFIER_INVALID, getTokenStart(process, func->start));
     }
@@ -360,6 +375,7 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
         }
         if (call_res > 0) break; // if the call was not successful, we stop the call chain and perhapse run a CATCH
     }
+
     if (call_res > 0) {
         if (func->body[end-2].type == NODE_CATCH) {
             int* val = malloc(sizeof(int));
@@ -385,6 +401,7 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
         }
         return call_res; // if theres no catch, throw the error
     }
+
     if (func->body[end-2].type == NODE_INTO) {
         Variable* left;
         int left_res = parseRefrenceExpression(&left, process, &func->body[end-1]);
@@ -399,6 +416,7 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
         int setRes = setVariableValue(left, underscore, OPERATOR_ASSIGN);
         if (setRes) return error(process, getLastScope(&process->main_scope)->running_ast, setRes, getTokenStart(process, func->body[end-1].start));
     }
+    
     return call_res;
 }
 

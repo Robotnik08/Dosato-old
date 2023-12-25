@@ -393,6 +393,9 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
         // STRINGTODOUBLE
         addFunction(scope, createFunction("STRINGTODOUBLE", NULL, NULL, 0, (Type){TYPE_DOUBLE, 0}, 1));
 
+        // COUNT
+        addFunction(scope, createFunction("COUNT", NULL, NULL, 0, (Type){TYPE_INT, 0}, 1));
+
 
         /// ARRAY functions ///
 
@@ -419,6 +422,12 @@ void addSystemFunctions (Scope* scope, int main, int depth) {
 
         // ARRAYREVERSE
         addFunction(scope, createFunction("ARRAYREVERSE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // ARRAYSORT
+        addFunction(scope, createFunction("ARRAYSORT", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
+
+        // ARRAYSORTFUNC
+        addFunction(scope, createFunction("ARRAYSORTFUNC", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));
 
         // RANGE
         addFunction(scope, createFunction("RANGE", NULL, NULL, 0, (Type){TYPE_ARRAY, 0}, 1));

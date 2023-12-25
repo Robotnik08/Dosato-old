@@ -100,6 +100,7 @@ typedef enum {
     ERROR_START_GREATER_THAN_END,
     ERROR_PERMISSION_DENIED,
     ERROR_INVALID_EXTENSION,
+    ERROR_INCORRECT_RETURN_TYPE,
     
     ERROR_INTERNAL,
     ERROR_UNKNOWN,
@@ -189,6 +190,7 @@ const char* ERROR_MESSAGES[] = {
     "Start is greater than end",
     "Permission denied",
     "Invalid DO extension",
+    "Incorrect return type",
 
     "Internal Error, please report this to the developer",
     "Unknown Error",

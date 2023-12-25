@@ -1322,4 +1322,8 @@ int compareVariables (Variable* left, Variable* right) {
     return left_value == right_value;
 }
 
+int sortCompareVariables (const void* left, const void* right) {
+    return getFloatNumber((Variable*)left) - getFloatNumber((Variable*)right);
+}
+
 #endif

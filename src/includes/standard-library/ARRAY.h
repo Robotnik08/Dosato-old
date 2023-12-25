@@ -31,6 +31,10 @@ int std_ARRAYCONTAINS (Process* process, const Variable* args, int argc);
 
 int std_ARRAYREVERSE (Process* process, const Variable* args, int argc);
 
+int std_ARRAYSORT (Process* process, const Variable* args, int argc);
+
+int std_ARRAYSORTFUNC (Process* process, const Variable* args, int argc);
+
 int std_RANGE (Process* process, const Variable* args, int argc);
 
 int std_RANGEF (Process* process, const Variable* args, int argc);
@@ -408,6 +412,136 @@ int std_ARRAYREVERSE (Process* process, const Variable* args, int argc) {
 
     destroyVariable(var);
     free(var);
+
+    return 0; // return code
+}
+
+int std_ARRAYSORT (Process* process, const Variable* args, int argc) {
+    if (argc < 1) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+    if (argc > 1) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!args[0].type.array) {
+        return ERROR_TYPE_MISMATCH;
+    }
+
+    int len = getVariablesLength(args[0].value);
+
+    Variable* newArr = malloc(sizeof(Variable) * (len + 1)); // new array
+
+    for (int i = 0; i < len; i++) {
+        newArr[i] = cloneVariable(&((Variable*)args[0].value)[i]);
+    }
+
+    newArr[len] = createNullTerminatedVariable();
+
+    qsort(newArr, len, sizeof(Variable), sortCompareVariables);
+
+    Variable* var = malloc(sizeof(Variable));
+    *var = createVariable("-lit", args[0].type.dataType, newArr, 0, args[0].type.array);
+
+    setReturnValue(process, var);
+
+    destroyVariable(var);
+    free(var);
+
+    return 0; // return code
+}
+
+// Quicksort function
+int std_dosato_quicksort(Variable* arr, int len, char* func, Process* process) {
+    if (len <= 1) {
+        return 0;
+    }
+
+    // Choose a pivot element
+    Variable pivot = cloneVariable(&arr[len - 1]);
+    
+    // Partition the array
+    int i = -1;
+    for (int j = 0; j < len - 1; j++) {
+        // prepare the function arguments
+        Variable* args = malloc(sizeof(Variable) * 3);
+        args[0] = cloneVariable(&arr[j]);
+        args[1] = cloneVariable(&pivot);
+        args[2] = createNullTerminatedVariable();
+
+        // call the function
+        int call_res = callFunction(func, args, 2, process);
+        if (call_res) return call_res;
+
+        // free the arguments
+        destroyVariable(&args[0]);
+        destroyVariable(&args[1]);
+        free(args);
+
+        // get the return value
+        Variable* ret = getReturnValue(process);
+
+
+        int cRes = castValue(ret, (Type){TYPE_LONG, 0});
+        if (cRes) return cRes;
+
+        if (getSignedNumber(ret) <= 0) {
+            i++;
+            Variable temp = cloneVariable(&arr[i]);
+            arr[i] = cloneVariable(&arr[j]);
+            arr[j] = temp;
+        }
+    }
+
+    Variable temp = cloneVariable(&arr[i + 1]);
+    arr[i + 1] = cloneVariable(&arr[len - 1]);
+    arr[len - 1] = temp;
+    // Recursively sort the sub-arrays
+    int result = std_dosato_quicksort(arr, i + 1, func, process); // left
+    if (result) return result;
+
+    result = std_dosato_quicksort(&arr[i + 2], len - i - 2, func, process); // right
+    if (result) return result;
+
+    destroyVariable(&pivot);
+
+    return 0;
+}
+
+int std_ARRAYSORTFUNC (Process* process, const Variable* args, int argc) {
+    if (argc < 2) {
+        return ERROR_TOO_FEW_ARGUMENTS;
+    }
+    if (argc > 2) {
+        return ERROR_TOO_MANY_ARGUMENTS;
+    }
+
+    if (!args[0].type.array) {
+        return ERROR_TYPE_MISMATCH;
+    }
+
+    int cRes = castValue((Variable*)&args[1], (Type){TYPE_STRING, 0});
+    if (cRes) return cRes;
+
+    int len = getVariablesLength(args[0].value);
+
+    Variable* newArr = malloc(sizeof(Variable) * (len + 1)); // new array
+
+    for (int i = 0; i < len; i++) {
+        newArr[i] = cloneVariable(&((Variable*)args[0].value)[i]);
+    }
+
+    newArr[len] = createNullTerminatedVariable();
+    std_dosato_quicksort(newArr, len, (char*)args[1].value, process);
+
+    Variable* var = malloc(sizeof(Variable));
+    *var = createVariable("-lit", args[0].type.dataType, newArr, 0, args[0].type.array);
+
+    setReturnValue(process, var);
+
+    destroyVariable(var);
+    free(var);
+
 
     return 0; // return code
 }
