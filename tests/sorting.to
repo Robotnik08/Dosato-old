@@ -1,0 +1,13 @@
+MAKE ARRAY LONG numbers = [1, -2, 3, 3234, 6, 37, 28, 1119, 1223240, 10];
+
+MAKE FUNC INT SORT (INT a, INT b) {
+    DO RETURN (a - b);
+};
+
+DO SAYLN ("Before sorting: ");
+DO SAYLN (numbers);
+
+SET numbers = ARRAYSORTFUNC (numbers, "SORT");
+
+DO SAYLN ("After sorting: ");
+DO SAYLN (numbers);
