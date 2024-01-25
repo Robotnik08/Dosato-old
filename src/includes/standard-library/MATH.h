@@ -6,11 +6,15 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include <limits.h>
 
 // limits.h s weird, let's use these instead
+
+#ifndef LONG_LONG_MIN
 #define LONG_LONG_MIN -9223372036854775807
+#endif
+#ifndef LONG_LONG_MAX
 #define LONG_LONG_MAX 9223372036854775807
+#endif
 
 #include "../ast.h"
 #include "../parser.h"
