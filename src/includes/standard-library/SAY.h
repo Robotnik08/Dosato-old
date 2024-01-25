@@ -57,7 +57,7 @@ int printVar (const Variable* var) {
             code |= printf("%c", *(char*)(var->value)) < 0 ? ERROR_SAY_ERROR : 0;
             break;
         case TYPE_STRING:
-            code |= printf("%s", var->value) < 0 ? ERROR_SAY_ERROR : 0;
+            code |= printf("%s", (char*)var->value) < 0 ? ERROR_SAY_ERROR : 0;
             break;
         case TYPE_BYTE:
             signed char* cvalue = (signed char*)var->value;
