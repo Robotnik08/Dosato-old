@@ -7,7 +7,7 @@
 #include <math.h>
 #include <float.h>
 
-// limits.h s weird, let's use these instead
+#include <limits.h>
 
 #ifndef LONG_LONG_MIN
 #define LONG_LONG_MIN -9223372036854775807
