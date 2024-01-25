@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <limits.h>
 #include <float.h>
+
+// limits.h s weird, let's use these instead
+#define LONG_LONG_MIN -9223372036854775808
+#define LONG_LONG_MAX 9223372036854775807
 
 #include "../ast.h"
 #include "../parser.h"
