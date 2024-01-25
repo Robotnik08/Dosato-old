@@ -131,6 +131,9 @@ int QUIT (int code)
     if (debug) {
         printf("\n\nFinished with exit code %i\n", code);
     }
+    // WINDOWS ONLY, must fix
+    #ifdef _WIN32
     _fcloseall(); // close all files if any were opened
+    #endif
     return code;
 }
