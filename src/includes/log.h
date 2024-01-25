@@ -224,7 +224,9 @@ void logText (const LogType type, const char* contents) {
     }
     printf("%s", contents);
     if (type == ERROR) {
+        #ifdef _WIN32
         _fcloseall(); // close all files if any were opened
+        #endif
         exit(1);
     }
 }
@@ -232,7 +234,9 @@ void printError (const char* full_code, const int pos, const ErrorType type) {
     printf("\nERROR:\n");
     printf("E%d: %s\n", type, ERROR_MESSAGES[type < ERROR_AMOUNT && ERROR_AMOUNT > 0 ? type : ERROR_UNKNOWN]);
     printf("At line %i:%i\n", getLine(full_code, pos), getLineCol(full_code, pos));
+    #ifdef _WIN32
     _fcloseall(); // close all files if any were opened
+    #endif
     exit(type);
 }
 

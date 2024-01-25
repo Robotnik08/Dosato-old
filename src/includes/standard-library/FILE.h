@@ -35,7 +35,9 @@ int std_READ (Process* process, const Variable* args, int argc) {
     FILE* file = fopen ((char*)args[0].value, "r");
 
     if (file == NULL) {
+        #ifdef _WIN32
         _fcloseall(); // close all files if any were opened
+        #endif
         
         return errno == EACCES ? ERROR_PERMISSION_DENIED : ERROR_FILE_NOT_FOUND;
     }
@@ -78,7 +80,9 @@ int std_WRITE (Process* process, const Variable* args, int argc) {
     FILE* file = fopen ((char*)args[0].value, "w");
 
     if (file == NULL) {
+        #ifdef _WIN32
         _fcloseall(); // close all files if any were opened
+        #endif
         
         return errno == EACCES ? ERROR_PERMISSION_DENIED : ERROR_FILE_NOT_FOUND;
     }
@@ -107,7 +111,9 @@ int std_APPEND (Process* process, const Variable* args, int argc) {
     FILE* file = fopen ((char*)args[0].value, "a");
 
     if (file == NULL) {
+        #ifdef _WIN32
         _fcloseall(); // close all files if any were opened
+        #endif
         return errno == EACCES ? ERROR_PERMISSION_DENIED : ERROR_FILE_NOT_FOUND;
     }
 
