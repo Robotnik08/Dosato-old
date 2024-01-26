@@ -58,10 +58,8 @@ int checkIfNumber (DataType type) {
         case TYPE_CHAR:
         case TYPE_BOOL:
             return 2;
-            break;
         default:
             return 0;
-            break;
     }
 }
 /**
