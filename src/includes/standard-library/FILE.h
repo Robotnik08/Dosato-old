@@ -5,10 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
+#ifndef _WIN32
+#include <errno.h>
 #endif
 
 #include "../ast.h"
