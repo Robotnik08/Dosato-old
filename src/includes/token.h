@@ -212,8 +212,9 @@ int isAssignmentOperator (OperatorType operator) {
         case OPERATOR_OR_ASSIGN:
         case OPERATOR_XOR_ASSIGN:
             return 1;
+        default:
+            return 0;
     }
-    return 0;
 }
 
 int checkIfOnly (Token* tokens, TokenType type, int start, int end) {
