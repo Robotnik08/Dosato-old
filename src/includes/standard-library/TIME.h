@@ -53,7 +53,7 @@ int std_DATE (Process* process, const Variable* args, int argc) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
 
-    char* val = malloc(sizeof(char) * 11);
+    char* val = malloc(sizeof(char) * 100);
 
     time_t t = time(NULL);
     if (argc == 1) {
@@ -80,7 +80,7 @@ int std_DATETIME (Process* process, const Variable* args, int argc) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
 
-    char* val = malloc(sizeof(char) * 20);
+    char* val = malloc(sizeof(char) * 100);
 
     time_t t = time(NULL);
     if (argc == 1) {
@@ -107,7 +107,7 @@ int std_TIMESTAMP (Process* process, const Variable* args, int argc) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
 
-    char* val = malloc(sizeof(char) * 20);
+    char* val = malloc(sizeof(char) * 100);
 
     time_t t = time(NULL);
     if (argc == 1) {
