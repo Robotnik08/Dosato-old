@@ -35,10 +35,8 @@ int checkIfAddable (DataType type) {
         case TYPE_CHAR:
         case TYPE_BOOL:
             return 1;
-            break;
         default:
             return 0;
-            break;
     }
 }
 
@@ -77,10 +75,8 @@ int checkIfUnsigned (DataType type) {
         case TYPE_BOOL: // bool is just an unsigned int
         case TYPE_CHAR: // char is just an unsigned byte
             return 1;
-            break;
         default:
             return 0;
-            break;
     }
 }
 
@@ -90,10 +86,8 @@ int checkIfFloating (DataType type) {
         case TYPE_FLOAT:
         case TYPE_DOUBLE:
             return 1;
-            break;
         default:
             return 0;
-            break;
     }
 }
 
@@ -911,7 +905,7 @@ int assign (Variable* left, Variable* right) {
 
 int assign_add (Variable* left, Variable* right) {
     switch (left->type.dataType) {
-        case TYPE_STRING:
+        case TYPE_STRING: {}
             char* left_value = toString(left);
             char* right_value = toString(right);
             free(left->value);
