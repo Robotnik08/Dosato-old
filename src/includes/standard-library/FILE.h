@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "../ast.h"
 #include "../parser.h"
 #include "../lexer.h"
