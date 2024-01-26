@@ -113,7 +113,7 @@ int std_ABS (Process* process, const Variable* args, int argc) {
         long long int in_val = getSignedNumber((Variable*)&args[0]);
         
         long long int* value = malloc(sizeof(long long int));
-        *value = abs(in_val);
+        *value = llabs(in_val);
 
         Variable* var = malloc(sizeof(Variable));
         *var = createVariable("-lit", TYPE_LONG, value, 0, 0);

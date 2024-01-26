@@ -610,7 +610,7 @@ int absolute (Variable* var, Variable* right) {
     if (!checkIfFloating(right->type.dataType)) {
         long long int right_value = getSignedNumber(right);
         long long int* value = malloc(sizeof(long long int));
-        *value = abs(right_value);
+        *value = llabs(right_value);
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         double right_value = getFloatNumber(right);
@@ -1219,7 +1219,7 @@ int hash_refrence (Variable** var, Variable* arr, Variable* right) {
     int arr_length = getVariablesLength(arr->value);
 
     int index = getSignedNumber(right);
-    if (abs(index) >= arr_length) {
+    if (llabs(index) >= arr_length) {
         return ERROR_ARRAY_OUT_OF_BOUNDS;
     }
 
@@ -1237,14 +1237,14 @@ int hash (Variable* var, Variable* arr, Variable* right) {
     int index = getSignedNumber(right);
     if (arr->type.array) {
         int arr_length = getVariablesLength(arr->value);
-        if (abs(index) >= arr_length) {
+        if (llabs(index) >= arr_length) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
         }
 
         *var = cloneVariable(&((Variable*)arr->value)[index >= 0 ? index : arr_length + index]);
     } else {
         int str_length = strlen((char*)arr->value) + 1;
-        if (abs(index) >= str_length) {
+        if (llabs(index) >= str_length) {
             return ERROR_ARRAY_OUT_OF_BOUNDS;
         }
         char* value = malloc(sizeof(char));
