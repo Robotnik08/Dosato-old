@@ -65,7 +65,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 // when the token is an extension keyword, check if it's valid
                 } else if (tokens[i].type == TOKEN_EXT) {
                     int t_end = end;
-                    const ExtensionKeywordType types[] = EXTENSION_ACCEPTS;
+                    const KeyWordFollowUpType types[] = EXTENSION_ACCEPTS;
                     Node ext_root = createNullTerminatedNode();
                     Node ext_body = createNullTerminatedNode();
                     // check if the provided tokens match the extension
