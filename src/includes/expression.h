@@ -80,12 +80,11 @@ int parseExpression (Variable* var, Process* process, Node* node) {
     {
         default:
             return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_EXPRESSION, getTokenStart(process, node->start));
-            break;
-        case NODE_LITERAL:
+        case NODE_LITERAL: {}
             int lit = parseLiteral(var, process, node);
             if (lit) return lit;
             break;
-        case NODE_IDENTIFIER:
+        case NODE_IDENTIFIER: {}
             Variable* ref = getVariable(&process->main_scope, node->text);
             if (ref == NULL) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_UNDEFINED_VARIABLE, getTokenStart(process, node->start));
             destroyVariable(var);
@@ -127,7 +126,6 @@ int parseExpression (Variable* var, Process* process, Node* node) {
             switch (operator) {
                 default:
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_OPERATOR, getTokenStart(process, node->start));
-                    break;
 
                 // arithmetic operators
                 case OPERATOR_ADD:
@@ -306,8 +304,7 @@ int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
     {
         default:
             return error(process, node->start, ERROR_INVALID_REFRENCE_EXPRESSION, getTokenStart(process, node->start));
-            break;
-        case NODE_IDENTIFIER:
+        case NODE_IDENTIFIER: {}
             Variable* ref = getVariable(&process->main_scope, node->text);
             if (ref == NULL) return error(process, node->start, ERROR_UNDEFINED_VARIABLE, getTokenStart(process, node->start));
             *var = ref;
@@ -326,13 +323,10 @@ int parseRefrenceExpression (Variable** var, Process* process, Node* node) {
             if (right_parse) return right_parse;
             operator = process->code->tokens[node->body[1].start].carry;
 
-            if (left->type.dataType == D_NULL || right->type.dataType == D_NULL) {
-                return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_REFRENCE_EXPRESSION, getTokenStart(process, node->start));
-            }
+            if (left->type.dataType == D_NULL || right->type.dataType == D_NULL) return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_REFRENCE_EXPRESSION, getTokenStart(process, node->start));
             switch (operator) {
                 default:
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_INVALID_REFRENCE_EXPRESSION, getTokenStart(process, node->start));
-                    break;
                 case OPERATOR_HASH:
                     oRes = hash_refrence(var, left, right);
                     if (oRes) return error(process, getLastScope(&process->main_scope)->running_ast, oRes, getTokenStart(process, node->start));
