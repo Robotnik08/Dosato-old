@@ -511,9 +511,10 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
         int castRes = castValue(right, left->type);
         if (castRes) return ERROR_TYPE_MISMATCH;
     }
+    int oRes = 0;
     switch (op) {
         case OPERATOR_ASSIGN:
-            int oRes = assign(left, right);
+            oRes = assign(left, right);
             if (oRes) return oRes;
             break;
         case OPERATOR_ADD_ASSIGN:
@@ -550,7 +551,6 @@ int setVariableValue (Variable* left, Variable* right, OperatorType op) {
             break;
         default:
             return ERROR_INVALID_OPERATOR;
-            break;
     }
     return 0;
 }
