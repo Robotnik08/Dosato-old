@@ -21,7 +21,11 @@ int std_CLEAR (Process* process, const Variable* args, int argc) {
     if (argc > 0) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
-    system("cls"); // calling clear command (windows, linux, macos??)
+    #ifdef _WIN32
+        system("cls"); // windows
+    #else
+        system("clear"); // unix
+    #endif
     return 0; // return code
 }
 #endif
