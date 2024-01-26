@@ -51,6 +51,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
         
         // when the DO keyword is the first keyword, handle function calling, this has multiple parts
         case NODE_FUNCTION_CALL:
+            {}
             int got_identifier = 0;
 
             // loop through the tokens
