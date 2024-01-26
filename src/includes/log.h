@@ -221,6 +221,8 @@ void logText (const LogType type, const char* contents) {
         case WARNING:
             printf("WARNING:\n");
             break;
+        default:
+            break;
     }
     printf("%s", contents);
     if (type == ERROR) {

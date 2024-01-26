@@ -625,6 +625,8 @@ int castValue (Variable* variable, Type type) {
             variable->type.dataType = TYPE_STRING;
             free(res);
             break;
+        default:
+            break;
     }
     free(variable->value);
     variable->value = new_value;

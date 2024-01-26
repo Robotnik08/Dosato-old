@@ -108,6 +108,8 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                                 break;
                             }
                             printError(full_code, tokens[i+1].start, ERROR_EXPECTED_EXPRESSION);
+                        default:
+                            break;
                     }
                     addToBody(&root.body, ext_root); // first add the extension root to the body
                     addToBody(&root.body, ext_body); // then add the extension body to the body
@@ -397,12 +399,9 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                 addToBody(&root.body, parse(full_code, tokens, start+1, end, NODE_EXPRESSION));
             }
             break;
-        case NODE_IDENTIFIER:
-        case NODE_LITERAL:
-        case NODE_OPERATOR:
-        case NODE_OPERATOR_CAST:
+        default:
         
-            // these are base nodes and therefore don't need to be parsed
+            // the rest are base nodes and therefore don't need to be parsed
             break;
 
     }
