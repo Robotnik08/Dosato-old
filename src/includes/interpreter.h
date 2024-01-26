@@ -372,6 +372,8 @@ int parseCallChain (Process* process, Node* func, int start, int end) {
                     return error(process, getLastScope(&process->main_scope)->running_ast, ERROR_EXTENSION_NOT_FINAL, getTokenStart(process, func->body[i].start));
                 }
                 break;
+            default:
+                break;
         }
         if (call_res > 0) break; // if the call was not successful, we stop the call chain and perhapse run a CATCH
     }
