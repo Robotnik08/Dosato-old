@@ -50,8 +50,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             break;
         
         // when the DO keyword is the first keyword, handle function calling, this has multiple parts
-        case NODE_FUNCTION_CALL:
-            {}
+        case NODE_FUNCTION_CALL:{}
             int got_identifier = 0;
 
             // loop through the tokens
@@ -209,7 +208,7 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
             }
             break;
         // when a SET keyword is the first keyword, check for a variable (can be an expression), the operator and an expression
-        case NODE_SET_VAR:
+        case NODE_SET_VAR: {}
             int t_end = getSetExpression(tokens, start);
             if (t_end == -1) {
                 printError(full_code, tokens[start].start, ERROR_EXPECTED_IDENTIFIER);

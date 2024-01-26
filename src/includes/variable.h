@@ -511,7 +511,7 @@ int castValue (Variable* variable, Type type) {
             switch (type.dataType) {
                 default: 
                     return ERROR_ARRAY_CAST_ERROR;
-                case TYPE_STRING:
+                case TYPE_STRING: {}
                     char* res = toString(variable);
                     void* new_value = malloc(sizeof(char) * (strlen(res) + 1));
                     strcpy((char*)new_value, res);
@@ -532,7 +532,7 @@ int castValue (Variable* variable, Type type) {
                 case TYPE_ULONG:
                 case TYPE_FLOAT:
                 case TYPE_DOUBLE:
-                case TYPE_BOOL:
+                case TYPE_BOOL: {}
                     int array_length = getVariablesLength((Variable*)variable->value);
                     int* len_val = malloc(sizeof(int));
                     *len_val = array_length;
@@ -618,7 +618,7 @@ int castValue (Variable* variable, Type type) {
             *(int*)new_value = getSignedNumber(variable) != 0;
             variable->type.dataType = TYPE_BOOL;
             break;
-        case TYPE_STRING:
+        case TYPE_STRING: {}
             char* res = toString(variable);
             new_value = malloc(sizeof(char) * (strlen(res) + 1));
             strcpy((char*)new_value, res);
