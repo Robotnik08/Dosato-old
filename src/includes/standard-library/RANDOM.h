@@ -68,7 +68,7 @@ int std_RAND (Process* process, const Variable* args, int argc) {
     *val = rand() / (double)RAND_MAX;
 
     Variable* var = malloc(sizeof(Variable));
-    *var = createVariable("-lit", TYPE_INT, val, 0, 0);
+    *var = createVariable("-lit", TYPE_DOUBLE, val, 0, 0);
     setReturnValue(process, var);
 
     destroyVariable(var);
