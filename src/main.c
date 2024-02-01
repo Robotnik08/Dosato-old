@@ -2,7 +2,7 @@
  * @author Sebastiaan Heins
  * @file main.c
  * @brief The main file and entry point of the Dosato interpreter
- * @version 0.2
+ * @version 0.9
  * @date 05-10-2023
 */
 
@@ -19,7 +19,7 @@
 #include "includes/ast.h"
 #include "includes/process.h"
 
-#define VERSION "0.9"
+#define VERSION "0.9.1"
 #define PROGRAM_NAME "Dosato"
 #define AUTHOR "Sebastiaan Heins"
 
@@ -59,7 +59,7 @@ int main (int argc, char** argv)
     if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)
     {
         printf("%s Version: %s\n", PROGRAM_NAME, VERSION);
-        printf("2023, made by %s\n", AUTHOR);
+        printf("2024, made by %s\n", AUTHOR);
 
         return QUIT(0);
     }

@@ -32,4 +32,5 @@ The official file extension for Dosato is `.to`, but you can use whatever you wa
 
 ## Where can I learn this language?
 
-I have build a downloadable documentation for Dosato, you can download it [here](https://github.com/Robotnik08/Dosato-docs).
+I have build a downloadable documentation for Dosato, you can download it [here](https://github.com/Robotnik08/Dosato-docs).<br>
+This documentation is also available online [here](https://robotnik08.github.io/Dosato-docs/).<br>
