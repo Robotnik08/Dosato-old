@@ -337,7 +337,6 @@ Node parse (const char* full_code, Token* tokens, const int start, const int end
                             if (tokens[i].type == TOKEN_MASTER_KEYWORD || tokens[i].type == TOKEN_EXT || tokens[i].type == TOKEN_SEPARATOR) {
                                 // unexpected token
                                 return root;
-                                printError(full_code, tokens[i].start, ERROR_UNEXPECTED_TOKEN);
                             }
                         }
                     }
