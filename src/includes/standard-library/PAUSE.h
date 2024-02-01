@@ -21,7 +21,8 @@ int std_PAUSE (Process* process, const Variable* args, int argc) {
     if (argc) {
         return ERROR_TOO_MANY_ARGUMENTS;
     }
-    system("pause");
+    printf("Press enter to continue...");
+    getchar();
     return 0; // return code
 }
 #endif
