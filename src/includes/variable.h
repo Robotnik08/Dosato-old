@@ -481,16 +481,16 @@ double getFloatNumber (Variable* variable) {
             return (double)(*(int*)variable->value != 0);
         case TYPE_BYTE:
         case TYPE_UBYTE:
-            return (double)(*(unsigned char*)variable->value);
+            return (double)(*(char*)variable->value);
         case TYPE_SHORT:
         case TYPE_USHORT:
-            return (double)(*(unsigned short*)variable->value);
+            return (double)(*(short*)variable->value);
         case TYPE_INT:
         case TYPE_UINT:
-            return (double)(*(unsigned int*)variable->value);
+            return (double)(*(int*)variable->value);
         case TYPE_LONG:
         case TYPE_ULONG:
-            return (double)(*(unsigned long long*)variable->value);
+            return (double)(*(long long*)variable->value);
         case TYPE_FLOAT:
             return *(float*)variable->value;
         case TYPE_DOUBLE:

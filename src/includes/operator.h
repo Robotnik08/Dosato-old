@@ -450,12 +450,14 @@ int divide (Variable* var, Variable* left, Variable* right) {
     if (!checkIfFloating(left->type.dataType) && !checkIfFloating(right->type.dataType)) {
         long long int left_value = getSignedNumber(left);
         long long int right_value = getSignedNumber(right);
+        if (right_value == 0) return ERROR_MATH_DOMAIN_ERROR;
         long long int* value = malloc(sizeof(long long int));
         *value = left_value / right_value;
         *var = createVariable("-lit", TYPE_LONG, value, 1, 0);
     } else {
         double left_value = getFloatNumber(left);
         double right_value = getFloatNumber(right);
+        if (right_value == 0) return ERROR_MATH_DOMAIN_ERROR;
         
         double* value = malloc(sizeof(double));
 
@@ -471,6 +473,7 @@ int root (Variable* var, Variable* left, Variable* right) {
 
     double left_value = getFloatNumber(left);
     double right_value = getFloatNumber(right);
+    if (right_value < 0) return ERROR_MATH_DOMAIN_ERROR;
     
     double* value = malloc(sizeof(double));
 
@@ -484,9 +487,9 @@ int sqroot (Variable* var, Variable* right) {
 
 
     double right_value = getFloatNumber(right);
+    if (right_value < 0) return ERROR_MATH_DOMAIN_ERROR;
     
     double* value = malloc(sizeof(double));
-    if (right_value < 0) return ERROR_MATH_DOMAIN_ERROR;
     *value = sqrt(right_value);
     *var = createVariable("-lit", TYPE_DOUBLE, value, 1, 0);
     return 0;

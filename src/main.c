@@ -19,7 +19,7 @@
 #include "includes/ast.h"
 #include "includes/process.h"
 
-#define VERSION "0.9.1"
+#define VERSION "0.9.1.1"
 #define PROGRAM_NAME "Dosato"
 #define AUTHOR "Sebastiaan Heins"
 
