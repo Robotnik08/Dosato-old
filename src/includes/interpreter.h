@@ -429,7 +429,7 @@ int parseCall (Process* process, Node* call) {
         Scope scope = createScope(call, getLastScope(&process->main_scope)->running_ast, 0, getScopeLength(&process->main_scope), call->type == NODE_BLOCK ? SCOPE_BLOCK : SCOPE_EXPRESSION);
         *getLastScope(&process->main_scope)->child = scope;
 
-        // excute the function in here
+        // execute the function in here
         int code = 0;
         while (process->running) {
             code = next(process);

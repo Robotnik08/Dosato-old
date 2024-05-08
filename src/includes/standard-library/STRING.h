@@ -87,6 +87,11 @@ int std_SPLIT (Process* process, const Variable* args, int argc) {
         token = strtok(NULL, sep);
     }
 
+    if (var->value == NULL) {
+        var->value = malloc(sizeof(Variable));
+        ((Variable*)var->value)[0] = createNullTerminatedVariable();
+    }
+
     setReturnValue(process, var);
 
     destroyVariable(var);
